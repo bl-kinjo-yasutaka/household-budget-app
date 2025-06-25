@@ -1,4 +1,3 @@
-import { HttpResponse, http } from 'msw';
 import { 
   getPostAuthSignupMockHandler,
   getPostAuthLoginMockHandler
