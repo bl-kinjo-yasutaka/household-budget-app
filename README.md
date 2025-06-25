@@ -11,6 +11,8 @@ Next.js 15を使用した家計簿管理アプリケーションのフロント�
 - **APIクライアント**: React Query (TanStack Query)
 - **APIモック**: MSW (Mock Service Worker)
 - **コード生成**: Orval
+- **フォームバリデーション**: React Hook Form + Zod
+- **認証**: JWT (Cookie-based)
 - **Git Hooks**: Husky + lint-staged
 
 ## セットアップ
@@ -76,8 +78,13 @@ MSWはAPIリクエストをインターセプトしてモックレスポンス�
 
 ```
 /app                    # Next.js App Router
+  /(auth)              # 認証ページグループ
+    /login             # ログインページ
+    /signup            # サインアップページ
+  /(app)               # 認証済みページグループ
+    /page.tsx          # ダッシュボード
   /layout.tsx          # ルートレイアウト
-  /page.tsx            # ダッシュボード
+  /not-found.tsx       # 404ページ
 /components            # Reactコンポーネント
   /common             # 共通コンポーネント
   /features           # 機能別コンポーネント
@@ -85,6 +92,10 @@ MSWはAPIリクエストをインターセプトしてモックレスポンス�
   /api
     /generated        # Orvalで生成されたAPI関連コード
     /mutator          # カスタムfetchインスタンス
+  /contexts           # React Contexts (AuthContext)
+  /lib
+    /cookies.ts       # Cookie管理ユーティリティ
+    /schemas          # Zodスキーマ定義
   /mocks              # MSWモックハンドラー
   /providers          # Context Providers
 /store                # Redux store設定
@@ -130,9 +141,15 @@ import TestApiConnection from '@/components/features/TestApiConnection';
 
 API呼び出しは `/src/api/mutator/custom-instance.ts` でカスタマイズされており、以下の機能があります：
 
-- JWT認証の自動付与
+- JWT認証の自動付与（Cookieから取得）
 - エラーハンドリング
 - レスポンス形式の統一
+
+### 認証機能
+
+- **JWT Cookie認証**: アクセストークンをCookieで管理（有効期限30分）
+- **ルートガード**: 認証状態に応じた自動リダイレクト
+- **認証ページ**: `/login`（ログイン）、`/signup`（サインアップ）
 
 ## 開発環境
 
@@ -161,7 +178,7 @@ npx prettier --write "**/*.{js,jsx,ts,tsx,json,md,css}"
 
 ## 今後の実装予定
 
-- [ ] ユーザー認証フロー
+- [x] ユーザー認証フロー（ログイン・サインアップ）
 - [ ] 取引入力フォーム
 - [ ] 取引履歴画面
 - [ ] カテゴリ管理

@@ -32,6 +32,8 @@ Next.js 15.3のApp Routerアーキテクチャを使用して構築された日�
 - **React Query (TanStack Query)** APIクライアント
 - **MSW (Mock Service Worker)** APIモック
 - **Orval** コード生成
+- **React Hook Form + Zod** フォームバリデーション
+- **js-cookie** Cookie管理
 - **ESLint** コード品質管理
 - **Prettier** コードフォーマッター
 - **Husky + lint-staged** Git Hooks管理
@@ -39,14 +41,28 @@ Next.js 15.3のApp Routerアーキテクチャを使用して構築された日�
 ### プロジェクト構成
 
 - `/app` - Next.js App Routerのページとレイアウト
-  - `layout.tsx` - Redux Provider、Navigation、日本語ロケールを含むルートレイアウト
-  - `page.tsx` - 月収入/支出/残高を表示するダッシュボードページ
+  - `/(auth)` - 認証ページグループ（未認証ユーザー用）
+    - `/login/page.tsx` - ログインページ
+    - `/signup/page.tsx` - サインアップページ
+    - `layout.tsx` - 認証レイアウト（自動リダイレクト機能付き）
+  - `/(app)` - 認証済みページグループ
+    - `page.tsx` - 月収入/支出/残高を表示するダッシュボードページ
+    - `layout.tsx` - アプリレイアウト（Navigation付き、ルートガード機能）
+  - `layout.tsx` - ルートレイアウト（全Provider設定）
+  - `not-found.tsx` - 404エラーページ
 - `/components` - タイプ別に整理されたReactコンポーネント
   - `/common` - 共有コンポーネント（Navigation）
   - `/features` - 機能固有のコンポーネント
 - `/src` - アプリケーションのコアロジック
   - `/api/generated` - Orvalで生成されたAPI関連コード
-  - `/api/mutator` - カスタムfetchインスタンス
+  - `/api/mutator` - カスタムfetchインスタンス（Cookie認証対応）
+  - `/contexts` - React Contexts
+    - `auth-context.tsx` - 認証状態管理
+  - `/lib` - ライブラリユーティリティ
+    - `cookies.ts` - Cookie管理ユーティリティ
+    - `/schemas` - Zodスキーマ定義
+      - `auth.ts` - 認証関連スキーマ
+      - `index.ts` - バレルエクスポート
   - `/mocks` - MSWモックハンドラー
   - `/providers` - Context Providers
 - `/store` - Redux状態管理
@@ -60,26 +76,30 @@ Next.js 15.3のApp Routerアーキテクチャを使用して構築された日�
 
 ### 主要なアーキテクチャ決定
 
-1. **App Routerパターン**: Next.js 15のApp Routerをファイルベースルーティングに使用。現在はルートページのみ実装済み。
+1. **App Routerパターン**: Next.js 15のApp Routerをファイルベースルーティングに使用。Route Groupsで認証済み/未認証ページを分離。
 
-2. **状態管理**: Redux Toolkitを基本的なstore構造で設定。クライアントサイドProviderコンポーネントを使用してルートレイアウトレベルでstoreをラップ。
+2. **状態管理**: Redux Toolkitを基本的なstore構造で設定。認証状態はReact Context（AuthContext）で管理。
 
 3. **スタイリング**: Tailwind CSS v4とカスタムGeistフォント（SansとMono）をルートレイアウトで設定。
 
 4. **日本語ローカライゼーション**: HTML要素に`lang="ja"`を設定して完全に日本語にローカライズ。
 
-5. **クライアントコンポーネント**: クライアントサイド機能が必要なコンポーネント（Redux Provider）に'use client'ディレクティブを使用。
+5. **認証方式**: JWT（Cookie-based、有効期限30分）。ルートガードによる自動リダイレクト実装。
+
+6. **フォームバリデーション**: React Hook Form + Zodによるタイプセーフなバリデーション。
 
 ### 現在の実装状況
 
 基本的なインフラストラクチャとAPI統合機能が整備済み：
 
+- **認証システム実装済み**（ログイン/サインアップ、Cookie JWT、ルートガード）
 - ダッシュボードUIスケルトンが存在
 - ナビゲーション構造定義済み（ホーム、取引入力、履歴、設定）
 - Redux storeが設定済みだが最小限の状態
 - **OrvalとMSWによるAPI統合が実装済み**
 - **OpenAPI仕様書からのTypeScript型自動生成**
 - **開発用モックAPIレスポンス利用可能**
+- **フォームバリデーション（React Hook Form + Zod）実装済み**
 
 ### API統合（新規）
 
@@ -101,14 +121,24 @@ Next.js 15.3のApp Routerアーキテクチャを使用して構築された日�
 
 - `/src/providers/query-provider.tsx`でプロバイダー設定
 - 全APIエンドポイント用の自動生成フック
-- JWT認証対応のカスタムfetchインスタンス
+- JWT認証対応のカスタムfetchインスタンス（Cookieから自動取得）
 
-### ナビゲーションルート（予定）
+### ナビゲーションルート
 
-- `/` - ダッシュボード（実装済み）
-- `/transactions/new` - 新規取引追加（未実装）
-- `/history` - 取引履歴（未実装）
-- `/settings` - アプリ設定（未実装）
+#### 実装済み
+
+- `/login` - ログインページ
+- `/signup` - サインアップページ
+- `/` - ダッシュボード（認証済みユーザーのみ）
+- `/404` - カスタム404ページ
+
+#### 未実装
+
+- `/transactions` - 取引一覧
+- `/transactions/new` - 新規取引追加
+- `/transactions/[id]/edit` - 取引編集
+- `/categories` - カテゴリ管理
+- `/settings` - ユーザー設定
 
 ## ログ管理
 
