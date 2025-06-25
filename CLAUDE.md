@@ -92,10 +92,11 @@ Next.js 15.3のApp Routerアーキテクチャを使用して構築された日�
 
 基本的なインフラストラクチャとAPI統合機能が整備済み：
 
-- **認証システム実装済み**（ログイン/サインアップ、Cookie JWT、ルートガード）
+- **認証システム完全実装済み**（JWT Cookie認証、Redux統合、最適化されたAPIコール）
+- **ユーザー状態管理**（Redux + React Query統合、セキュアなCookie管理）
 - ダッシュボードUIスケルトンが存在
 - ナビゲーション構造定義済み（ホーム、取引入力、履歴、設定）
-- Redux storeが設定済みだが最小限の状態
+- **Redux storeが本格稼働**（ユーザー状態、アプリ状態管理）
 - **OrvalとMSWによるAPI統合が実装済み**
 - **OpenAPI仕様書からのTypeScript型自動生成**
 - **開発用モックAPIレスポンス利用可能**
@@ -107,7 +108,7 @@ Next.js 15.3のApp Routerアーキテクチャを使用して構築された日�
 
 - 場所: `orval.config.ts`
 - OpenAPI仕様書からTypeScript型とReact Queryフックを生成
-- ソース: `../household-budget-api/specs/expense-api.yaml`
+- ソース: `../household-budget-api/specs/expense-api.yaml` (v0.1.1)
 - 出力先: `/src/api/generated/`
 
 #### MSW (Mock Service Worker)
@@ -123,13 +124,34 @@ Next.js 15.3のApp Routerアーキテクチャを使用して構築された日�
 - 全APIエンドポイント用の自動生成フック
 - JWT認証対応のカスタムfetchインスタンス（Cookieから自動取得）
 
+### 認証・ユーザー管理アーキテクチャ
+
+#### JWT Cookie認証
+
+- **トークン管理**: JWTトークンのみCookieに保存（30分有効期限）
+- **セキュリティ設定**: `secure`, `sameSite: strict`, `path: /`
+- **ユーザー情報**: DBから取得してReduxで管理（Cookieには保存しない）
+
+#### APIコールタイミング最適化
+
+1. **初回ロード時**: トークン存在時のみ `/user/me` でユーザー情報取得
+2. **ログイン時**: APIレスポンスから直接Redux設定（追加API不要）
+3. **認証エラー**: 401エラー時に自動ログアウト + ログインページリダイレクト
+4. **キャッシュ戦略**: React Query（5分stale, 10分gc, ログアウト時クリア）
+
+#### ユーザー状態管理
+
+- **Redux Store**: `userSlice`でユーザー情報の状態管理
+- **AuthContext**: 認証フロー制御（ログイン/ログアウト/ルートガード）
+- **React Query**: `/user/me` エンドポイントのキャッシュ管理
+
 ### ナビゲーションルート
 
 #### 実装済み
 
-- `/login` - ログインページ
-- `/signup` - サインアップページ
-- `/` - ダッシュボード（認証済みユーザーのみ）
+- `/login` - ログインページ（フォームバリデーション、自動ログイン）
+- `/signup` - サインアップページ（パスワード確認、自動ログイン）
+- `/` - ダッシュボード（認証済みユーザーのみ、ルートガード）
 - `/404` - カスタム404ページ
 
 #### 未実装
