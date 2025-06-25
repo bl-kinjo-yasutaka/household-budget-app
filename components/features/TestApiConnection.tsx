@@ -22,8 +22,8 @@ export default function TestApiConnection() {
         },
       });
 
-      if (result.status === 200 && result.data && 'token' in result.data) {
-        localStorage.setItem('authToken', result.data.token);
+      if (result && 'token' in result) {
+        localStorage.setItem('authToken', result.token);
         setIsLoggedIn(true);
       }
     } catch (error) {
@@ -53,9 +53,9 @@ export default function TestApiConnection() {
           <h3 className="font-semibold mb-2">カテゴリ一覧:</h3>
           {categoriesLoading ? (
             <p>読み込み中...</p>
-          ) : categories && categories.data && categories.data.length > 0 ? (
+          ) : categories && categories.length > 0 ? (
             <ul className="list-disc pl-5">
-              {categories.data.map((category) => (
+              {categories.map((category) => (
                 <li key={category.id}>
                   {category.name} ({category.type})
                 </li>

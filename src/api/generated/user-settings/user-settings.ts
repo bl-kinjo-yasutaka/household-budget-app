@@ -34,58 +34,41 @@ import type {
 import { customInstance } from '../../mutator/custom-instance';
 
 
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
+
 
 
 /**
  * @summary ユーザー設定取得
  */
-export type getUserSettingsResponse200 = {
-  data: UserSettings
-  status: 200
-}
+export const getUserSettings = (
     
-export type getUserSettingsResponseComposite = getUserSettingsResponse200;
-    
-export type getUserSettingsResponse = getUserSettingsResponseComposite & {
-  headers: Headers;
-}
-
-export const getGetUserSettingsUrl = () => {
-
-
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<UserSettings>(
+      {url: `/user/settings`, method: 'GET', signal
+    },
+      options);
+    }
   
-
-  return `/user/settings`
-}
-
-export const getUserSettings = async ( options?: RequestInit): Promise<getUserSettingsResponse> => {
-  
-  return customInstance<getUserSettingsResponse>(getGetUserSettingsUrl(),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-);}
-
-
 
 export const getGetUserSettingsQueryKey = () => {
     return [`/user/settings`] as const;
     }
 
     
-export const getGetUserSettingsQueryOptions = <TData = Awaited<ReturnType<typeof getUserSettings>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUserSettings>>, TError, TData>>, }
+export const getGetUserSettingsQueryOptions = <TData = Awaited<ReturnType<typeof getUserSettings>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUserSettings>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetUserSettingsQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getUserSettings>>> = ({ signal }) => getUserSettings(signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getUserSettings>>> = ({ signal }) => getUserSettings(requestOptions, signal);
 
       
 
@@ -105,7 +88,7 @@ export function useGetUserSettings<TData = Awaited<ReturnType<typeof getUserSett
           TError,
           Awaited<ReturnType<typeof getUserSettings>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetUserSettings<TData = Awaited<ReturnType<typeof getUserSettings>>, TError = unknown>(
@@ -115,11 +98,11 @@ export function useGetUserSettings<TData = Awaited<ReturnType<typeof getUserSett
           TError,
           Awaited<ReturnType<typeof getUserSettings>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetUserSettings<TData = Awaited<ReturnType<typeof getUserSettings>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUserSettings>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUserSettings>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -127,7 +110,7 @@ export function useGetUserSettings<TData = Awaited<ReturnType<typeof getUserSett
  */
 
 export function useGetUserSettings<TData = Awaited<ReturnType<typeof getUserSettings>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUserSettings>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUserSettings>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -145,50 +128,31 @@ export function useGetUserSettings<TData = Awaited<ReturnType<typeof getUserSett
 /**
  * @summary ユーザー設定更新
  */
-export type putUserSettingsResponse200 = {
-  data: UserSettings
-  status: 200
-}
-    
-export type putUserSettingsResponseComposite = putUserSettingsResponse200;
-    
-export type putUserSettingsResponse = putUserSettingsResponseComposite & {
-  headers: Headers;
-}
-
-export const getPutUserSettingsUrl = () => {
-
-
+export const putUserSettings = (
+    userSettingsUpdate: UserSettingsUpdate,
+ options?: SecondParameter<typeof customInstance>,) => {
+      
+      
+      return customInstance<UserSettings>(
+      {url: `/user/settings`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: userSettingsUpdate
+    },
+      options);
+    }
   
-
-  return `/user/settings`
-}
-
-export const putUserSettings = async (userSettingsUpdate: UserSettingsUpdate, options?: RequestInit): Promise<putUserSettingsResponse> => {
-  
-  return customInstance<putUserSettingsResponse>(getPutUserSettingsUrl(),
-  {      
-    ...options,
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      userSettingsUpdate,)
-  }
-);}
-
-
 
 
 export const getPutUserSettingsMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putUserSettings>>, TError,{data: UserSettingsUpdate}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putUserSettings>>, TError,{data: UserSettingsUpdate}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof putUserSettings>>, TError,{data: UserSettingsUpdate}, TContext> => {
 
 const mutationKey = ['putUserSettings'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -196,7 +160,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof putUserSettings>>, {data: UserSettingsUpdate}> = (props) => {
           const {data} = props ?? {};
 
-          return  putUserSettings(data,)
+          return  putUserSettings(data,requestOptions)
         }
 
         
@@ -212,7 +176,7 @@ const {mutation: mutationOptions} = options ?
  * @summary ユーザー設定更新
  */
 export const usePutUserSettings = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putUserSettings>>, TError,{data: UserSettingsUpdate}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putUserSettings>>, TError,{data: UserSettingsUpdate}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof putUserSettings>>,
         TError,
