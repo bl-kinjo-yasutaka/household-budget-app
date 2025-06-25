@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "next lint",
     "generate:api": "orval",
-    "generate:api:watch": "orval --watch"
+    "generate:api:watch": "orval --watch",
+    "prepare": "husky"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.8.2",
@@ -29,6 +30,8 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.3.3",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.2",
     "msw": "^2.10.2",
     "orval": "^7.10.0",
     "prettier": "^3.6.0",
