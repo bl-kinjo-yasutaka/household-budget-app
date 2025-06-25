@@ -5,13 +5,13 @@
  * MVP 用の最小家計簿 API。
 認証は JWT（Bearer トークン）方式。
 
- * OpenAPI spec version: 0.1.0
+ * OpenAPI spec version: 0.1.1
  */
 
 export type CategoryType = typeof CategoryType[keyof typeof CategoryType];
 
 
-// eslint-disable-next-line @typescript-eslint/no-redeclare
+ 
 export const CategoryType = {
   expense: 'expense',
   income: 'income',
