@@ -1,8 +1,6 @@
 import Cookies from 'js-cookie';
-import { User } from '@/src/api/generated/model';
 
 const TOKEN_KEY = 'access_token';
-const USER_KEY = 'user';
 
 // Cookie設定オプション
 const cookieOptions = {
@@ -18,34 +16,18 @@ export const cookieAuth = {
     return Cookies.get(TOKEN_KEY) || null;
   },
 
-  // ユーザー情報の取得
-  getUser: (): User | null => {
-    const userString = Cookies.get(USER_KEY);
-    if (!userString) return null;
-
-    try {
-      return JSON.parse(userString) as User;
-    } catch (error) {
-      console.error('Failed to parse stored user data:', error);
-      cookieAuth.clearAuth();
-      return null;
-    }
-  },
-
-  // 認証情報の保存
-  setAuth: (token: string, user: User): void => {
+  // トークンの保存
+  setToken: (token: string): void => {
     Cookies.set(TOKEN_KEY, token, cookieOptions);
-    Cookies.set(USER_KEY, JSON.stringify(user), cookieOptions);
   },
 
-  // 認証情報のクリア
-  clearAuth: (): void => {
+  // トークンのクリア
+  clearToken: (): void => {
     Cookies.remove(TOKEN_KEY, { path: '/' });
-    Cookies.remove(USER_KEY, { path: '/' });
   },
 
-  // 認証状態の確認
+  // 認証状態の確認（トークンの存在のみチェック）
   isAuthenticated: (): boolean => {
-    return Boolean(cookieAuth.getToken() && cookieAuth.getUser());
+    return Boolean(cookieAuth.getToken());
   },
 };
