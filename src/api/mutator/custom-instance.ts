@@ -1,7 +1,7 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
 
 export const customInstance = async <T>(
-  config: RequestInit & { url: string; data?: unknown; params?: Record<string, string> },
+  config: RequestInit & { url: string; data?: unknown; params?: Record<string, unknown> },
   options?: RequestInit
 ): Promise<T> => {
   const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
@@ -23,8 +23,15 @@ export const customInstance = async <T>(
   // URLパラメータを処理
   let fullUrl = `${API_BASE_URL}${url}`;
   if (params) {
-    const searchParams = new URLSearchParams(params);
-    fullUrl += `?${searchParams.toString()}`;
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        searchParams.append(key, String(value));
+      }
+    });
+    if (searchParams.toString()) {
+      fullUrl += `?${searchParams.toString()}`;
+    }
   }
 
   const response = await fetch(fullUrl, requestConfig);
