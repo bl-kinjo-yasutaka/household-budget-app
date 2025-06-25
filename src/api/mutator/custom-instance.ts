@@ -1,10 +1,12 @@
+import { cookieAuth } from '@/src/lib/cookies';
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
 
 export const customInstance = async <T>(
   config: RequestInit & { url: string; data?: unknown; params?: Record<string, unknown> },
   options?: RequestInit
 ): Promise<T> => {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+  const token = typeof window !== 'undefined' ? cookieAuth.getToken() : null;
 
   // data と params を除いたリクエスト設定を作成
   const { data, params, url, ...restConfig } = config;
@@ -46,7 +48,13 @@ export const customInstance = async <T>(
       : await response.text();
 
   if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+    const error = {
+      status: response.status,
+      response: {
+        data: responseData,
+      },
+    };
+    throw error;
   }
 
   // Orvalが新しい形式では直接レスポンスデータを返すように変更された
