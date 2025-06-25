@@ -6,7 +6,7 @@ import { User } from '@/src/api/generated/model';
 import { cookieAuth } from '@/src/lib/cookies';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { setUser, clearUser, setLoading, setError } from '@/store/slices/userSlice';
-import { useCurrentUser } from '@/src/lib/user-api';
+import { useGetUserMe } from '@/src/api/generated/users/users';
 import { useQueryClient } from '@tanstack/react-query';
 
 interface AuthContextType {
@@ -33,7 +33,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // APIコールタイミング:
   // 1. 初回ロード時にトークンがある場合
   // 2. ログイン後に自動的に実行（React Queryがリフェッチ）
-  const userQuery = useCurrentUser();
+  const userQuery = useGetUserMe({
+    query: {
+      enabled: isAuthenticated, // トークンがある場合のみクエリ実行
+      retry: (failureCount: number, error: unknown) => {
+        // 401エラーの場合はリトライしない（認証エラー）
+        if (
+          error &&
+          typeof error === 'object' &&
+          'status' in error &&
+          (error as { status: number }).status === 401
+        ) {
+          return false;
+        }
+        return failureCount < 2;
+      },
+      staleTime: 5 * 60 * 1000, // 5分間はキャッシュを使用
+      gcTime: 10 * 60 * 1000, // 10分間メモリに保持
+    },
+  });
 
   // APIコールタイミングの最適化
   useEffect(() => {
@@ -52,7 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           userQuery.error &&
           typeof userQuery.error === 'object' &&
           'status' in userQuery.error &&
-          userQuery.error.status === 401
+          (userQuery.error as { status: number }).status === 401
         ) {
           // 認証エラーの場合：トークンを削除してログアウト
           cookieAuth.clearToken();
