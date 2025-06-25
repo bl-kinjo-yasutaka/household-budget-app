@@ -17,8 +17,11 @@ export const customInstance = async <T>(
       ...config?.headers,
       ...options?.headers,
     },
-    ...(data && { body: JSON.stringify(data) }),
   };
+
+  if (data) {
+    requestConfig.body = JSON.stringify(data);
+  }
 
   // URLパラメータを処理
   let fullUrl = `${API_BASE_URL}${url}`;
