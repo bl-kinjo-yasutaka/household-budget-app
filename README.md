@@ -11,6 +11,8 @@ Next.js 15を使用した家計簿管理アプリケーションのフロント�
 - **APIクライアント**: React Query (TanStack Query)
 - **APIモック**: MSW (Mock Service Worker)
 - **コード生成**: Orval
+- **フォームバリデーション**: React Hook Form + Zod
+- **認証**: JWT (Cookie-based)
 - **Git Hooks**: Husky + lint-staged
 
 ## セットアップ
@@ -68,6 +70,7 @@ MSWはAPIリクエストをインターセプトしてモックレスポンス�
 ### APIエンドポイント
 
 - **認証**: `/auth/login`, `/auth/signup`
+- **ユーザー**: `/user/me` (ログインユーザー情報取得)
 - **カテゴリ**: `/categories`
 - **取引**: `/transactions`
 - **ユーザー設定**: `/user/settings`
@@ -76,8 +79,13 @@ MSWはAPIリクエストをインターセプトしてモックレスポンス�
 
 ```
 /app                    # Next.js App Router
+  /(auth)              # 認証ページグループ
+    /login             # ログインページ
+    /signup            # サインアップページ
+  /(app)               # 認証済みページグループ
+    /page.tsx          # ダッシュボード
   /layout.tsx          # ルートレイアウト
-  /page.tsx            # ダッシュボード
+  /not-found.tsx       # 404ページ
 /components            # Reactコンポーネント
   /common             # 共通コンポーネント
   /features           # 機能別コンポーネント
@@ -85,6 +93,10 @@ MSWはAPIリクエストをインターセプトしてモックレスポンス�
   /api
     /generated        # Orvalで生成されたAPI関連コード
     /mutator          # カスタムfetchインスタンス
+  /contexts           # React Contexts (AuthContext)
+  /lib
+    /cookies.ts       # Cookie管理ユーティリティ
+    /schemas          # Zodスキーマ定義
   /mocks              # MSWモックハンドラー
   /providers          # Context Providers
 /store                # Redux store設定
@@ -108,8 +120,26 @@ MSWはAPIリクエストをインターセプトしてモックレスポンス�
 `.env.local`ファイルを作成して以下の環境変数を設定：
 
 ```env
+# APIエンドポイントのベースURL（必須）
 NEXT_PUBLIC_API_URL=http://localhost:8080/api
+
+# MSW（Mock Service Worker）の使用可否（任意）
+# 開発環境でAPIモックを使用する場合は true を設定
+NEXT_PUBLIC_USE_MSW=false
+
+# Node.js環境（自動設定）
+NODE_ENV=development
 ```
+
+### 環境変数の説明
+
+- **NEXT_PUBLIC_API_URL**: バックエンドAPIのベースURL
+  - 開発環境: `http://localhost:8080/api`
+  - 本番環境: 実際のAPIサーバーのURL
+- **NEXT_PUBLIC_USE_MSW**: MSWによるAPIモックの有効化
+  - `true`: モックレスポンスを使用（APIサーバー不要）
+  - `false`: 実際のAPIサーバーに接続
+- **NODE_ENV**: Next.jsが自動設定（development/production）
 
 ## 開発者向け情報
 
@@ -130,9 +160,18 @@ import TestApiConnection from '@/components/features/TestApiConnection';
 
 API呼び出しは `/src/api/mutator/custom-instance.ts` でカスタマイズされており、以下の機能があります：
 
-- JWT認証の自動付与
+- JWT認証の自動付与（Cookieから取得）
 - エラーハンドリング
 - レスポンス形式の統一
+
+### 認証機能
+
+- **JWT Cookie認証**: セキュアなトークン管理（30分有効期限、セキュリティ設定済み）
+- **ユーザー状態管理**: Redux + React Query統合、DBから取得
+- **APIコール最適化**: 初回ロード時/ログイン時の効率的なユーザー情報取得
+- **ルートガード**: 認証状態に応じた自動リダイレクト
+- **認証ページ**: `/login`（ログイン）、`/signup`（サインアップ）
+- **エラーハンドリング**: 401自動ログアウト、リトライ制御
 
 ## 開発環境
 
@@ -159,11 +198,22 @@ npm run lint
 npx prettier --write "**/*.{js,jsx,ts,tsx,json,md,css}"
 ```
 
-## 今後の実装予定
+## 実装状況
 
-- [ ] ユーザー認証フロー
+### 完了済み機能
+
+- [x] **ユーザー認証システム**
+  - [x] サインアップ・ログイン機能
+  - [x] JWT Cookie認証（セキュア設定）
+  - [x] Redux + React Query統合
+  - [x] 最適化されたAPIコールタイミング
+  - [x] ルートガード・自動リダイレクト
+  - [x] フォームバリデーション（Zod）
+
+### 今後の実装予定
+
 - [ ] 取引入力フォーム
 - [ ] 取引履歴画面
 - [ ] カテゴリ管理
 - [ ] グラフ・チャート表示
-- [ ] 設定画面
+- [ ] ユーザー設定画面

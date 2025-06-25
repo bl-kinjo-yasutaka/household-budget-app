@@ -32,6 +32,8 @@ Next.js 15.3のApp Routerアーキテクチャを使用して構築された日�
 - **React Query (TanStack Query)** APIクライアント
 - **MSW (Mock Service Worker)** APIモック
 - **Orval** コード生成
+- **React Hook Form + Zod** フォームバリデーション
+- **js-cookie** Cookie管理
 - **ESLint** コード品質管理
 - **Prettier** コードフォーマッター
 - **Husky + lint-staged** Git Hooks管理
@@ -39,14 +41,28 @@ Next.js 15.3のApp Routerアーキテクチャを使用して構築された日�
 ### プロジェクト構成
 
 - `/app` - Next.js App Routerのページとレイアウト
-  - `layout.tsx` - Redux Provider、Navigation、日本語ロケールを含むルートレイアウト
-  - `page.tsx` - 月収入/支出/残高を表示するダッシュボードページ
+  - `/(auth)` - 認証ページグループ（未認証ユーザー用）
+    - `/login/page.tsx` - ログインページ
+    - `/signup/page.tsx` - サインアップページ
+    - `layout.tsx` - 認証レイアウト（自動リダイレクト機能付き）
+  - `/(app)` - 認証済みページグループ
+    - `page.tsx` - 月収入/支出/残高を表示するダッシュボードページ
+    - `layout.tsx` - アプリレイアウト（Navigation付き、ルートガード機能）
+  - `layout.tsx` - ルートレイアウト（全Provider設定）
+  - `not-found.tsx` - 404エラーページ
 - `/components` - タイプ別に整理されたReactコンポーネント
   - `/common` - 共有コンポーネント（Navigation）
   - `/features` - 機能固有のコンポーネント
 - `/src` - アプリケーションのコアロジック
   - `/api/generated` - Orvalで生成されたAPI関連コード
-  - `/api/mutator` - カスタムfetchインスタンス
+  - `/api/mutator` - カスタムfetchインスタンス（Cookie認証対応）
+  - `/contexts` - React Contexts
+    - `auth-context.tsx` - 認証状態管理
+  - `/lib` - ライブラリユーティリティ
+    - `cookies.ts` - Cookie管理ユーティリティ
+    - `/schemas` - Zodスキーマ定義
+      - `auth.ts` - 認証関連スキーマ
+      - `index.ts` - バレルエクスポート
   - `/mocks` - MSWモックハンドラー
   - `/providers` - Context Providers
 - `/store` - Redux状態管理
@@ -60,26 +76,31 @@ Next.js 15.3のApp Routerアーキテクチャを使用して構築された日�
 
 ### 主要なアーキテクチャ決定
 
-1. **App Routerパターン**: Next.js 15のApp Routerをファイルベースルーティングに使用。現在はルートページのみ実装済み。
+1. **App Routerパターン**: Next.js 15のApp Routerをファイルベースルーティングに使用。Route Groupsで認証済み/未認証ページを分離。
 
-2. **状態管理**: Redux Toolkitを基本的なstore構造で設定。クライアントサイドProviderコンポーネントを使用してルートレイアウトレベルでstoreをラップ。
+2. **状態管理**: Redux Toolkitを基本的なstore構造で設定。認証状態はReact Context（AuthContext）で管理。
 
 3. **スタイリング**: Tailwind CSS v4とカスタムGeistフォント（SansとMono）をルートレイアウトで設定。
 
 4. **日本語ローカライゼーション**: HTML要素に`lang="ja"`を設定して完全に日本語にローカライズ。
 
-5. **クライアントコンポーネント**: クライアントサイド機能が必要なコンポーネント（Redux Provider）に'use client'ディレクティブを使用。
+5. **認証方式**: JWT（Cookie-based、有効期限30分）。ルートガードによる自動リダイレクト実装。
+
+6. **フォームバリデーション**: React Hook Form + Zodによるタイプセーフなバリデーション。
 
 ### 現在の実装状況
 
 基本的なインフラストラクチャとAPI統合機能が整備済み：
 
+- **認証システム完全実装済み**（JWT Cookie認証、Redux統合、最適化されたAPIコール）
+- **ユーザー状態管理**（Redux + React Query統合、セキュアなCookie管理）
 - ダッシュボードUIスケルトンが存在
 - ナビゲーション構造定義済み（ホーム、取引入力、履歴、設定）
-- Redux storeが設定済みだが最小限の状態
+- **Redux storeが本格稼働**（ユーザー状態、アプリ状態管理）
 - **OrvalとMSWによるAPI統合が実装済み**
 - **OpenAPI仕様書からのTypeScript型自動生成**
 - **開発用モックAPIレスポンス利用可能**
+- **フォームバリデーション（React Hook Form + Zod）実装済み**
 
 ### API統合（新規）
 
@@ -87,7 +108,7 @@ Next.js 15.3のApp Routerアーキテクチャを使用して構築された日�
 
 - 場所: `orval.config.ts`
 - OpenAPI仕様書からTypeScript型とReact Queryフックを生成
-- ソース: `../household-budget-api/specs/expense-api.yaml`
+- ソース: `../household-budget-api/specs/expense-api.yaml` (v0.1.1)
 - 出力先: `/src/api/generated/`
 
 #### MSW (Mock Service Worker)
@@ -101,14 +122,45 @@ Next.js 15.3のApp Routerアーキテクチャを使用して構築された日�
 
 - `/src/providers/query-provider.tsx`でプロバイダー設定
 - 全APIエンドポイント用の自動生成フック
-- JWT認証対応のカスタムfetchインスタンス
+- JWT認証対応のカスタムfetchインスタンス（Cookieから自動取得）
 
-### ナビゲーションルート（予定）
+### 認証・ユーザー管理アーキテクチャ
 
-- `/` - ダッシュボード（実装済み）
-- `/transactions/new` - 新規取引追加（未実装）
-- `/history` - 取引履歴（未実装）
-- `/settings` - アプリ設定（未実装）
+#### JWT Cookie認証
+
+- **トークン管理**: JWTトークンのみCookieに保存（30分有効期限）
+- **セキュリティ設定**: `secure`, `sameSite: strict`, `path: /`
+- **ユーザー情報**: DBから取得してReduxで管理（Cookieには保存しない）
+
+#### APIコールタイミング最適化
+
+1. **初回ロード時**: トークン存在時のみ `/user/me` でユーザー情報取得
+2. **ログイン時**: APIレスポンスから直接Redux設定（追加API不要）
+3. **認証エラー**: 401エラー時に自動ログアウト + ログインページリダイレクト
+4. **キャッシュ戦略**: React Query（5分stale, 10分gc, ログアウト時クリア）
+
+#### ユーザー状態管理
+
+- **Redux Store**: `userSlice`でユーザー情報の状態管理
+- **AuthContext**: 認証フロー制御（ログイン/ログアウト/ルートガード）
+- **React Query**: `/user/me` エンドポイントのキャッシュ管理
+
+### ナビゲーションルート
+
+#### 実装済み
+
+- `/login` - ログインページ（フォームバリデーション、自動ログイン）
+- `/signup` - サインアップページ（パスワード確認、自動ログイン）
+- `/` - ダッシュボード（認証済みユーザーのみ、ルートガード）
+- `/404` - カスタム404ページ
+
+#### 未実装
+
+- `/transactions` - 取引一覧
+- `/transactions/new` - 新規取引追加
+- `/transactions/[id]/edit` - 取引編集
+- `/categories` - カテゴリ管理
+- `/settings` - ユーザー設定
 
 ## ログ管理
 
@@ -116,7 +168,34 @@ Next.js 15.3のApp Routerアーキテクチャを使用して構築された日�
 
 - **すべての機能実装・修正・設定作業の完了後**、必ず`/_docs/`に実装ログを残すこと
 - ユーザーからの指示がなくても**自動的に**ログ作成を実行すること
-- ファイル名形式: `yyyy-mm-dd_機能名.md`（日付は`date "+%Y-%m-%d"`コマンドで取得）
+
+### フォルダ構成
+
+```
+/_docs/
+  ├── 2025-06-25/
+  │   ├── 2025-06-25_機能名1.md
+  │   ├── 2025-06-25_機能名2.md
+  │   └── ...
+  ├── 2025-06-26/
+  │   ├── 2025-06-26_機能名3.md
+  │   └── ...
+  └── ...
+```
+
+### ログ作成手順
+
+1. **日付フォルダの確認・作成**:
+
+   ```bash
+   TODAY=$(date "+%Y-%m-%d")
+   mkdir -p "_docs/$TODAY"
+   ```
+
+2. **ログファイル作成**:
+   - パス: `/_docs/yyyy-mm-dd/yyyy-mm-dd_機能名.md`
+   - 日付: `date "+%Y-%m-%d"`コマンドで取得
+   - 機能名: 実装した内容を表す簡潔な名前
 
 ### ログ記載内容（必須項目）
 
