@@ -120,8 +120,26 @@ MSWはAPIリクエストをインターセプトしてモックレスポンス�
 `.env.local`ファイルを作成して以下の環境変数を設定：
 
 ```env
+# APIエンドポイントのベースURL（必須）
 NEXT_PUBLIC_API_URL=http://localhost:8080/api
+
+# MSW（Mock Service Worker）の使用可否（任意）
+# 開発環境でAPIモックを使用する場合は true を設定
+NEXT_PUBLIC_USE_MSW=false
+
+# Node.js環境（自動設定）
+NODE_ENV=development
 ```
+
+### 環境変数の説明
+
+- **NEXT_PUBLIC_API_URL**: バックエンドAPIのベースURL
+  - 開発環境: `http://localhost:8080/api`
+  - 本番環境: 実際のAPIサーバーのURL
+- **NEXT_PUBLIC_USE_MSW**: MSWによるAPIモックの有効化
+  - `true`: モックレスポンスを使用（APIサーバー不要）
+  - `false`: 実際のAPIサーバーに接続
+- **NODE_ENV**: Next.jsが自動設定（development/production）
 
 ## 開発者向け情報
 
