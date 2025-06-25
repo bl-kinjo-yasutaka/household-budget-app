@@ -2,15 +2,19 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/a
 
 export const customInstance = async <T>(
   url: string,
-  options?: RequestInit
+  options?: RequestInit | AbortSignal
 ): Promise<T> => {
   const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
 
+  // AbortSignalの場合はsignalプロパティとして扱う
+  const isAbortSignal = options instanceof AbortSignal;
+  const requestOptions = isAbortSignal ? { signal: options } : (options as RequestInit);
+
   const config: RequestInit = {
-    ...options,
+    ...requestOptions,
     headers: {
       ...(token && { Authorization: `Bearer ${token}` }),
-      ...options?.headers,
+      ...requestOptions?.headers,
     },
   };
 
@@ -21,8 +25,8 @@ export const customInstance = async <T>(
   const responseData = response.headers.get('content-type')?.includes('application/json')
     ? await response.json()
     : response.status === 204
-    ? undefined
-    : await response.text();
+      ? undefined
+      : await response.text();
 
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
@@ -32,6 +36,6 @@ export const customInstance = async <T>(
   return {
     data: responseData,
     status: response.status,
-    headers: response.headers
+    headers: response.headers,
   } as T;
 };
