@@ -21,7 +21,7 @@ export default function TestApiConnection() {
           password: 'password123',
         },
       });
-      
+
       if (result.status === 200 && result.data && 'token' in result.data) {
         localStorage.setItem('authToken', result.data.token);
         setIsLoggedIn(true);
@@ -34,7 +34,7 @@ export default function TestApiConnection() {
   return (
     <div className="p-4 border rounded-lg bg-white shadow-sm">
       <h2 className="text-lg font-bold mb-4">API接続テスト</h2>
-      
+
       {!isLoggedIn ? (
         <div>
           <button
@@ -44,20 +44,18 @@ export default function TestApiConnection() {
           >
             {loginMutation.isPending ? 'ログイン中...' : 'テストログイン'}
           </button>
-          {loginMutation.isError && (
-            <p className="text-red-500 mt-2">ログインに失敗しました</p>
-          )}
+          {loginMutation.isError && <p className="text-red-500 mt-2">ログインに失敗しました</p>}
         </div>
       ) : (
         <div>
           <p className="text-green-600 mb-4">✓ ログイン成功</p>
-          
+
           <h3 className="font-semibold mb-2">カテゴリ一覧:</h3>
           {categoriesLoading ? (
             <p>読み込み中...</p>
-          ) : categories && categories.length > 0 ? (
+          ) : categories && categories.data && categories.data.length > 0 ? (
             <ul className="list-disc pl-5">
-              {categories.map((category) => (
+              {categories.data.map((category) => (
                 <li key={category.id}>
                   {category.name} ({category.type})
                 </li>
