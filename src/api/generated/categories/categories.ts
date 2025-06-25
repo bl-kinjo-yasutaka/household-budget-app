@@ -35,58 +35,41 @@ import type {
 import { customInstance } from '../../mutator/custom-instance';
 
 
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
+
 
 
 /**
  * @summary カテゴリ一覧取得
  */
-export type getCategoriesResponse200 = {
-  data: Category[]
-  status: 200
-}
+export const getCategories = (
     
-export type getCategoriesResponseComposite = getCategoriesResponse200;
-    
-export type getCategoriesResponse = getCategoriesResponseComposite & {
-  headers: Headers;
-}
-
-export const getGetCategoriesUrl = () => {
-
-
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<Category[]>(
+      {url: `/categories`, method: 'GET', signal
+    },
+      options);
+    }
   
-
-  return `/categories`
-}
-
-export const getCategories = async ( options?: RequestInit): Promise<getCategoriesResponse> => {
-  
-  return customInstance<getCategoriesResponse>(getGetCategoriesUrl(),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-);}
-
-
 
 export const getGetCategoriesQueryKey = () => {
     return [`/categories`] as const;
     }
 
     
-export const getGetCategoriesQueryOptions = <TData = Awaited<ReturnType<typeof getCategories>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCategories>>, TError, TData>>, }
+export const getGetCategoriesQueryOptions = <TData = Awaited<ReturnType<typeof getCategories>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCategories>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetCategoriesQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCategories>>> = ({ signal }) => getCategories(signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCategories>>> = ({ signal }) => getCategories(requestOptions, signal);
 
       
 
@@ -106,7 +89,7 @@ export function useGetCategories<TData = Awaited<ReturnType<typeof getCategories
           TError,
           Awaited<ReturnType<typeof getCategories>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetCategories<TData = Awaited<ReturnType<typeof getCategories>>, TError = unknown>(
@@ -116,11 +99,11 @@ export function useGetCategories<TData = Awaited<ReturnType<typeof getCategories
           TError,
           Awaited<ReturnType<typeof getCategories>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetCategories<TData = Awaited<ReturnType<typeof getCategories>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCategories>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCategories>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -128,7 +111,7 @@ export function useGetCategories<TData = Awaited<ReturnType<typeof getCategories
  */
 
 export function useGetCategories<TData = Awaited<ReturnType<typeof getCategories>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCategories>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCategories>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -146,50 +129,32 @@ export function useGetCategories<TData = Awaited<ReturnType<typeof getCategories
 /**
  * @summary カテゴリ作成
  */
-export type postCategoriesResponse201 = {
-  data: Category
-  status: 201
-}
-    
-export type postCategoriesResponseComposite = postCategoriesResponse201;
-    
-export type postCategoriesResponse = postCategoriesResponseComposite & {
-  headers: Headers;
-}
-
-export const getPostCategoriesUrl = () => {
-
-
+export const postCategories = (
+    categoryCreate: CategoryCreate,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<Category>(
+      {url: `/categories`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: categoryCreate, signal
+    },
+      options);
+    }
   
-
-  return `/categories`
-}
-
-export const postCategories = async (categoryCreate: CategoryCreate, options?: RequestInit): Promise<postCategoriesResponse> => {
-  
-  return customInstance<postCategoriesResponse>(getPostCategoriesUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      categoryCreate,)
-  }
-);}
-
-
 
 
 export const getPostCategoriesMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postCategories>>, TError,{data: CategoryCreate}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postCategories>>, TError,{data: CategoryCreate}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof postCategories>>, TError,{data: CategoryCreate}, TContext> => {
 
 const mutationKey = ['postCategories'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -197,7 +162,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof postCategories>>, {data: CategoryCreate}> = (props) => {
           const {data} = props ?? {};
 
-          return  postCategories(data,)
+          return  postCategories(data,requestOptions)
         }
 
         
@@ -213,7 +178,7 @@ const {mutation: mutationOptions} = options ?
  * @summary カテゴリ作成
  */
 export const usePostCategories = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postCategories>>, TError,{data: CategoryCreate}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postCategories>>, TError,{data: CategoryCreate}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postCategories>>,
         TError,
@@ -228,58 +193,34 @@ export const usePostCategories = <TError = unknown,
     /**
  * @summary カテゴリ取得
  */
-export type getCategoriesIdResponse200 = {
-  data: Category
-  status: 200
-}
-
-export type getCategoriesIdResponse404 = {
-  data: void
-  status: 404
-}
-    
-export type getCategoriesIdResponseComposite = getCategoriesIdResponse200 | getCategoriesIdResponse404;
-    
-export type getCategoriesIdResponse = getCategoriesIdResponseComposite & {
-  headers: Headers;
-}
-
-export const getGetCategoriesIdUrl = (id: number,) => {
-
-
+export const getCategoriesId = (
+    id: number,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<Category>(
+      {url: `/categories/${id}`, method: 'GET', signal
+    },
+      options);
+    }
   
-
-  return `/categories/${id}`
-}
-
-export const getCategoriesId = async (id: number, options?: RequestInit): Promise<getCategoriesIdResponse> => {
-  
-  return customInstance<getCategoriesIdResponse>(getGetCategoriesIdUrl(id),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-);}
-
-
 
 export const getGetCategoriesIdQueryKey = (id: number,) => {
     return [`/categories/${id}`] as const;
     }
 
     
-export const getGetCategoriesIdQueryOptions = <TData = Awaited<ReturnType<typeof getCategoriesId>>, TError = void>(id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCategoriesId>>, TError, TData>>, }
+export const getGetCategoriesIdQueryOptions = <TData = Awaited<ReturnType<typeof getCategoriesId>>, TError = void>(id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCategoriesId>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetCategoriesIdQueryKey(id);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCategoriesId>>> = ({ signal }) => getCategoriesId(id, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCategoriesId>>> = ({ signal }) => getCategoriesId(id, requestOptions, signal);
 
       
 
@@ -299,7 +240,7 @@ export function useGetCategoriesId<TData = Awaited<ReturnType<typeof getCategori
           TError,
           Awaited<ReturnType<typeof getCategoriesId>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetCategoriesId<TData = Awaited<ReturnType<typeof getCategoriesId>>, TError = void>(
@@ -309,11 +250,11 @@ export function useGetCategoriesId<TData = Awaited<ReturnType<typeof getCategori
           TError,
           Awaited<ReturnType<typeof getCategoriesId>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetCategoriesId<TData = Awaited<ReturnType<typeof getCategoriesId>>, TError = void>(
- id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCategoriesId>>, TError, TData>>, }
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCategoriesId>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -321,7 +262,7 @@ export function useGetCategoriesId<TData = Awaited<ReturnType<typeof getCategori
  */
 
 export function useGetCategoriesId<TData = Awaited<ReturnType<typeof getCategoriesId>>, TError = void>(
- id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCategoriesId>>, TError, TData>>, }
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCategoriesId>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -339,56 +280,32 @@ export function useGetCategoriesId<TData = Awaited<ReturnType<typeof getCategori
 /**
  * @summary カテゴリ更新
  */
-export type putCategoriesIdResponse200 = {
-  data: Category
-  status: 200
-}
-
-export type putCategoriesIdResponse404 = {
-  data: void
-  status: 404
-}
-    
-export type putCategoriesIdResponseComposite = putCategoriesIdResponse200 | putCategoriesIdResponse404;
-    
-export type putCategoriesIdResponse = putCategoriesIdResponseComposite & {
-  headers: Headers;
-}
-
-export const getPutCategoriesIdUrl = (id: number,) => {
-
-
+export const putCategoriesId = (
+    id: number,
+    categoryUpdate: CategoryUpdate,
+ options?: SecondParameter<typeof customInstance>,) => {
+      
+      
+      return customInstance<Category>(
+      {url: `/categories/${id}`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: categoryUpdate
+    },
+      options);
+    }
   
-
-  return `/categories/${id}`
-}
-
-export const putCategoriesId = async (id: number,
-    categoryUpdate: CategoryUpdate, options?: RequestInit): Promise<putCategoriesIdResponse> => {
-  
-  return customInstance<putCategoriesIdResponse>(getPutCategoriesIdUrl(id),
-  {      
-    ...options,
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      categoryUpdate,)
-  }
-);}
-
-
 
 
 export const getPutCategoriesIdMutationOptions = <TError = void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putCategoriesId>>, TError,{id: number;data: CategoryUpdate}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putCategoriesId>>, TError,{id: number;data: CategoryUpdate}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof putCategoriesId>>, TError,{id: number;data: CategoryUpdate}, TContext> => {
 
 const mutationKey = ['putCategoriesId'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -396,7 +313,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof putCategoriesId>>, {id: number;data: CategoryUpdate}> = (props) => {
           const {id,data} = props ?? {};
 
-          return  putCategoriesId(id,data,)
+          return  putCategoriesId(id,data,requestOptions)
         }
 
         
@@ -412,7 +329,7 @@ const {mutation: mutationOptions} = options ?
  * @summary カテゴリ更新
  */
 export const usePutCategoriesId = <TError = void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putCategoriesId>>, TError,{id: number;data: CategoryUpdate}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putCategoriesId>>, TError,{id: number;data: CategoryUpdate}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof putCategoriesId>>,
         TError,
@@ -427,54 +344,29 @@ export const usePutCategoriesId = <TError = void,
     /**
  * @summary カテゴリ削除
  */
-export type deleteCategoriesIdResponse204 = {
-  data: void
-  status: 204
-}
-
-export type deleteCategoriesIdResponse404 = {
-  data: void
-  status: 404
-}
-    
-export type deleteCategoriesIdResponseComposite = deleteCategoriesIdResponse204 | deleteCategoriesIdResponse404;
-    
-export type deleteCategoriesIdResponse = deleteCategoriesIdResponseComposite & {
-  headers: Headers;
-}
-
-export const getDeleteCategoriesIdUrl = (id: number,) => {
-
-
+export const deleteCategoriesId = (
+    id: number,
+ options?: SecondParameter<typeof customInstance>,) => {
+      
+      
+      return customInstance<void>(
+      {url: `/categories/${id}`, method: 'DELETE'
+    },
+      options);
+    }
   
-
-  return `/categories/${id}`
-}
-
-export const deleteCategoriesId = async (id: number, options?: RequestInit): Promise<deleteCategoriesIdResponse> => {
-  
-  return customInstance<deleteCategoriesIdResponse>(getDeleteCategoriesIdUrl(id),
-  {      
-    ...options,
-    method: 'DELETE'
-    
-    
-  }
-);}
-
-
 
 
 export const getDeleteCategoriesIdMutationOptions = <TError = void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteCategoriesId>>, TError,{id: number}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteCategoriesId>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof deleteCategoriesId>>, TError,{id: number}, TContext> => {
 
 const mutationKey = ['deleteCategoriesId'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -482,7 +374,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteCategoriesId>>, {id: number}> = (props) => {
           const {id} = props ?? {};
 
-          return  deleteCategoriesId(id,)
+          return  deleteCategoriesId(id,requestOptions)
         }
 
         
@@ -498,7 +390,7 @@ const {mutation: mutationOptions} = options ?
  * @summary カテゴリ削除
  */
 export const useDeleteCategoriesId = <TError = void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteCategoriesId>>, TError,{id: number}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteCategoriesId>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof deleteCategoriesId>>,
         TError,

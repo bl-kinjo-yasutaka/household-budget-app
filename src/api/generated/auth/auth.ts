@@ -26,55 +26,39 @@ import type {
 import { customInstance } from '../../mutator/custom-instance';
 
 
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
+
 
 
 /**
  * @summary ユーザー新規登録
  */
-export type postAuthSignupResponse201 = {
-  data: AuthResponse
-  status: 201
-}
-    
-export type postAuthSignupResponseComposite = postAuthSignupResponse201;
-    
-export type postAuthSignupResponse = postAuthSignupResponseComposite & {
-  headers: Headers;
-}
-
-export const getPostAuthSignupUrl = () => {
-
-
+export const postAuthSignup = (
+    signupRequest: SignupRequest,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<AuthResponse>(
+      {url: `/auth/signup`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: signupRequest, signal
+    },
+      options);
+    }
   
-
-  return `/auth/signup`
-}
-
-export const postAuthSignup = async (signupRequest: SignupRequest, options?: RequestInit): Promise<postAuthSignupResponse> => {
-  
-  return customInstance<postAuthSignupResponse>(getPostAuthSignupUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      signupRequest,)
-  }
-);}
-
-
 
 
 export const getPostAuthSignupMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postAuthSignup>>, TError,{data: SignupRequest}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postAuthSignup>>, TError,{data: SignupRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof postAuthSignup>>, TError,{data: SignupRequest}, TContext> => {
 
 const mutationKey = ['postAuthSignup'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -82,7 +66,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof postAuthSignup>>, {data: SignupRequest}> = (props) => {
           const {data} = props ?? {};
 
-          return  postAuthSignup(data,)
+          return  postAuthSignup(data,requestOptions)
         }
 
         
@@ -98,7 +82,7 @@ const {mutation: mutationOptions} = options ?
  * @summary ユーザー新規登録
  */
 export const usePostAuthSignup = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postAuthSignup>>, TError,{data: SignupRequest}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postAuthSignup>>, TError,{data: SignupRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postAuthSignup>>,
         TError,
@@ -113,55 +97,32 @@ export const usePostAuthSignup = <TError = unknown,
     /**
  * @summary ログイン
  */
-export type postAuthLoginResponse200 = {
-  data: AuthResponse
-  status: 200
-}
-
-export type postAuthLoginResponse401 = {
-  data: void
-  status: 401
-}
-    
-export type postAuthLoginResponseComposite = postAuthLoginResponse200 | postAuthLoginResponse401;
-    
-export type postAuthLoginResponse = postAuthLoginResponseComposite & {
-  headers: Headers;
-}
-
-export const getPostAuthLoginUrl = () => {
-
-
+export const postAuthLogin = (
+    loginRequest: LoginRequest,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<AuthResponse>(
+      {url: `/auth/login`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: loginRequest, signal
+    },
+      options);
+    }
   
-
-  return `/auth/login`
-}
-
-export const postAuthLogin = async (loginRequest: LoginRequest, options?: RequestInit): Promise<postAuthLoginResponse> => {
-  
-  return customInstance<postAuthLoginResponse>(getPostAuthLoginUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      loginRequest,)
-  }
-);}
-
-
 
 
 export const getPostAuthLoginMutationOptions = <TError = void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postAuthLogin>>, TError,{data: LoginRequest}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postAuthLogin>>, TError,{data: LoginRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof postAuthLogin>>, TError,{data: LoginRequest}, TContext> => {
 
 const mutationKey = ['postAuthLogin'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -169,7 +130,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof postAuthLogin>>, {data: LoginRequest}> = (props) => {
           const {data} = props ?? {};
 
-          return  postAuthLogin(data,)
+          return  postAuthLogin(data,requestOptions)
         }
 
         
@@ -185,7 +146,7 @@ const {mutation: mutationOptions} = options ?
  * @summary ログイン
  */
 export const usePostAuthLogin = <TError = void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postAuthLogin>>, TError,{data: LoginRequest}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postAuthLogin>>, TError,{data: LoginRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postAuthLogin>>,
         TError,

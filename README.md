@@ -11,6 +11,7 @@ Next.js 15を使用した家計簿管理アプリケーションのフロント�
 - **APIクライアント**: React Query (TanStack Query)
 - **APIモック**: MSW (Mock Service Worker)
 - **コード生成**: Orval
+- **Git Hooks**: Husky + lint-staged
 
 ## セットアップ
 
@@ -53,7 +54,13 @@ npm run generate:api:watch
 
 ### MSWによるモック
 
-開発環境では、MSW（Mock Service Worker）が自動的に起動し、APIリクエストをインターセプトしてモックレスポンスを返します。
+開発環境でMSWを使用する場合は、以下のコマンドで起動します：
+
+```bash
+npm run dev:msw
+```
+
+MSWはAPIリクエストをインターセプトしてモックレスポンスを返します：
 
 - モックハンドラー: `/src/mocks/handlers.ts`
 - 自動生成されたモック: `/src/api/generated/*/**.msw.ts`
@@ -88,7 +95,8 @@ npm run generate:api:watch
 
 ## スクリプト
 
-- `npm run dev` - 開発サーバーの起動（Turbopack使用）
+- `npm run dev` - 開発サーバーの起動（Turbopack使用、MSWなし）
+- `npm run dev:msw` - 開発サーバーの起動（Turbopack使用、MSWあり）
 - `npm run build` - プロダクションビルド
 - `npm run start` - プロダクションサーバーの起動
 - `npm run lint` - ESLintの実行
@@ -110,10 +118,12 @@ NEXT_PUBLIC_API_URL=http://localhost:8080/api
 開発時にAPI接続をテストするためのコンポーネントが用意されています：
 
 ```tsx
-import TestApiConnection from "@/components/features/TestApiConnection";
+import TestApiConnection from '@/components/features/TestApiConnection';
 
 // 使用例（開発環境のみ）
-{process.env.NODE_ENV === 'development' && <TestApiConnection />}
+{
+  process.env.NODE_ENV === 'development' && <TestApiConnection />;
+}
 ```
 
 ### カスタムインスタンス
@@ -123,6 +133,31 @@ API呼び出しは `/src/api/mutator/custom-instance.ts` でカスタマイズ�
 - JWT認証の自動付与
 - エラーハンドリング
 - レスポンス形式の統一
+
+## 開発環境
+
+### コード品質管理
+
+このプロジェクトではコミット時とプッシュ時に自動的にコード品質チェックが実行されます：
+
+**コミット時（pre-commit）**:
+
+- Prettier によるコードフォーマット
+- ESLint によるコード品質チェック
+
+**プッシュ時（pre-push）**:
+
+- ビルドの実行（型チェックを含む）
+
+手動でフォーマット・リントを実行する場合：
+
+```bash
+# ESLintの実行
+npm run lint
+
+# Prettierでのフォーマット（lint-staged経由）
+npx prettier --write "**/*.{js,jsx,ts,tsx,json,md,css}"
+```
 
 ## 今後の実装予定
 

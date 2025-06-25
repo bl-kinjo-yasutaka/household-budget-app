@@ -22,9 +22,9 @@ import type {
 } from '.././model';
 
 
-export const getGetUserSettingsResponseMock = (overrideResponse: Partial< UserSettings > = {}): UserSettings => ({currency: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 3}}), undefined]), startWeekday: faker.helpers.arrayElement([faker.number.int({min: 0, max: 6}), undefined]), updatedAt: faker.helpers.arrayElement([`${faker.date.past().toISOString().split('.')[0]}Z`, undefined]), ...overrideResponse})
+export const getGetUserSettingsResponseMock = (overrideResponse: Partial< UserSettings > = {}): UserSettings => ({currency: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 3}}), undefined]), startWeekday: faker.helpers.arrayElement([faker.number.int({min: 0, max: 6, multipleOf: undefined}), undefined]), updatedAt: faker.helpers.arrayElement([`${faker.date.past().toISOString().split('.')[0]}Z`, undefined]), ...overrideResponse})
 
-export const getPutUserSettingsResponseMock = (overrideResponse: Partial< UserSettings > = {}): UserSettings => ({currency: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 3}}), undefined]), startWeekday: faker.helpers.arrayElement([faker.number.int({min: 0, max: 6}), undefined]), updatedAt: faker.helpers.arrayElement([`${faker.date.past().toISOString().split('.')[0]}Z`, undefined]), ...overrideResponse})
+export const getPutUserSettingsResponseMock = (overrideResponse: Partial< UserSettings > = {}): UserSettings => ({currency: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 3}}), undefined]), startWeekday: faker.helpers.arrayElement([faker.number.int({min: 0, max: 6, multipleOf: undefined}), undefined]), updatedAt: faker.helpers.arrayElement([`${faker.date.past().toISOString().split('.')[0]}Z`, undefined]), ...overrideResponse})
 
 
 export const getGetUserSettingsMockHandler = (overrideResponse?: UserSettings | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<UserSettings> | UserSettings)) => {
