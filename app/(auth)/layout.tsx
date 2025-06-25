@@ -5,14 +5,14 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
-  const { user, isLoading } = useAuth();
+  const { isLoading, isAuthenticated } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLoading && user) {
+    if (!isLoading && isAuthenticated) {
       router.push('/');
     }
-  }, [user, isLoading, router]);
+  }, [isAuthenticated, isLoading, router]);
 
   if (isLoading) {
     return (
@@ -25,7 +25,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
     );
   }
 
-  if (user) {
+  if (isAuthenticated) {
     return null; // Will redirect to dashboard
   }
 

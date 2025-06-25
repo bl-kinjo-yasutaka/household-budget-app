@@ -6,14 +6,14 @@ import { useEffect } from 'react';
 import Navigation from '@/components/common/Navigation';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
-  const { user, isLoading } = useAuth();
+  const { isLoading, isAuthenticated } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (!isLoading && !isAuthenticated) {
       router.push('/login');
     }
-  }, [user, isLoading, router]);
+  }, [isAuthenticated, isLoading, router]);
 
   if (isLoading) {
     return (
@@ -26,7 +26,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (!user) {
+  if (!isAuthenticated) {
     return null; // Will redirect to login
   }
 
