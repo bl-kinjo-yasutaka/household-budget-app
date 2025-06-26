@@ -7,6 +7,12 @@ import { usePostAuthSignup } from '@/src/api/generated/auth/auth';
 import { useAuth } from '@/src/contexts/auth-context';
 import { useState } from 'react';
 import { signupSchema, type SignupForm } from '@/src/lib/schemas';
+import { getErrorMessage } from '@/src/types/api';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { AlertCircle } from 'lucide-react';
 
 export default function SignupPage() {
   const { login } = useAuth();
@@ -26,9 +32,7 @@ export default function SignupPage() {
         login(response.token, response.user);
       },
       onError: (error: unknown) => {
-        const errorMessage =
-          (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-          'サインアップに失敗しました';
+        const errorMessage = getErrorMessage(error, 'サインアップに失敗しました');
         setServerError(errorMessage);
       },
     },
@@ -46,104 +50,90 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-8">
-      <div className="text-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">アカウント作成</h1>
-        <p className="text-gray-600 mt-2">家計簿アプリへようこそ</p>
-      </div>
+    <Card className="w-full max-w-md mx-auto">
+      <CardHeader className="text-center">
+        <CardTitle className="text-2xl font-bold">アカウント作成</CardTitle>
+        <CardDescription>家計簿アプリへようこそ</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {serverError && (
+            <div className="flex items-center gap-2 p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md">
+              <AlertCircle className="h-4 w-4" />
+              {serverError}
+            </div>
+          )}
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {serverError && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-            {serverError}
+          <div className="space-y-2">
+            <Label htmlFor="name">名前</Label>
+            <Input
+              {...register('name')}
+              type="text"
+              id="name"
+              placeholder="田中太郎"
+              className={errors.name ? 'border-destructive' : ''}
+            />
+            {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
           </div>
-        )}
 
-        <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-            名前
-          </label>
-          <input
-            {...register('name')}
-            type="text"
-            id="name"
-            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.name ? 'border-red-300' : 'border-gray-300'
-            }`}
-            placeholder="田中太郎"
-          />
-          {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>}
-        </div>
+          <div className="space-y-2">
+            <Label htmlFor="email">メールアドレス</Label>
+            <Input
+              {...register('email')}
+              type="email"
+              id="email"
+              placeholder="example@example.com"
+              className={errors.email ? 'border-destructive' : ''}
+            />
+            {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
+          </div>
 
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-            メールアドレス
-          </label>
-          <input
-            {...register('email')}
-            type="email"
-            id="email"
-            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.email ? 'border-red-300' : 'border-gray-300'
-            }`}
-            placeholder="example@example.com"
-          />
-          {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>}
-        </div>
+          <div className="space-y-2">
+            <Label htmlFor="password">パスワード</Label>
+            <Input
+              {...register('password')}
+              type="password"
+              id="password"
+              placeholder="8文字以上"
+              className={errors.password ? 'border-destructive' : ''}
+            />
+            {errors.password && (
+              <p className="text-sm text-destructive">{errors.password.message}</p>
+            )}
+          </div>
 
-        <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-            パスワード
-          </label>
-          <input
-            {...register('password')}
-            type="password"
-            id="password"
-            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.password ? 'border-red-300' : 'border-gray-300'
-            }`}
-            placeholder="8文字以上"
-          />
-          {errors.password && (
-            <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
-          )}
-        </div>
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword">パスワード確認</Label>
+            <Input
+              {...register('confirmPassword')}
+              type="password"
+              id="confirmPassword"
+              placeholder="パスワードを再入力"
+              className={errors.confirmPassword ? 'border-destructive' : ''}
+            />
+            {errors.confirmPassword && (
+              <p className="text-sm text-destructive">{errors.confirmPassword.message}</p>
+            )}
+          </div>
 
-        <div>
-          <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
-            パスワード確認
-          </label>
-          <input
-            {...register('confirmPassword')}
-            type="password"
-            id="confirmPassword"
-            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.confirmPassword ? 'border-red-300' : 'border-gray-300'
-            }`}
-            placeholder="パスワードを再入力"
-          />
-          {errors.confirmPassword && (
-            <p className="mt-1 text-sm text-red-600">{errors.confirmPassword.message}</p>
-          )}
-        </div>
+          <Button
+            type="submit"
+            disabled={isSubmitting || signupMutation.isPending}
+            className="w-full"
+          >
+            {isSubmitting || signupMutation.isPending ? 'アカウント作成中...' : 'アカウント作成'}
+          </Button>
 
-        <button
-          type="submit"
-          disabled={isSubmitting || signupMutation.isPending}
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isSubmitting || signupMutation.isPending ? 'アカウント作成中...' : 'アカウント作成'}
-        </button>
-
-        <div className="text-center">
-          <p className="text-sm text-gray-600">
-            すでにアカウントをお持ちですか？{' '}
-            <Link href="/login" className="text-blue-600 hover:text-blue-700 font-medium">
-              ログイン
-            </Link>
-          </p>
-        </div>
-      </form>
-    </div>
+          <div className="text-center">
+            <p className="text-sm text-muted-foreground">
+              すでにアカウントをお持ちですか？{' '}
+              <Link href="/login" className="text-primary hover:underline font-medium">
+                ログイン
+              </Link>
+            </p>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
   );
 }

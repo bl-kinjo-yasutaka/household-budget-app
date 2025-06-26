@@ -8,6 +8,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { setUser, clearUser, setLoading, setError } from '@/store/slices/userSlice';
 import { useGetUserMe } from '@/src/api/generated/users/users';
 import { useQueryClient } from '@tanstack/react-query';
+import { isApiError } from '@/src/types/api';
 
 interface AuthContextType {
   user: User | null;
@@ -66,12 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         dispatch(setUser(userQuery.data));
       } else if (userQuery.error && !userQuery.isLoading) {
         // ユーザー情報の取得失敗（401など）
-        if (
-          userQuery.error &&
-          typeof userQuery.error === 'object' &&
-          'status' in userQuery.error &&
-          (userQuery.error as { status: number }).status === 401
-        ) {
+        if (isApiError(userQuery.error) && userQuery.error.status === 401) {
           // 認証エラーの場合：トークンを削除してログアウト
           cookieAuth.clearToken();
           dispatch(clearUser());
