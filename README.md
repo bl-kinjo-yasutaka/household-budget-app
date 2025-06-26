@@ -6,7 +6,9 @@ Next.js 15を使用した家計簿管理アプリケーションのフロント�
 
 - **フレームワーク**: Next.js 15.3 (App Router)
 - **言語**: TypeScript 5
-- **スタイリング**: Tailwind CSS v4
+- **スタイリング**: Tailwind CSS v4 + shadcn/ui
+- **UIコンポーネント**: shadcn/ui + Radix UI
+- **アイコン**: Lucide React
 - **状態管理**: Redux Toolkit
 - **APIクライアント**: React Query (TanStack Query)
 - **APIモック**: MSW (Mock Service Worker)
@@ -87,7 +89,8 @@ MSWはAPIリクエストをインターセプトしてモックレスポンス�
   /layout.tsx          # ルートレイアウト
   /not-found.tsx       # 404ページ
 /components            # Reactコンポーネント
-  /common             # 共通コンポーネント
+  /ui                 # shadcn/ui UIコンポーネント
+  /common             # 共通コンポーネント（Navigation）
   /features           # 機能別コンポーネント
 /src
   /api
@@ -95,6 +98,7 @@ MSWはAPIリクエストをインターセプトしてモックレスポンス�
     /mutator          # カスタムfetchインスタンス
   /contexts           # React Contexts (AuthContext)
   /lib
+    /utils.ts         # shadcn/ui ユーティリティ関数
     /cookies.ts       # Cookie管理ユーティリティ
     /schemas          # Zodスキーマ定義
   /mocks              # MSWモックハンドラー
@@ -222,10 +226,25 @@ npx prettier --write "**/*.{js,jsx,ts,tsx,json,md,css}"
   - [x] ルートガード・自動リダイレクト
   - [x] フォームバリデーション（Zod）
 
+- [x] **レイアウト・デザインシステム**
+  - [x] shadcn/ui + Tailwind CSS v4統合
+  - [x] レスポンシブナビゲーション（モバイル対応）
+  - [x] 家計簿らしい緑系カラーパレット
+  - [x] カード形式の統一されたUI
+  - [x] Lucide Reactアイコン導入
+  - [x] ユーザープロフィール表示（アバター+名前+メール）
+
+- [x] **基本ページ構成**
+  - [x] ダッシュボードページ（収入・支出・残高表示）
+  - [x] 取引関連ページ（一覧・登録・編集）
+  - [x] カテゴリ管理ページ
+  - [x] 設定ページ
+  - [x] 404エラーページ
+
 ### 今後の実装予定
 
-- [ ] 取引入力フォーム
-- [ ] 取引履歴画面
-- [ ] カテゴリ管理
-- [ ] グラフ・チャート表示
-- [ ] ユーザー設定画面
+- [ ] 取引入力フォーム（実際のフォーム機能）
+- [ ] 取引履歴画面（データ取得・表示）
+- [ ] カテゴリ管理（CRUD機能）
+- [ ] グラフ・チャート表示（recharts統合）
+- [ ] ユーザー設定画面（実際の設定機能）

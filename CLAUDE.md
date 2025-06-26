@@ -24,6 +24,8 @@ Next.js 15.3のApp Routerアーキテクチャを使用して構築された日�
 - **React 19** TypeScript 5対応
 - **Redux Toolkit** 状態管理
 - **Tailwind CSS v4** スタイリング
+- **shadcn/ui + Radix UI** UIコンポーネントライブラリ
+- **Lucide React** アイコンライブラリ
 - **React Query (TanStack Query)** APIクライアント
 - **MSW (Mock Service Worker)** APIモック
 - **Orval** コード生成
@@ -58,11 +60,15 @@ Next.js 15.3のApp Routerアーキテクチャを使用して構築された日�
     - `/signup/page.tsx` - サインアップページ
     - `layout.tsx` - 認証レイアウト（自動リダイレクト機能付き）
   - `/(app)` - 認証済みページグループ
-    - `page.tsx` - 月収入/支出/残高を表示するダッシュボードページ
-    - `layout.tsx` - アプリレイアウト（Navigation付き、ルートガード機能）
+    - `page.tsx` - ダッシュボードページ（統計カード・グラフ表示）
+    - `layout.tsx` - アプリレイアウト（レスポンシブNavigation付き、ルートガード機能）
+    - `/transactions` - 取引関連ページ群
+    - `/categories` - カテゴリ管理ページ
+    - `/settings` - 設定ページ
   - `layout.tsx` - ルートレイアウト（全Provider設定）
   - `not-found.tsx` - 404エラーページ
 - `/components` - タイプ別に整理されたReactコンポーネント
+  - `/ui` - shadcn/ui UIコンポーネント
   - `/common` - 共有コンポーネント（Navigation）
   - `/features` - 機能固有のコンポーネント
 - `/src` - アプリケーションのコアロジック
@@ -71,6 +77,7 @@ Next.js 15.3のApp Routerアーキテクチャを使用して構築された日�
   - `/contexts` - React Contexts
     - `auth-context.tsx` - 認証状態管理
   - `/lib` - ライブラリユーティリティ
+    - `utils.ts` - shadcn/ui ユーティリティ関数
     - `cookies.ts` - Cookie管理ユーティリティ
     - `/schemas` - Zodスキーマ定義
       - `auth.ts` - 認証関連スキーマ
