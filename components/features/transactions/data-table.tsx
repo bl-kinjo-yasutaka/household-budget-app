@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import type { Transaction, Category } from '@/src/api/generated/model';
 import { Edit, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
-import { formatCurrency } from '@/utils/format';
+import { formatCurrency, formatDate } from '@/utils/format';
 import { useState } from 'react';
 
 interface DataTableProps {
@@ -40,27 +40,30 @@ export function TransactionsDataTable({
     return categories.find((cat) => cat.id === categoryId);
   };
 
-  const formatDate = (dateStr: string | undefined) => {
-    if (!dateStr) return '-';
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('ja-JP', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    });
-  };
-
   return (
     <div className="space-y-4">
       <div className="overflow-hidden">
-        <Table>
+        <Table aria-label="取引一覧テーブル">
+          <caption className="sr-only">
+            取引履歴の一覧。日付、カテゴリ、金額、メモ、操作ボタンが含まれています。
+          </caption>
           <TableHeader>
             <TableRow className="border-b">
-              <TableHead className="py-4 px-6">日付</TableHead>
-              <TableHead className="py-4 px-6">カテゴリ</TableHead>
-              <TableHead className="py-4 px-6 text-right">金額</TableHead>
-              <TableHead className="py-4 px-6">メモ</TableHead>
-              <TableHead className="py-4 px-6 text-right">操作</TableHead>
+              <TableHead className="py-4 px-6" scope="col">
+                日付
+              </TableHead>
+              <TableHead className="py-4 px-6" scope="col">
+                カテゴリ
+              </TableHead>
+              <TableHead className="py-4 px-6 text-right" scope="col">
+                金額
+              </TableHead>
+              <TableHead className="py-4 px-6" scope="col">
+                メモ
+              </TableHead>
+              <TableHead className="py-4 px-6 text-right" scope="col">
+                操作
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -107,17 +110,22 @@ export function TransactionsDataTable({
                     <TableCell className="py-4 px-6 text-right">
                       <div className="flex items-center justify-end gap-1">
                         <Button variant="ghost" size="sm" asChild>
-                          <Link href={`/transactions/${transaction.id}/edit`}>
-                            <Edit className="h-4 w-4" />
+                          <Link
+                            href={`/transactions/${transaction.id}/edit`}
+                            aria-label={`${formatDate(transaction.transDate)}の取引を編集`}
+                          >
+                            <Edit className="h-4 w-4" aria-hidden="true" />
                             <span className="sr-only">編集</span>
                           </Link>
                         </Button>
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => onDelete?.(transaction.id!)}
+                          onClick={() => transaction.id && onDelete?.(transaction.id)}
+                          disabled={!transaction.id}
+                          aria-label={`${formatDate(transaction.transDate)}の取引を削除`}
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-4 w-4" aria-hidden="true" />
                           <span className="sr-only">削除</span>
                         </Button>
                       </div>

@@ -4,7 +4,7 @@ const TOKEN_KEY = 'access_token';
 
 // Cookie設定オプション
 const cookieOptions = {
-  expires: 1 / 48, // 30分 (1日 = 1, 30分 = 1/48)
+  expires: 1, // 1日 (セッションの有効期限を延長してUXを改善)
   secure: process.env.NODE_ENV === 'production', // 本番環境ではHTTPS必須
   sameSite: 'strict' as const, // CSRF攻撃防止
   path: '/', // 全パスでアクセス可能
