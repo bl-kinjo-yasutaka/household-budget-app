@@ -1,11 +1,51 @@
+'use client';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, Filter, Search } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import Link from 'next/link';
+import { TransactionsDataTable } from '@/components/features/transactions/data-table';
+import { TransactionFilters } from '@/components/features/transactions/transaction-filters';
+import { TransactionEmptyState } from '@/components/features/transactions/transaction-empty-state';
+import { useGetTransactions } from '@/src/api/generated/transactions/transactions';
+import { useGetCategories } from '@/src/api/generated/categories/categories';
+import { useState, useMemo } from 'react';
+import type { GetTransactionsParams } from '@/src/api/generated/model';
 
 export default function TransactionsPage() {
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
+  const [categoryId, setCategoryId] = useState<string>('');
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // APIクエリパラメータを構築
+  const queryParams = useMemo(() => {
+    const params: GetTransactionsParams = {};
+    if (fromDate) params.from = fromDate;
+    if (toDate) params.to = toDate;
+    if (categoryId && categoryId !== 'all' && !isNaN(parseInt(categoryId))) {
+      params.categoryId = parseInt(categoryId);
+    }
+    return params;
+  }, [fromDate, toDate, categoryId]);
+
+  const { data: transactions = [], isLoading: isLoadingTransactions } =
+    useGetTransactions(queryParams);
+
+  const { data: categories = [] } = useGetCategories();
+
+  const filteredTransactions = useMemo(() => {
+    // メモ検索のみクライアントサイドで実行（APIがメモ検索をサポートしていない場合）
+    if (!searchTerm) return transactions;
+
+    const lowerSearchTerm = searchTerm.toLowerCase();
+    return transactions.filter(
+      (transaction) => transaction.memo?.toLowerCase().includes(lowerSearchTerm) || false
+    );
+  }, [transactions, searchTerm]);
+
   return (
-    <div className="space-y-6">
+    <div className="container mx-auto px-4 py-6 space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -21,29 +61,23 @@ export default function TransactionsPage() {
       </div>
 
       {/* Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">フィルター・検索</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="取引を検索..."
-                  className="w-full pl-10 pr-4 py-2 border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                />
-              </div>
-            </div>
-            <Button variant="outline">
-              <Filter className="h-4 w-4" />
-              フィルター
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <TransactionFilters
+        fromDate={fromDate}
+        toDate={toDate}
+        categoryId={categoryId}
+        searchTerm={searchTerm}
+        categories={categories}
+        onFromDateChange={setFromDate}
+        onToDateChange={setToDate}
+        onCategoryChange={setCategoryId}
+        onSearchTermChange={setSearchTerm}
+        onClearFilters={() => {
+          setFromDate('');
+          setToDate('');
+          setCategoryId('');
+          setSearchTerm('');
+        }}
+      />
 
       {/* Transaction List */}
       <Card>
@@ -51,18 +85,25 @@ export default function TransactionsPage() {
           <CardTitle className="text-lg">取引一覧</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-12 text-muted-foreground">
-            <div className="mb-4">
-              <div className="mx-auto h-16 w-16 rounded-full bg-muted flex items-center justify-center">
-                <Plus className="h-8 w-8 text-muted-foreground" />
-              </div>
+          {isLoadingTransactions ? (
+            <div className="p-6 text-center">
+              <p className="text-muted-foreground">読み込み中...</p>
             </div>
-            <h3 className="text-lg font-medium mb-2">まだ取引がありません</h3>
-            <p className="mb-4">最初の収支記録を追加してみましょう</p>
-            <Button asChild>
-              <Link href="/transactions/new">取引を追加</Link>
-            </Button>
-          </div>
+          ) : filteredTransactions.length === 0 ? (
+            <TransactionEmptyState
+              hasFilters={Boolean(
+                searchTerm || fromDate || toDate || (categoryId && categoryId !== 'all')
+              )}
+            />
+          ) : (
+            <TransactionsDataTable
+              transactions={filteredTransactions}
+              categories={categories}
+              onDelete={(id) => {
+                console.log('Delete transaction:', id);
+              }}
+            />
+          )}
         </CardContent>
       </Card>
     </div>

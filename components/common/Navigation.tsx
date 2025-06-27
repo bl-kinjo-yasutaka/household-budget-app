@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '@/src/contexts/auth-context';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, Home, Plus, BarChart3, Settings, LogOut, User } from 'lucide-react';
+import { Menu, Home, Plus, BarChart3, Settings, LogOut, User, Tag } from 'lucide-react';
 
 const Navigation = () => {
   const { logout, user } = useAuth();
@@ -17,7 +17,7 @@ const Navigation = () => {
     { href: '/', label: 'ホーム', icon: Home },
     { href: '/transactions/new', label: '収支入力', icon: Plus },
     { href: '/transactions', label: '取引履歴', icon: BarChart3 },
-    { href: '/categories', label: 'カテゴリ管理', icon: Settings },
+    { href: '/categories', label: 'カテゴリ管理', icon: Tag },
     { href: '/settings', label: '設定', icon: Settings },
   ];
 

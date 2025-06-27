@@ -89,9 +89,9 @@ MSWはAPIリクエストをインターセプトしてモックレスポンス�
   /layout.tsx          # ルートレイアウト
   /not-found.tsx       # 404ページ
 /components            # Reactコンポーネント
-  /ui                 # shadcn/ui UIコンポーネント
-  /common             # 共通コンポーネント（Navigation）
-  /features           # 機能別コンポーネント
+  /ui                 # shadcn/ui UIコンポーネント（Button、Card、Table、Pagination等）
+  /common             # 共通コンポーネント（Navigation、ErrorBoundary）
+  /features           # 機能別コンポーネント（取引関連、認証関連）
 /src
   /api
     /generated        # Orvalで生成されたAPI関連コード
@@ -241,10 +241,18 @@ npx prettier --write "**/*.{js,jsx,ts,tsx,json,md,css}"
   - [x] 設定ページ
   - [x] 404エラーページ
 
+- [x] **取引一覧機能**
+  - [x] データテーブル表示（shadcn/ui Table）
+  - [x] フィルタリング機能（カテゴリ・期間・金額・タイプ）
+  - [x] ページネーション（共通コンポーネント化済み）
+  - [x] 編集・削除ボタン
+  - [x] 空状態表示
+  - [x] レスポンシブデザイン
+
 ### 今後の実装予定
 
 - [ ] 取引入力フォーム（実際のフォーム機能）
-- [ ] 取引履歴画面（データ取得・表示）
+- [ ] サーバーサイドページネーション（大量データ対応）
 - [ ] カテゴリ管理（CRUD機能）
 - [ ] グラフ・チャート表示（recharts統合）
 - [ ] ユーザー設定画面（実際の設定機能）

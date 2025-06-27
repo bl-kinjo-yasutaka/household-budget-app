@@ -7,7 +7,7 @@ export default async function EditTransactionPage({ params }: { params: Promise<
   const { id } = await params;
 
   return (
-    <div className="space-y-6">
+    <div className="container mx-auto px-4 py-6 space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild>
@@ -27,14 +27,14 @@ export default async function EditTransactionPage({ params }: { params: Promise<
           <CardTitle className="text-lg">取引情報</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-12 text-muted-foreground">
+          <div className="flex flex-col items-center justify-center py-12 text-center">
             <div className="mb-4">
               <div className="mx-auto h-16 w-16 rounded-full bg-muted flex items-center justify-center">
                 <Save className="h-8 w-8 text-muted-foreground" />
               </div>
             </div>
-            <h3 className="text-lg font-medium mb-2">取引編集フォーム</h3>
-            <p className="mb-4">取引編集フォームは準備中です</p>
+            <h3 className="text-lg font-medium text-foreground mb-2">取引編集フォーム</h3>
+            <p className="text-muted-foreground mb-4">取引編集フォームは準備中です</p>
             <div className="flex justify-center gap-2">
               <Button variant="outline" asChild>
                 <Link href="/transactions">キャンセル</Link>

@@ -2,19 +2,6 @@
 
 このファイルは、このリポジトリでコードを扱う際にClaude Code (claude.ai/code) に指針を提供します。
 
-## 注意事項
-
-このファイルには以下の項目のみを記載し、新しい項目の追加は行わないこと：
-
-- 概要
-- 技術スタック
-- コマンド
-- プロジェクト構成
-- デザインガイドライン
-- 実装履歴の活用
-
-内容の更新のみを行い、項目の追加は避けること。
-
 ## 概要
 
 Next.js 15.3のApp Routerアーキテクチャを使用して構築された日本の家計簿管理アプリケーション（家計簿アプリ）です。
@@ -69,9 +56,9 @@ Next.js 15.3のApp Routerアーキテクチャを使用して構築された日�
   - `layout.tsx` - ルートレイアウト（全Provider設定）
   - `not-found.tsx` - 404エラーページ
 - `/components` - タイプ別に整理されたReactコンポーネント
-  - `/ui` - shadcn/ui UIコンポーネント
-  - `/common` - 共有コンポーネント（Navigation）
-  - `/features` - 機能固有のコンポーネント
+  - `/ui` - shadcn/ui UIコンポーネント（Button、Card、Input、Table、Pagination等）
+  - `/common` - 共有コンポーネント（Navigation、ErrorBoundary）
+  - `/features` - 機能固有のコンポーネント（取引関連、認証関連）
 - `/src` - アプリケーションのコアロジック
   - `/api/generated` - Orvalで生成されたAPI関連コード
   - `/api/mutator` - カスタムfetchインスタンス（Cookie認証対応）

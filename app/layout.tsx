@@ -5,6 +5,7 @@ import { Providers } from '@/store/provider';
 import { MSWProvider } from '@/src/providers/msw-provider';
 import { QueryProvider } from '@/src/providers/query-provider';
 import { AuthProvider } from '@/src/contexts/auth-context';
+import ErrorBoundary from '@/components/common/error-boundary';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -29,13 +30,15 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <MSWProvider>
-          <QueryProvider>
-            <Providers>
-              <AuthProvider>{children}</AuthProvider>
-            </Providers>
-          </QueryProvider>
-        </MSWProvider>
+        <ErrorBoundary>
+          <MSWProvider>
+            <QueryProvider>
+              <Providers>
+                <AuthProvider>{children}</AuthProvider>
+              </Providers>
+            </QueryProvider>
+          </MSWProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );
