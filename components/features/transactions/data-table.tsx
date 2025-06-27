@@ -9,8 +9,9 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
+import { Pagination } from '@/components/ui/pagination';
 import type { Transaction, Category } from '@/src/api/generated/model';
-import { Edit, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Edit, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { formatCurrency, formatDate } from '@/utils/format';
 import { useState } from 'react';
@@ -138,38 +139,14 @@ export function TransactionsDataTable({
         </Table>
       </div>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between px-6 py-4 border-t bg-muted/25">
-          <div className="text-sm text-muted-foreground">
-            {transactions.length} 件中 {startIndex + 1} - {Math.min(endIndex, transactions.length)}{' '}
-            件を表示
-          </div>
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-              disabled={currentPage === 1}
-            >
-              <ChevronLeft className="h-4 w-4" />
-              前へ
-            </Button>
-            <div className="text-sm px-3 py-1 bg-background rounded border">
-              {currentPage} / {totalPages}
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
-              disabled={currentPage === totalPages}
-            >
-              次へ
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      )}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={transactions.length}
+        itemsPerPage={itemsPerPage}
+        onPageChange={setCurrentPage}
+        showItemsRange={true}
+      />
     </div>
   );
 }
