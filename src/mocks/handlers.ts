@@ -20,6 +20,7 @@ import {
   getGetUserSettingsMockHandler,
   getPutUserSettingsMockHandler,
 } from '@/src/api/generated/user-settings/user-settings.msw';
+import { getGetUserMeMockHandler } from '@/src/api/generated/users/users.msw';
 import type { Transaction, Category } from '@/src/api/generated/model';
 
 // リアルなモックカテゴリデータ
@@ -284,6 +285,14 @@ export const handlers = [
   getGetTransactionsIdMockHandler(),
   getPutTransactionsIdMockHandler(),
   getDeleteTransactionsIdMockHandler(),
+
+  // Users handlers
+  getGetUserMeMockHandler({
+    id: 1,
+    email: 'demo@example.com',
+    name: 'デモユーザー',
+    createdAt: '2025-06-01T00:00:00Z',
+  }),
 
   // UserSettings handlers
   getGetUserSettingsMockHandler(),
