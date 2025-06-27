@@ -4,7 +4,7 @@ import { Settings, User, Bell, Shield, HelpCircle } from 'lucide-react';
 
 export default function SettingsPage() {
   return (
-    <div className="space-y-6">
+    <div className="container mx-auto px-4 py-6 space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold tracking-tight">設定</h1>

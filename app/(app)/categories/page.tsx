@@ -4,7 +4,7 @@ import { Plus, Tag } from 'lucide-react';
 
 export default function CategoriesPage() {
   return (
-    <div className="space-y-6">
+    <div className="container mx-auto px-4 py-6 space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -23,14 +23,14 @@ export default function CategoriesPage() {
           <CardTitle className="text-lg">カテゴリ一覧</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-12 text-muted-foreground">
+          <div className="flex flex-col items-center justify-center py-12 text-center">
             <div className="mb-4">
               <div className="mx-auto h-16 w-16 rounded-full bg-muted flex items-center justify-center">
                 <Tag className="h-8 w-8 text-muted-foreground" />
               </div>
             </div>
-            <h3 className="text-lg font-medium mb-2">カテゴリ管理</h3>
-            <p className="mb-4">カテゴリ管理機能は準備中です</p>
+            <h3 className="text-lg font-medium text-foreground mb-2">カテゴリ管理</h3>
+            <p className="text-muted-foreground mb-4">カテゴリ管理機能は準備中です</p>
             <Button>カテゴリを追加</Button>
           </div>
         </CardContent>
