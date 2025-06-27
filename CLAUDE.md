@@ -56,9 +56,9 @@ Next.js 15.3のApp Routerアーキテクチャを使用して構築された日�
   - `layout.tsx` - ルートレイアウト（全Provider設定）
   - `not-found.tsx` - 404エラーページ
 - `/components` - タイプ別に整理されたReactコンポーネント
-  - `/ui` - shadcn/ui UIコンポーネント
-  - `/common` - 共有コンポーネント（Navigation）
-  - `/features` - 機能固有のコンポーネント
+  - `/ui` - shadcn/ui UIコンポーネント（Button、Card、Input、Table、Pagination等）
+  - `/common` - 共有コンポーネント（Navigation、ErrorBoundary）
+  - `/features` - 機能固有のコンポーネント（取引関連、認証関連）
 - `/src` - アプリケーションのコアロジック
   - `/api/generated` - Orvalで生成されたAPI関連コード
   - `/api/mutator` - カスタムfetchインスタンス（Cookie認証対応）
