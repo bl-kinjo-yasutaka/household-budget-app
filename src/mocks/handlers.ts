@@ -22,9 +22,10 @@ import {
 } from '@/src/api/generated/user-settings/user-settings.msw';
 import { getGetUserMeMockHandler } from '@/src/api/generated/users/users.msw';
 import type { Transaction, Category } from '@/src/api/generated/model';
+import { http, HttpResponse } from 'msw';
 
 // リアルなモックカテゴリデータ
-const mockCategories: Category[] = [
+export const mockCategories: Category[] = [
   {
     id: 1,
     userId: 1,
@@ -91,14 +92,15 @@ const mockCategories: Category[] = [
   },
 ];
 
-// リアルなモック取引データ
-const mockTransactions: Transaction[] = [
+// リアルなモック取引データ（正の値のみ）
+export const mockTransactions: Transaction[] = [
   {
     id: 1,
     userId: 1,
     categoryId: 5,
+    type: 'income',
     transDate: '2025-06-25',
-    amount: '250000',
+    amount: 250000,
     memo: '6月分給料',
     createdAt: '2025-06-25T09:00:00Z',
   },
@@ -106,8 +108,9 @@ const mockTransactions: Transaction[] = [
     id: 2,
     userId: 1,
     categoryId: 1,
+    type: 'expense',
     transDate: '2025-06-24',
-    amount: '-3500',
+    amount: 3500,
     memo: '昼食（レストラン）',
     createdAt: '2025-06-24T12:30:00Z',
   },
@@ -115,8 +118,9 @@ const mockTransactions: Transaction[] = [
     id: 3,
     userId: 1,
     categoryId: 2,
+    type: 'expense',
     transDate: '2025-06-24',
-    amount: '-1200',
+    amount: 1200,
     memo: '電車代',
     createdAt: '2025-06-24T08:00:00Z',
   },
@@ -124,8 +128,9 @@ const mockTransactions: Transaction[] = [
     id: 4,
     userId: 1,
     categoryId: 3,
+    type: 'expense',
     transDate: '2025-06-23',
-    amount: '-5800',
+    amount: 5800,
     memo: 'ティッシュ、洗剤など',
     createdAt: '2025-06-23T15:00:00Z',
   },
@@ -133,8 +138,9 @@ const mockTransactions: Transaction[] = [
     id: 5,
     userId: 1,
     categoryId: 1,
+    type: 'expense',
     transDate: '2025-06-23',
-    amount: '-2100',
+    amount: 2100,
     memo: 'スーパーで買い物',
     createdAt: '2025-06-23T18:00:00Z',
   },
@@ -142,8 +148,9 @@ const mockTransactions: Transaction[] = [
     id: 6,
     userId: 1,
     categoryId: 4,
+    type: 'expense',
     transDate: '2025-06-22',
-    amount: '-4500',
+    amount: 4500,
     memo: '映画＋ポップコーン',
     createdAt: '2025-06-22T19:00:00Z',
   },
@@ -151,8 +158,9 @@ const mockTransactions: Transaction[] = [
     id: 7,
     userId: 1,
     categoryId: 7,
+    type: 'expense',
     transDate: '2025-06-21',
-    amount: '-8500',
+    amount: 8500,
     memo: '電気代',
     createdAt: '2025-06-21T10:00:00Z',
   },
@@ -160,8 +168,9 @@ const mockTransactions: Transaction[] = [
     id: 8,
     userId: 1,
     categoryId: 1,
+    type: 'expense',
     transDate: '2025-06-20',
-    amount: '-1800',
+    amount: 1800,
     memo: 'コンビニ',
     createdAt: '2025-06-20T20:00:00Z',
   },
@@ -169,8 +178,9 @@ const mockTransactions: Transaction[] = [
     id: 9,
     userId: 1,
     categoryId: 2,
+    type: 'expense',
     transDate: '2025-06-20',
-    amount: '-3000',
+    amount: 3000,
     memo: 'タクシー代',
     createdAt: '2025-06-20T23:00:00Z',
   },
@@ -178,8 +188,9 @@ const mockTransactions: Transaction[] = [
     id: 10,
     userId: 1,
     categoryId: 8,
+    type: 'expense',
     transDate: '2025-06-19',
-    amount: '-2500',
+    amount: 2500,
     memo: '病院（風邪）',
     createdAt: '2025-06-19T14:00:00Z',
   },
@@ -187,8 +198,9 @@ const mockTransactions: Transaction[] = [
     id: 11,
     userId: 1,
     categoryId: 1,
+    type: 'expense',
     transDate: '2025-06-18',
-    amount: '-4200',
+    amount: 4200,
     memo: '夕食（外食）',
     createdAt: '2025-06-18T19:00:00Z',
   },
@@ -196,8 +208,9 @@ const mockTransactions: Transaction[] = [
     id: 12,
     userId: 1,
     categoryId: 3,
+    type: 'expense',
     transDate: '2025-06-17',
-    amount: '-3200',
+    amount: 3200,
     memo: 'シャンプー、石鹸',
     createdAt: '2025-06-17T16:00:00Z',
   },
@@ -205,8 +218,9 @@ const mockTransactions: Transaction[] = [
     id: 13,
     userId: 1,
     categoryId: 4,
+    type: 'expense',
     transDate: '2025-06-16',
-    amount: '-6000',
+    amount: 6000,
     memo: 'ゲームソフト',
     createdAt: '2025-06-16T13:00:00Z',
   },
@@ -214,8 +228,9 @@ const mockTransactions: Transaction[] = [
     id: 14,
     userId: 1,
     categoryId: 1,
+    type: 'expense',
     transDate: '2025-06-15',
-    amount: '-8900',
+    amount: 8900,
     memo: '週末の買い出し',
     createdAt: '2025-06-15T11:00:00Z',
   },
@@ -223,8 +238,9 @@ const mockTransactions: Transaction[] = [
     id: 15,
     userId: 1,
     categoryId: 6,
+    type: 'income',
     transDate: '2025-06-15',
-    amount: '100000',
+    amount: 100000,
     memo: '夏季ボーナス',
     createdAt: '2025-06-15T09:00:00Z',
   },
@@ -252,6 +268,10 @@ export const handlers = [
   getDeleteCategoriesIdMockHandler(),
 
   // Transactions handlers
+  // Add explicit handler for /transactions/new to prevent it from matching :id pattern
+  http.get('*/transactions/new', () => {
+    return new HttpResponse(null, { status: 404 });
+  }),
   getGetTransactionsMockHandler((info) => {
     // クエリパラメータを取得
     const url = new URL(info.request.url);
@@ -282,7 +302,25 @@ export const handlers = [
     });
   }),
   getPostTransactionsMockHandler(),
-  getGetTransactionsIdMockHandler(),
+  getGetTransactionsIdMockHandler((info) => {
+    const url = new URL(info.request.url);
+    const pathParts = url.pathname.split('/');
+    const idString = pathParts[pathParts.length - 1];
+
+    const id = parseInt(idString);
+
+    // If ID is not a number, it's not a valid transaction ID
+    if (isNaN(id)) {
+      // Return a dummy transaction that won't be used
+      return { id: -1, userId: -1 } as Transaction;
+    }
+
+    const transaction = mockTransactions.find((t) => t.id === id);
+    if (!transaction) {
+      throw new Error('Transaction not found');
+    }
+    return transaction;
+  }),
   getPutTransactionsIdMockHandler(),
   getDeleteTransactionsIdMockHandler(),
 
