@@ -1,47 +1,26 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, Save } from 'lucide-react';
-import Link from 'next/link';
+import { TransactionFormTabs } from '@/components/features/transactions/transaction-form-tabs';
+import { EmptyState } from '@/components/common/empty-state';
+import { mockCategories } from '@/src/mocks/handlers';
+import type { Category } from '@/src/api/generated/model';
 
-export default function NewTransactionPage() {
-  return (
-    <div className="container mx-auto px-4 py-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href="/transactions">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">収支入力</h1>
-          <p className="text-muted-foreground">新しい取引を記録します</p>
-        </div>
-      </div>
+async function getCategories(): Promise<Category[]> {
+  // In real implementation, this would be an API call
+  return mockCategories;
+}
 
-      {/* Form */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">取引情報</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col items-center justify-center py-12 text-center">
-            <div className="mb-4">
-              <div className="mx-auto h-16 w-16 rounded-full bg-muted flex items-center justify-center">
-                <Save className="h-8 w-8 text-muted-foreground" />
-              </div>
-            </div>
-            <h3 className="text-lg font-medium text-foreground mb-2">取引フォーム</h3>
-            <p className="text-muted-foreground mb-4">収支入力フォームは準備中です</p>
-            <div className="flex justify-center gap-2">
-              <Button variant="outline" asChild>
-                <Link href="/transactions">キャンセル</Link>
-              </Button>
-              <Button disabled>保存</Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
+export default async function NewTransactionPage() {
+  const categories = await getCategories();
+
+  // Check if categories exist
+  if (!categories || categories.length === 0) {
+    return (
+      <EmptyState
+        description="カテゴリが登録されていません。先にカテゴリを作成してください。"
+        actionLabel="カテゴリ管理へ"
+        actionHref="/categories"
+      />
+    );
+  }
+
+  return <TransactionFormTabs categories={categories} />;
 }
