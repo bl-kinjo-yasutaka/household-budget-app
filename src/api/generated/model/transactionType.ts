@@ -7,6 +7,12 @@
 
  * OpenAPI spec version: 0.1.2
  */
-import type { UserSettings } from './userSettings';
 
-export type UserSettingsUpdate = UserSettings;
+export type TransactionType = typeof TransactionType[keyof typeof TransactionType];
+
+
+ 
+export const TransactionType = {
+  expense: 'expense',
+  income: 'income',
+} as const;

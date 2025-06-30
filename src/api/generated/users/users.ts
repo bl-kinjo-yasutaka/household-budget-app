@@ -5,7 +5,7 @@
  * MVP 用の最小家計簿 API。
 認証は JWT（Bearer トークン）方式。
 
- * OpenAPI spec version: 0.1.1
+ * OpenAPI spec version: 0.1.2
  */
 import {
   useQuery
@@ -34,7 +34,6 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 
 /**
- * 認証済みユーザー自身の情報を返す
  * @summary 自分のユーザー情報取得
  */
 export const getUserMe = (
