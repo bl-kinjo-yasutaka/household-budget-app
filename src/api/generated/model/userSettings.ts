@@ -5,7 +5,7 @@
  * MVP 用の最小家計簿 API。
 認証は JWT（Bearer トークン）方式。
 
- * OpenAPI spec version: 0.1.1
+ * OpenAPI spec version: 0.1.2
  */
 
 export interface UserSettings {

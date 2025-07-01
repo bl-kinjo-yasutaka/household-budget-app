@@ -77,7 +77,7 @@ export function TransactionsDataTable({
             ) : (
               currentTransactions.map((transaction) => {
                 const category = getCategoryById(transaction.categoryId);
-                const isIncome = parseFloat(transaction.amount || '0') > 0;
+                const isIncome = transaction.type === 'income';
 
                 return (
                   <TableRow key={transaction.id} className="border-b hover:bg-muted/50">
@@ -102,8 +102,8 @@ export function TransactionsDataTable({
                         isIncome ? 'text-green-600' : 'text-red-600'
                       }`}
                     >
-                      {isIncome ? '+' : ''}
-                      {formatCurrency(transaction.amount || '0')}
+                      {isIncome ? '+' : '-'}
+                      {formatCurrency(transaction.amount || 0)}
                     </TableCell>
                     <TableCell className="py-4 px-6 max-w-[200px] truncate">
                       {transaction.memo || '-'}

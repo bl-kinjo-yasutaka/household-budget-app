@@ -6,6 +6,7 @@ import { MSWProvider } from '@/src/providers/msw-provider';
 import { QueryProvider } from '@/src/providers/query-provider';
 import { AuthProvider } from '@/src/contexts/auth-context';
 import ErrorBoundary from '@/components/common/error-boundary';
+import { Toaster } from '@/components/ui/sonner';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -39,6 +40,7 @@ export default function RootLayout({
             </QueryProvider>
           </MSWProvider>
         </ErrorBoundary>
+        <Toaster position="top-center" />
       </body>
     </html>
   );
