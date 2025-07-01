@@ -1,7 +1,12 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { TrendingUp, TrendingDown, Wallet, Plus, ArrowRight } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import Link from 'next/link';
+import { MonthlyStatsCards } from '@/components/features/dashboard/monthly-stats-cards';
+import {
+  MonthlyExpenseChart,
+  MonthlyTrendChart,
+} from '@/components/features/dashboard/monthly-expense-chart';
+import { RecentTransactions } from '@/components/features/dashboard/recent-transactions';
 
 export default function Home() {
   return (
@@ -21,66 +26,15 @@ export default function Home() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">今月の収入</CardTitle>
-            <TrendingUp className="h-4 w-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-primary">¥350,000</div>
-            <p className="text-xs text-muted-foreground">先月比 +12.1%</p>
-          </CardContent>
-        </Card>
+      <MonthlyStatsCards />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">今月の支出</CardTitle>
-            <TrendingDown className="h-4 w-4 text-destructive" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-destructive">¥280,000</div>
-            <p className="text-xs text-muted-foreground">先月比 -3.2%</p>
-          </CardContent>
-        </Card>
-
-        <Card className="md:col-span-2 lg:col-span-1">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">今月の残高</CardTitle>
-            <Wallet className="h-4 w-4 text-chart-2" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-chart-2">¥70,000</div>
-            <p className="text-xs text-muted-foreground">目標まで ¥30,000</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">最近の取引</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="text-center py-8 text-muted-foreground">取引履歴は準備中です</div>
-            <Button variant="outline" className="w-full" asChild>
-              <Link href="/transactions">
-                全ての取引を表示
-                <ArrowRight className="h-4 w-4 ml-2" />
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">月別グラフ</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center py-8 text-muted-foreground">グラフ機能は準備中です</div>
-          </CardContent>
-        </Card>
+      {/* Charts and Recent Transactions */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div className="space-y-6">
+          <MonthlyExpenseChart />
+          <MonthlyTrendChart />
+        </div>
+        <RecentTransactions />
       </div>
     </div>
   );
