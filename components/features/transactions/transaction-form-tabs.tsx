@@ -40,12 +40,7 @@ export function TransactionFormTabs({ transaction, categories }: TransactionForm
   const queryClient = useQueryClient();
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const {
-    state: confirmDialog,
-    showConfirmation,
-    hideConfirmation,
-    confirmAction,
-  } = useConfirmationDialog();
+  const { state: confirmDialog, showConfirmation, hideConfirmation } = useConfirmationDialog();
 
   const mode = transaction ? 'edit' : 'create';
 
@@ -162,7 +157,6 @@ export function TransactionFormTabs({ transaction, categories }: TransactionForm
     showConfirmation({
       title: `取引を${actionText}します`,
       description: `この${typeText}取引を${actionText}してもよろしいですか？`,
-      variant: 'default',
       onConfirm: () => executeSubmit(data),
     });
   };
@@ -202,18 +196,20 @@ export function TransactionFormTabs({ transaction, categories }: TransactionForm
   };
 
   const handleDeleteConfirmation = () => {
-    showConfirmation({
-      title: '取引を削除します',
-      description: 'この取引を削除してもよろしいですか？この操作は取り消せません。',
-      variant: 'destructive',
-      onConfirm: () => {
-        if (transaction) {
-          setIsDeleting(true);
-          deleteMutation.mutate({ id: transaction.id! });
-          hideConfirmation();
-        }
+    showConfirmation(
+      {
+        title: '取引を削除します',
+        description: 'この取引を削除してもよろしいですか？この操作は取り消せません。',
+        onConfirm: () => {
+          if (transaction) {
+            setIsDeleting(true);
+            deleteMutation.mutate({ id: transaction.id! });
+            hideConfirmation();
+          }
+        },
       },
-    });
+      { variant: 'destructive' }
+    );
   };
 
   // Check if filtered categories are available for the selected type
@@ -398,17 +394,19 @@ export function TransactionFormTabs({ transaction, categories }: TransactionForm
       </Card>
 
       {/* Confirmation Dialog */}
-      <ConfirmationDialog
-        open={confirmDialog.open}
-        title={confirmDialog.title}
-        description={confirmDialog.description}
-        onConfirm={confirmAction}
-        onCancel={hideConfirmation}
-        confirmText={confirmDialog.confirmText}
-        cancelText={confirmDialog.cancelText}
-        variant={confirmDialog.variant}
-        isLoading={isSubmitting || isDeleting}
-      />
+      {confirmDialog.open && (
+        <ConfirmationDialog
+          open={true}
+          title={confirmDialog.title}
+          description={confirmDialog.description}
+          onConfirm={confirmDialog.onConfirm}
+          onCancel={hideConfirmation}
+          confirmText={confirmDialog.confirmText}
+          cancelText={confirmDialog.cancelText}
+          variant={confirmDialog.variant}
+          isLoading={isSubmitting || isDeleting}
+        />
+      )}
     </div>
   );
 }
