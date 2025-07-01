@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { useGetTransactions } from '@/src/api/generated/transactions/transactions';
 import { useGetCategories } from '@/src/api/generated/categories/categories';
 import { TransactionType } from '@/src/api/generated/model';
-import { formatCurrency } from '@/utils/format';
+import { formatCurrency, formatDateShort } from '@/utils/format';
 
 export function RecentTransactions() {
   const { data: allTransactions = [], isLoading: transactionsLoading } = useGetTransactions();
@@ -18,14 +18,6 @@ export function RecentTransactions() {
   const transactions = allTransactions
     .sort((a, b) => new Date(b.transDate || '').getTime() - new Date(a.transDate || '').getTime())
     .slice(0, 5);
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat('ja-JP', {
-      month: 'short',
-      day: 'numeric',
-    }).format(date);
-  };
 
   const getCategoryName = (categoryId: number | null | undefined) => {
     if (!categoryId) return 'その他';
@@ -106,7 +98,7 @@ export function RecentTransactions() {
               <div>
                 <p className="font-medium text-sm">{getCategoryName(transaction.categoryId)}</p>
                 <p className="text-xs text-muted-foreground">
-                  {transaction.transDate && formatDate(transaction.transDate)}
+                  {formatDateShort(transaction.transDate)}
                 </p>
               </div>
             </div>
