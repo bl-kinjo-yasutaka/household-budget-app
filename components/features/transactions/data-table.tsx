@@ -146,6 +146,9 @@ export function TransactionsDataTable({
         itemsPerPage={itemsPerPage}
         onPageChange={setCurrentPage}
         showItemsRange={true}
+        size="compact"
+        density="full"
+        className="md:px-6 px-4"
       />
     </div>
   );
