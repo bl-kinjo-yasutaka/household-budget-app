@@ -15,6 +15,7 @@ export const customInstance = async <T>(
     ...restConfig,
     ...options,
     headers: {
+      'Content-Type': 'application/json',
       ...(token && { Authorization: `Bearer ${token}` }),
       ...config?.headers,
       ...options?.headers,

@@ -25,6 +25,9 @@ import {
 } from '@/src/api/generated/transactions/transactions';
 import { useQueryClient } from '@tanstack/react-query';
 import { EmptyState } from '@/components/common/empty-state';
+import { ConfirmationDialog } from '@/components/common/confirmation-dialog';
+import { useConfirmationDialog } from '@/hooks/useConfirmationDialog';
+import { toast } from 'sonner';
 import type { Transaction, Category } from '@/src/api/generated/model';
 
 interface TransactionFormTabsProps {
@@ -37,6 +40,7 @@ export function TransactionFormTabs({ transaction, categories }: TransactionForm
   const queryClient = useQueryClient();
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { state: confirmDialog, showConfirmation, hideConfirmation } = useConfirmationDialog();
 
   const mode = transaction ? 'edit' : 'create';
 
@@ -72,11 +76,16 @@ export function TransactionFormTabs({ transaction, categories }: TransactionForm
     mutation: {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['/transactions'] });
+        toast.success('取引を作成しました', {
+          description: '新しい取引が正常に記録されました。',
+        });
         router.push('/transactions');
       },
       onError: (error) => {
         console.error('取引の作成に失敗しました:', error);
-        setError('取引の作成に失敗しました。もう一度お試しください。');
+        toast.error('作成に失敗しました', {
+          description: '取引の作成に失敗しました。もう一度お試しください。',
+        });
       },
     },
   });
@@ -86,11 +95,16 @@ export function TransactionFormTabs({ transaction, categories }: TransactionForm
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['/transactions'] });
         queryClient.invalidateQueries({ queryKey: [`/transactions/${transaction?.id}`] });
+        toast.success('取引を更新しました', {
+          description: '取引情報が正常に更新されました。',
+        });
         router.push('/transactions');
       },
       onError: (error) => {
         console.error('取引の更新に失敗しました:', error);
-        setError('取引の更新に失敗しました。もう一度お試しください。');
+        toast.error('更新に失敗しました', {
+          description: '取引の更新に失敗しました。もう一度お試しください。',
+        });
       },
     },
   });
@@ -99,11 +113,16 @@ export function TransactionFormTabs({ transaction, categories }: TransactionForm
     mutation: {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['/transactions'] });
+        toast.success('取引を削除しました', {
+          description: '取引が正常に削除されました。',
+        });
         router.push('/transactions');
       },
       onError: (error) => {
         console.error('取引の削除に失敗しました:', error);
-        setError('取引の削除に失敗しました。もう一度お試しください。');
+        toast.error('削除に失敗しました', {
+          description: '取引の削除に失敗しました。もう一度お試しください。',
+        });
       },
       onSettled: () => {
         setIsDeleting(false);
@@ -131,7 +150,18 @@ export function TransactionFormTabs({ transaction, categories }: TransactionForm
     return categories.filter((category) => category.type === selectedType);
   }, [categories, selectedType]);
 
-  const onSubmit = async (data: TransactionFormData) => {
+  const handleSubmitConfirmation = (data: TransactionFormData) => {
+    const actionText = mode === 'create' ? '作成' : '更新';
+    const typeText = data.type === 'income' ? '収入' : '支出';
+
+    showConfirmation({
+      title: `取引を${actionText}します`,
+      description: `この${typeText}取引を${actionText}してもよろしいですか？`,
+      onConfirm: () => executeSubmit(data),
+    });
+  };
+
+  const executeSubmit = async (data: TransactionFormData) => {
     // Clear any previous errors
     setError(null);
 
@@ -160,13 +190,26 @@ export function TransactionFormTabs({ transaction, categories }: TransactionForm
         },
       });
     }
+
+    // 処理開始後にモーダルを閉じる
+    hideConfirmation();
   };
 
-  const handleDelete = () => {
-    if (transaction && window.confirm('この取引を削除してもよろしいですか？')) {
-      setIsDeleting(true);
-      deleteMutation.mutate({ id: transaction.id! });
-    }
+  const handleDeleteConfirmation = () => {
+    showConfirmation(
+      {
+        title: '取引を削除します',
+        description: 'この取引を削除してもよろしいですか？この操作は取り消せません。',
+        onConfirm: () => {
+          if (transaction) {
+            setIsDeleting(true);
+            deleteMutation.mutate({ id: transaction.id! });
+            hideConfirmation();
+          }
+        },
+      },
+      { variant: 'destructive' }
+    );
   };
 
   // Check if filtered categories are available for the selected type
@@ -212,7 +255,7 @@ export function TransactionFormTabs({ transaction, categories }: TransactionForm
               {error}
             </div>
           )}
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={handleSubmit(handleSubmitConfirmation)} className="space-y-6">
             {/* 収入・支出タブ */}
             <div className="space-y-2">
               <Label>取引タイプ</Label>
@@ -328,7 +371,7 @@ export function TransactionFormTabs({ transaction, categories }: TransactionForm
                 <Button
                   type="button"
                   variant="destructive"
-                  onClick={handleDelete}
+                  onClick={handleDeleteConfirmation}
                   disabled={isDeleting}
                   className="min-w-[100px]"
                 >
@@ -349,6 +392,21 @@ export function TransactionFormTabs({ transaction, categories }: TransactionForm
           </form>
         </CardContent>
       </Card>
+
+      {/* Confirmation Dialog */}
+      {confirmDialog.open && (
+        <ConfirmationDialog
+          open={true}
+          title={confirmDialog.title}
+          description={confirmDialog.description}
+          onConfirm={confirmDialog.onConfirm}
+          onCancel={hideConfirmation}
+          confirmText={confirmDialog.confirmText}
+          cancelText={confirmDialog.cancelText}
+          variant={confirmDialog.variant}
+          isLoading={isSubmitting || isDeleting}
+        />
+      )}
     </div>
   );
 }

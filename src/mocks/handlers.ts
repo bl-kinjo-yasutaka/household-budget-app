@@ -301,7 +301,21 @@ export const handlers = [
       return b.transDate.localeCompare(a.transDate);
     });
   }),
-  getPostTransactionsMockHandler(),
+  getPostTransactionsMockHandler((info) => {
+    console.log('POST /transactions called', info.request);
+    // 新しい取引を作成
+    const newTransaction: Transaction = {
+      id: mockTransactions.length + 1,
+      userId: 1,
+      categoryId: 1, // デフォルト値
+      type: 'expense',
+      transDate: new Date().toISOString().split('T')[0],
+      amount: 1000,
+      memo: '新しい取引',
+      createdAt: new Date().toISOString(),
+    };
+    return newTransaction;
+  }),
   getGetTransactionsIdMockHandler((info) => {
     const url = new URL(info.request.url);
     const pathParts = url.pathname.split('/');
