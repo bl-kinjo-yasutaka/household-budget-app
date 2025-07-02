@@ -1,8 +1,36 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Plus, Tag } from 'lucide-react';
+'use client';
+
+import { useState } from 'react';
+import {
+  CategoryList,
+  CreateCategoryModal,
+  EditCategoryModal,
+} from '@/components/features/categories';
+import type { Category } from '@/src/api/generated/model';
 
 export default function CategoriesPage() {
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+
+  const handleCreateCategory = () => {
+    setIsCreateModalOpen(true);
+  };
+
+  const handleEditCategory = (category: Category) => {
+    setEditingCategory(category);
+    setIsEditModalOpen(true);
+  };
+
+  const handleCloseCreateModal = () => {
+    setIsCreateModalOpen(false);
+  };
+
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false);
+    setEditingCategory(null);
+  };
+
   return (
     <div className="container mx-auto px-4 py-6 space-y-6">
       {/* Header */}
@@ -11,30 +39,22 @@ export default function CategoriesPage() {
           <h1 className="text-2xl font-bold tracking-tight">カテゴリ管理</h1>
           <p className="text-muted-foreground">収支の分類を管理</p>
         </div>
-        <Button>
-          <Plus className="h-4 w-4" />
-          新しいカテゴリ
-        </Button>
       </div>
 
-      {/* Categories */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">カテゴリ一覧</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col items-center justify-center py-12 text-center">
-            <div className="mb-4">
-              <div className="mx-auto h-16 w-16 rounded-full bg-muted flex items-center justify-center">
-                <Tag className="h-8 w-8 text-muted-foreground" />
-              </div>
-            </div>
-            <h3 className="text-lg font-medium text-foreground mb-2">カテゴリ管理</h3>
-            <p className="text-muted-foreground mb-4">カテゴリ管理機能は準備中です</p>
-            <Button>カテゴリを追加</Button>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Categories List */}
+      <CategoryList onCreateCategory={handleCreateCategory} onEditCategory={handleEditCategory} />
+
+      {/* Create Category Modal */}
+      <CreateCategoryModal isOpen={isCreateModalOpen} onClose={handleCloseCreateModal} />
+
+      {/* Edit Category Modal */}
+      {editingCategory && (
+        <EditCategoryModal
+          isOpen={isEditModalOpen}
+          onClose={handleCloseEditModal}
+          category={editingCategory}
+        />
+      )}
     </div>
   );
 }

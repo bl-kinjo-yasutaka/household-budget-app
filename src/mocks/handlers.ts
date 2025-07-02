@@ -1,8 +1,6 @@
 import {
   getGetCategoriesMockHandler,
   getGetCategoriesIdMockHandler,
-  getPutCategoriesIdMockHandler,
-  getDeleteCategoriesIdMockHandler,
 } from '@/src/api/generated/categories/categories.msw';
 import {
   getGetTransactionsMockHandler,
@@ -90,6 +88,23 @@ export const mockCategories: Category[] = [
     colorHex: '#ec4899',
     type: 'expense',
     createdAt: '2025-06-01T00:00:00Z',
+  },
+  // 削除テスト用カテゴリ（取引データなし）
+  {
+    id: 9,
+    userId: 1,
+    name: 'テスト支出',
+    colorHex: '#64748b',
+    type: 'expense',
+    createdAt: '2025-07-02T00:00:00Z',
+  },
+  {
+    id: 10,
+    userId: 1,
+    name: 'テスト収入',
+    colorHex: '#22c55e',
+    type: 'income',
+    createdAt: '2025-07-02T00:00:00Z',
   },
 ];
 
@@ -552,9 +567,113 @@ export const handlers = [
       return HttpResponse.json({ error: '内部サーバーエラー' }, { status: 500 });
     }
   }),
+  // カテゴリ更新のカスタムハンドラー
+  http.put('*/categories/:id', async (info) => {
+    const id = parseInt(info.params.id as string);
+
+    if (isNaN(id) || id <= 0) {
+      return HttpResponse.json({ error: '無効なカテゴリIDです' }, { status: 400 });
+    }
+
+    const categoryIndex = mockCategories.findIndex((c) => c.id === id);
+    if (categoryIndex === -1) {
+      return HttpResponse.json({ error: 'カテゴリが見つかりません' }, { status: 404 });
+    }
+
+    try {
+      const requestBody = await info.request.json();
+      const validatedData = categoryFormSchema.parse(requestBody);
+
+      // 取引で使用されているカテゴリのタイプ変更をチェック
+      const hasTransactions = mockTransactions.some((t) => t.categoryId === id);
+      const currentCategory = mockCategories[categoryIndex];
+
+      if (hasTransactions && currentCategory.type !== validatedData.type) {
+        const typeFrom = currentCategory.type === 'income' ? '収入' : '支出';
+        const typeTo = validatedData.type === 'income' ? '収入' : '支出';
+        return HttpResponse.json(
+          {
+            error: `「${currentCategory.name}」は取引で使用されているため、タイプを「${typeFrom}」から「${typeTo}」に変更できません。`,
+          },
+          { status: 409 }
+        );
+      }
+
+      // 同じ名前のカテゴリが他に存在しないかチェック（自分以外）
+      const nameExists = mockCategories.some(
+        (cat) => cat.id !== id && cat.name === validatedData.name && cat.type === validatedData.type
+      );
+      if (nameExists) {
+        return HttpResponse.json({ error: '同じ名前のカテゴリが既に存在します' }, { status: 409 });
+      }
+
+      const updatedCategory: Category = {
+        ...mockCategories[categoryIndex],
+        name: validatedData.name,
+        colorHex: validatedData.colorHex,
+        type: validatedData.type,
+      };
+
+      mockCategories[categoryIndex] = updatedCategory;
+
+      console.log('PUT /categories/' + id + ' 成功:', updatedCategory);
+      return HttpResponse.json(updatedCategory, { status: 200 });
+    } catch (error) {
+      console.error('PUT /categories/' + id + ' バリデーションエラー:', error);
+
+      if (error instanceof z.ZodError) {
+        return HttpResponse.json(
+          {
+            error: '入力データにエラーがあります',
+            details: error.errors.map((err) => ({
+              field: err.path.join('.'),
+              message: err.message,
+            })),
+          },
+          { status: 400 }
+        );
+      }
+
+      return HttpResponse.json({ error: '内部サーバーエラー' }, { status: 500 });
+    }
+  }),
+  // カテゴリ削除のカスタムハンドラー
+  http.delete('*/categories/:id', async (info) => {
+    try {
+      const id = parseInt(info.params.id as string);
+
+      if (isNaN(id) || id <= 0) {
+        return HttpResponse.json({ error: '無効なカテゴリIDです' }, { status: 400 });
+      }
+
+      const categoryIndex = mockCategories.findIndex((c) => c.id === id);
+      if (categoryIndex === -1) {
+        return HttpResponse.json({ error: 'カテゴリが見つかりません' }, { status: 404 });
+      }
+
+      // 関連する取引があるかチェック
+      const hasTransactions = mockTransactions.some((t) => t.categoryId === id);
+      const categoryToDelete = mockCategories[categoryIndex];
+      if (hasTransactions) {
+        return HttpResponse.json(
+          {
+            error: `「${categoryToDelete.name}」は取引で使用されているため削除できません。先に関連する取引を削除または別のカテゴリに変更してください。`,
+          },
+          { status: 409 }
+        );
+      }
+
+      mockCategories.splice(categoryIndex, 1);
+
+      console.log('DELETE /categories/' + id + ' 成功');
+      return new HttpResponse(null, { status: 204 });
+    } catch (error) {
+      console.error('DELETE /categories/' + info.params.id + ' エラー:', error);
+      return HttpResponse.json({ error: 'カテゴリの削除に失敗しました' }, { status: 500 });
+    }
+  }),
+  // カテゴリ個別取得ハンドラー（削除・更新より後に配置）
   getGetCategoriesIdMockHandler(),
-  getPutCategoriesIdMockHandler(),
-  getDeleteCategoriesIdMockHandler(),
 
   // Transactions handlers
   // Add explicit handler for /transactions/new to prevent it from matching :id pattern
