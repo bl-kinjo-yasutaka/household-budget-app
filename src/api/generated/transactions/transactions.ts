@@ -28,8 +28,10 @@ import type {
 
 import type {
   GetTransactionsParams,
+  GetTransactionsRecentParams,
   Transaction,
   TransactionCreate,
+  TransactionListResponse,
   TransactionUpdate
 } from '.././model';
 
@@ -49,7 +51,7 @@ export const getTransactions = (
 ) => {
       
       
-      return customInstance<Transaction[]>(
+      return customInstance<TransactionListResponse>(
       {url: `/transactions`, method: 'GET',
         params, signal
     },
@@ -193,6 +195,94 @@ export const usePostTransactions = <TError = unknown,
       return useMutation(mutationOptions , queryClient);
     }
     /**
+ * @summary 最新取引取得
+ */
+export const getTransactionsRecent = (
+    params?: GetTransactionsRecentParams,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<Transaction[]>(
+      {url: `/transactions/recent`, method: 'GET',
+        params, signal
+    },
+      options);
+    }
+  
+
+export const getGetTransactionsRecentQueryKey = (params?: GetTransactionsRecentParams,) => {
+    return [`/transactions/recent`, ...(params ? [params]: [])] as const;
+    }
+
+    
+export const getGetTransactionsRecentQueryOptions = <TData = Awaited<ReturnType<typeof getTransactionsRecent>>, TError = unknown>(params?: GetTransactionsRecentParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTransactionsRecent>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetTransactionsRecentQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getTransactionsRecent>>> = ({ signal }) => getTransactionsRecent(params, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getTransactionsRecent>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetTransactionsRecentQueryResult = NonNullable<Awaited<ReturnType<typeof getTransactionsRecent>>>
+export type GetTransactionsRecentQueryError = unknown
+
+
+export function useGetTransactionsRecent<TData = Awaited<ReturnType<typeof getTransactionsRecent>>, TError = unknown>(
+ params: undefined |  GetTransactionsRecentParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTransactionsRecent>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getTransactionsRecent>>,
+          TError,
+          Awaited<ReturnType<typeof getTransactionsRecent>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetTransactionsRecent<TData = Awaited<ReturnType<typeof getTransactionsRecent>>, TError = unknown>(
+ params?: GetTransactionsRecentParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTransactionsRecent>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getTransactionsRecent>>,
+          TError,
+          Awaited<ReturnType<typeof getTransactionsRecent>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetTransactionsRecent<TData = Awaited<ReturnType<typeof getTransactionsRecent>>, TError = unknown>(
+ params?: GetTransactionsRecentParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTransactionsRecent>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 最新取引取得
+ */
+
+export function useGetTransactionsRecent<TData = Awaited<ReturnType<typeof getTransactionsRecent>>, TError = unknown>(
+ params?: GetTransactionsRecentParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTransactionsRecent>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetTransactionsRecentQueryOptions(params,options)
+
+  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+/**
  * @summary 取引取得
  */
 export const getTransactionsId = (

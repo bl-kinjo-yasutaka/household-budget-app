@@ -6,6 +6,7 @@ import {
 } from '@/src/api/generated/categories/categories.msw';
 import {
   getGetTransactionsMockHandler,
+  getGetTransactionsRecentMockHandler,
   getGetTransactionsIdMockHandler,
   getDeleteTransactionsIdMockHandler,
 } from '@/src/api/generated/transactions/transactions.msw';
@@ -566,6 +567,10 @@ export const handlers = [
     const from = url.searchParams.get('from');
     const to = url.searchParams.get('to');
     const categoryId = url.searchParams.get('categoryId');
+    const memo = url.searchParams.get('memo');
+    const limitParam = url.searchParams.get('limit');
+    const limit = limitParam ? parseInt(limitParam) : null;
+    const offset = parseInt(url.searchParams.get('offset') || '0');
 
     // 日付形式検証
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
@@ -579,6 +584,17 @@ export const handlers = [
     // カテゴリID検証
     if (categoryId && isNaN(parseInt(categoryId))) {
       throw new Error('カテゴリIDは数値である必要があります');
+    }
+
+    // ページネーションパラメータ検証
+    if (limit !== null) {
+      // limitが指定されている場合のみ検証
+      if (isNaN(limit) || limit < 1 || limit > 100) {
+        throw new Error('取得件数は1〜100の範囲で指定してください');
+      }
+    }
+    if (isNaN(offset) || offset < 0) {
+      throw new Error('取得開始位置は0以上で指定してください');
     }
 
     // 日付範囲の論理チェック
@@ -602,11 +618,61 @@ export const handlers = [
       filteredTransactions = filteredTransactions.filter((t) => t.categoryId === catId);
     }
 
+    // メモ検索（部分一致）
+    if (memo) {
+      const searchTerm = memo.toLowerCase();
+      filteredTransactions = filteredTransactions.filter(
+        (t) => t.memo && t.memo.toLowerCase().includes(searchTerm)
+      );
+    }
+
     // 日付の降順でソート
-    return filteredTransactions.sort((a, b) => {
+    const sortedTransactions = filteredTransactions.sort((a, b) => {
       if (!a.transDate || !b.transDate) return 0;
       return b.transDate.localeCompare(a.transDate);
     });
+
+    // 総件数
+    const total = sortedTransactions.length;
+
+    // ページネーション適用
+    if (limit === null) {
+      // limitが指定されていない場合は全件返す
+      return {
+        data: sortedTransactions,
+        total,
+        limit: total,
+        offset: 0,
+      };
+    } else {
+      // limitが指定されている場合はページネーション適用
+      const paginatedTransactions = sortedTransactions.slice(offset, offset + limit);
+      return {
+        data: paginatedTransactions,
+        total,
+        limit,
+        offset,
+      };
+    }
+  }),
+  // 最新取引エンドポイント
+  getGetTransactionsRecentMockHandler((info) => {
+    const url = new URL(info.request.url);
+    const limit = parseInt(url.searchParams.get('limit') || '5');
+
+    // limit検証
+    if (isNaN(limit) || limit < 1 || limit > 20) {
+      throw new Error('取得件数は1〜20の範囲で指定してください');
+    }
+
+    // 日付の降順でソート
+    const sortedTransactions = [...mockTransactions].sort((a, b) => {
+      if (!a.transDate || !b.transDate) return 0;
+      return b.transDate.localeCompare(a.transDate);
+    });
+
+    // 指定件数取得
+    return sortedTransactions.slice(0, limit);
   }),
   // カスタムハンドラーを使用
   createTransactionHandler,
