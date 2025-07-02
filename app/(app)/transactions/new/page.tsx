@@ -1,15 +1,32 @@
+'use client';
+
 import { TransactionFormTabs } from '@/components/features/transactions/transaction-form-tabs';
 import { EmptyState } from '@/components/common/empty-state';
-import { mockCategories } from '@/src/mocks/handlers';
-import type { Category } from '@/src/api/generated/model';
+import { useGetCategories } from '@/src/api/generated/categories/categories';
 
-async function getCategories(): Promise<Category[]> {
-  // In real implementation, this would be an API call
-  return mockCategories;
-}
+export default function NewTransactionPage() {
+  const { data: categories, isLoading, error } = useGetCategories();
 
-export default async function NewTransactionPage() {
-  const categories = await getCategories();
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-6">
+        <div className="animate-pulse space-y-4">
+          <div className="h-8 bg-muted rounded w-1/3"></div>
+          <div className="h-64 bg-muted rounded"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <EmptyState
+        description="カテゴリの読み込みに失敗しました。"
+        actionLabel="再試行"
+        actionHref="/transactions/new"
+      />
+    );
+  }
 
   // Check if categories exist
   if (!categories || categories.length === 0) {

@@ -1,25 +1,32 @@
+'use client';
+
+import React from 'react';
 import { TransactionFormTabs } from '@/components/features/transactions/transaction-form-tabs';
 import { EmptyState } from '@/components/common/empty-state';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-import { mockCategories, mockTransactions } from '@/src/mocks/handlers';
-import type { Transaction, Category } from '@/src/api/generated/model';
+import { useGetTransactionsId } from '@/src/api/generated/transactions/transactions';
+import { useGetCategories } from '@/src/api/generated/categories/categories';
 
-async function getTransaction(id: number): Promise<Transaction | null> {
-  // In real implementation, this would be an API call
-  return mockTransactions.find((t) => t.id === id) || null;
-}
-
-async function getCategories(): Promise<Category[]> {
-  // In real implementation, this would be an API call
-  return mockCategories;
-}
-
-export default async function EditTransactionPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export default function EditTransactionPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = React.use(params);
   const transactionId = parseInt(id);
+
+  const {
+    data: transaction,
+    isLoading: isTransactionLoading,
+    error: transactionError,
+  } = useGetTransactionsId(transactionId, {
+    query: { enabled: !isNaN(transactionId) },
+  });
+
+  const {
+    data: categories,
+    isLoading: isCategoriesLoading,
+    error: categoriesError,
+  } = useGetCategories();
 
   if (isNaN(transactionId)) {
     return (
@@ -29,10 +36,28 @@ export default async function EditTransactionPage({ params }: { params: Promise<
     );
   }
 
-  const [transaction, categories] = await Promise.all([
-    getTransaction(transactionId),
-    getCategories(),
-  ]);
+  if (isTransactionLoading || isCategoriesLoading) {
+    return (
+      <div className="container mx-auto px-4 py-6">
+        <div className="animate-pulse space-y-4">
+          <div className="h-8 bg-muted rounded w-1/3"></div>
+          <div className="h-64 bg-muted rounded"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (categoriesError) {
+    return (
+      <EmptyState
+        title="取引編集"
+        description="カテゴリの読み込みに失敗しました。"
+        actionLabel="再試行"
+        actionHref={`/transactions/${id}/edit`}
+        showBackButton={true}
+      />
+    );
+  }
 
   // Check if categories exist
   if (!categories || categories.length === 0) {
@@ -47,7 +72,7 @@ export default async function EditTransactionPage({ params }: { params: Promise<
     );
   }
 
-  if (!transaction) {
+  if (transactionError || !transaction) {
     return (
       <div className="container mx-auto px-4 py-6 space-y-6">
         <div className="flex items-center gap-4">
