@@ -35,7 +35,7 @@ export function EditCategoryModal({ isOpen, onClose, category }: EditCategoryMod
         queryClient.invalidateQueries({ queryKey: ['/categories'] });
         onClose();
       },
-      onError: (error) => {
+      onError: (error: unknown) => {
         console.error('カテゴリ更新エラー:', error);
         // MSWハンドラーが適切なエラーメッセージを返すので、シンプルな処理で十分
         let errorMessage = 'カテゴリの更新に失敗しました';
