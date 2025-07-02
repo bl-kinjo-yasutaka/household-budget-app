@@ -589,8 +589,12 @@ export const handlers = [
       const currentCategory = mockCategories[categoryIndex];
 
       if (hasTransactions && currentCategory.type !== validatedData.type) {
+        const typeFrom = currentCategory.type === 'income' ? '収入' : '支出';
+        const typeTo = validatedData.type === 'income' ? '収入' : '支出';
         return HttpResponse.json(
-          { error: 'このカテゴリを使用している取引があるため、タイプを変更できません' },
+          {
+            error: `「${currentCategory.name}」は取引で使用されているため、タイプを「${typeFrom}」から「${typeTo}」に変更できません。`,
+          },
           { status: 409 }
         );
       }
@@ -649,9 +653,12 @@ export const handlers = [
 
       // 関連する取引があるかチェック
       const hasTransactions = mockTransactions.some((t) => t.categoryId === id);
+      const categoryToDelete = mockCategories[categoryIndex];
       if (hasTransactions) {
         return HttpResponse.json(
-          { error: 'このカテゴリを使用している取引があるため削除できません' },
+          {
+            error: `「${categoryToDelete.name}」は取引で使用されているため削除できません。先に関連する取引を削除または別のカテゴリに変更してください。`,
+          },
           { status: 409 }
         );
       }
