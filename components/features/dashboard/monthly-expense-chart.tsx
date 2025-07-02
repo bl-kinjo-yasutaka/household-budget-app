@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   PieChart,
@@ -18,6 +19,7 @@ import { useGetTransactions } from '@/src/api/generated/transactions/transaction
 import { useGetCategories } from '@/src/api/generated/categories/categories';
 import { TransactionType } from '@/src/api/generated/model';
 import { formatCurrency } from '@/utils/format';
+import { getCurrentMonthDateRange, getYearDateRange } from '@/utils/date';
 
 const COLORS = [
   '#0088FE',
@@ -30,44 +32,50 @@ const COLORS = [
   '#FF7C7C',
 ];
 
+const MONTHS = Array.from({ length: 12 }, (_, i) => i + 1);
+
 export function MonthlyExpenseChart() {
-  const currentDate = new Date();
-  const currentMonth = currentDate.getMonth() + 1;
-  const currentYear = currentDate.getFullYear();
+  const dateRange = useMemo(() => getCurrentMonthDateRange(), []);
 
   const { data: transactions = [], isLoading: transactionsLoading } = useGetTransactions({
-    from: `${currentYear}-${currentMonth.toString().padStart(2, '0')}-01`,
-    to: `${currentYear}-${currentMonth.toString().padStart(2, '0')}-31`,
+    from: dateRange.from,
+    to: dateRange.to,
   });
 
   const { data: categories = [], isLoading: categoriesLoading } = useGetCategories();
 
-  const expenseTransactions = transactions.filter((t) => t.type === TransactionType.expense);
+  const categoryData = useMemo(() => {
+    const expenseTransactions = transactions.filter((t) => t.type === TransactionType.expense);
 
-  const categoryData = categories
-    .map((category) => {
-      const categoryTransactions = expenseTransactions.filter((t) => t.categoryId === category.id);
-      const totalAmount = categoryTransactions.reduce((sum, t) => sum + (t.amount || 0), 0);
+    const data = categories
+      .map((category) => {
+        const categoryTransactions = expenseTransactions.filter(
+          (t) => t.categoryId === category.id
+        );
+        const totalAmount = categoryTransactions.reduce((sum, t) => sum + (t.amount || 0), 0);
 
-      return {
-        name: category.name || 'その他',
-        value: totalAmount,
-        color: category.colorHex || '#8884D8',
-      };
-    })
-    .filter((item) => item.value > 0);
+        return {
+          name: category.name || 'その他',
+          value: totalAmount,
+          color: category.colorHex || '#8884D8',
+        };
+      })
+      .filter((item) => item.value > 0);
 
-  const uncategorizedAmount = expenseTransactions
-    .filter((t) => !t.categoryId)
-    .reduce((sum, t) => sum + (t.amount || 0), 0);
+    const uncategorizedAmount = expenseTransactions
+      .filter((t) => !t.categoryId)
+      .reduce((sum, t) => sum + (t.amount || 0), 0);
 
-  if (uncategorizedAmount > 0) {
-    categoryData.push({
-      name: 'その他',
-      value: uncategorizedAmount,
-      color: '#9CA3AF',
-    });
-  }
+    if (uncategorizedAmount > 0) {
+      data.push({
+        name: 'その他',
+        value: uncategorizedAmount,
+        color: '#9CA3AF',
+      });
+    }
+
+    return data;
+  }, [transactions, categories]);
 
   const CustomTooltip = ({
     active,
@@ -130,7 +138,7 @@ export function MonthlyExpenseChart() {
       <CardContent>
         <div className="h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
+            <PieChart role="img" aria-label="カテゴリ別支出内訳円グラフ">
               <Pie
                 data={categoryData}
                 cx="50%"
@@ -157,36 +165,36 @@ export function MonthlyExpenseChart() {
 }
 
 export function MonthlyTrendChart() {
-  const currentDate = new Date();
-  const currentYear = currentDate.getFullYear();
+  const yearDateRange = useMemo(() => getYearDateRange(), []);
 
   const { data: transactions = [], isLoading } = useGetTransactions({
-    from: `${currentYear}-01-01`,
-    to: `${currentYear}-12-31`,
+    from: yearDateRange.from,
+    to: yearDateRange.to,
   });
 
-  const monthlyData = Array.from({ length: 12 }, (_, index) => {
-    const month = index + 1;
-    const monthTransactions = transactions.filter((t) => {
-      const transDate = new Date(t.transDate || '');
-      return transDate.getMonth() + 1 === month && transDate.getFullYear() === currentYear;
+  const monthlyData = useMemo(() => {
+    return MONTHS.map((month) => {
+      const monthTransactions = transactions.filter((t) => {
+        const transDate = new Date(t.transDate || '');
+        return transDate.getMonth() + 1 === month && transDate.getFullYear() === yearDateRange.year;
+      });
+
+      const income = monthTransactions
+        .filter((t) => t.type === TransactionType.income)
+        .reduce((sum, t) => sum + (t.amount || 0), 0);
+
+      const expense = monthTransactions
+        .filter((t) => t.type === TransactionType.expense)
+        .reduce((sum, t) => sum + (t.amount || 0), 0);
+
+      return {
+        month: `${month}月`,
+        収入: income,
+        支出: expense,
+        残高: income - expense,
+      };
     });
-
-    const income = monthTransactions
-      .filter((t) => t.type === TransactionType.income)
-      .reduce((sum, t) => sum + (t.amount || 0), 0);
-
-    const expense = monthTransactions
-      .filter((t) => t.type === TransactionType.expense)
-      .reduce((sum, t) => sum + (t.amount || 0), 0);
-
-    return {
-      month: `${month}月`,
-      収入: income,
-      支出: expense,
-      残高: income - expense,
-    };
-  });
+  }, [transactions, yearDateRange.year]);
 
   if (isLoading) {
     return (
@@ -214,7 +222,7 @@ export function MonthlyTrendChart() {
       <CardContent>
         <div className="h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={monthlyData}>
+            <BarChart data={monthlyData} role="img" aria-label="月別収支推移棒グラフ">
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="month" />
               <YAxis tickFormatter={(value) => `¥${(value / 1000).toFixed(0)}k`} />

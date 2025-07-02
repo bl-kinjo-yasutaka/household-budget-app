@@ -1,33 +1,37 @@
 'use client';
 
+import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp, TrendingDown, Wallet } from 'lucide-react';
 import { useGetTransactions } from '@/src/api/generated/transactions/transactions';
 import { TransactionType } from '@/src/api/generated/model';
 import { formatCurrency } from '@/utils/format';
+import { getCurrentMonthDateRange } from '@/utils/date';
 
 export function MonthlyStatsCards() {
-  const currentDate = new Date();
-  const currentMonth = currentDate.getMonth() + 1;
-  const currentYear = currentDate.getFullYear();
+  const dateRange = useMemo(() => getCurrentMonthDateRange(), []);
 
   const { data: transactions = [], isLoading } = useGetTransactions({
-    from: `${currentYear}-${currentMonth.toString().padStart(2, '0')}-01`,
-    to: `${currentYear}-${currentMonth.toString().padStart(2, '0')}-31`,
+    from: dateRange.from,
+    to: dateRange.to,
   });
 
-  const monthlyStats = transactions.reduce(
-    (acc, transaction) => {
-      const amount = transaction.amount || 0;
-      if (transaction.type === TransactionType.income) {
-        acc.income += amount;
-      } else if (transaction.type === TransactionType.expense) {
-        acc.expense += amount;
-      }
-      return acc;
-    },
-    { income: 0, expense: 0 }
-  );
+  const monthlyStats = useMemo(() => {
+    return transactions.reduce(
+      (acc, transaction) => {
+        const amount = transaction.amount || 0;
+        if (transaction.type === TransactionType.income) {
+          acc.income += amount;
+          acc.incomeCount += 1;
+        } else if (transaction.type === TransactionType.expense) {
+          acc.expense += amount;
+          acc.expenseCount += 1;
+        }
+        return acc;
+      },
+      { income: 0, expense: 0, incomeCount: 0, expenseCount: 0 }
+    );
+  }, [transactions]);
 
   const balance = monthlyStats.income - monthlyStats.expense;
 
@@ -61,9 +65,7 @@ export function MonthlyStatsCards() {
           <div className="text-2xl font-bold text-primary">
             {formatCurrency(monthlyStats.income)}
           </div>
-          <p className="text-xs text-muted-foreground">
-            {transactions.filter((t) => t.type === TransactionType.income).length} 件の収入
-          </p>
+          <p className="text-xs text-muted-foreground">{monthlyStats.incomeCount} 件の収入</p>
         </CardContent>
       </Card>
 
@@ -76,9 +78,7 @@ export function MonthlyStatsCards() {
           <div className="text-2xl font-bold text-destructive">
             {formatCurrency(monthlyStats.expense)}
           </div>
-          <p className="text-xs text-muted-foreground">
-            {transactions.filter((t) => t.type === TransactionType.expense).length} 件の支出
-          </p>
+          <p className="text-xs text-muted-foreground">{monthlyStats.expenseCount} 件の支出</p>
         </CardContent>
       </Card>
 
