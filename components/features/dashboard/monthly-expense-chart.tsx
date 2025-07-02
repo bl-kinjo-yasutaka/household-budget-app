@@ -45,36 +45,23 @@ export function MonthlyExpenseChart() {
   const { data: categories = [], isLoading: categoriesLoading } = useGetCategories();
 
   const categoryData = useMemo(() => {
-    const expenseTransactions = transactions.filter((t) => t.type === TransactionType.expense);
+    const categoryTotals = transactions.reduce(
+      (acc, transaction) => {
+        if (transaction.type === TransactionType.expense) {
+          acc[transaction.categoryId] = (acc[transaction.categoryId] || 0) + transaction.amount;
+        }
+        return acc;
+      },
+      {} as Record<number, number>
+    );
 
-    const data = categories
-      .map((category) => {
-        const categoryTransactions = expenseTransactions.filter(
-          (t) => t.categoryId === category.id
-        );
-        const totalAmount = categoryTransactions.reduce((sum, t) => sum + (t.amount || 0), 0);
-
-        return {
-          name: category.name || 'その他',
-          value: totalAmount,
-          color: category.colorHex || '#8884D8',
-        };
-      })
+    return categories
+      .map((category) => ({
+        name: category.name,
+        value: categoryTotals[category.id] || 0,
+        color: category.colorHex,
+      }))
       .filter((item) => item.value > 0);
-
-    const uncategorizedAmount = expenseTransactions
-      .filter((t) => !t.categoryId)
-      .reduce((sum, t) => sum + (t.amount || 0), 0);
-
-    if (uncategorizedAmount > 0) {
-      data.push({
-        name: 'その他',
-        value: uncategorizedAmount,
-        color: '#9CA3AF',
-      });
-    }
-
-    return data;
   }, [transactions, categories]);
 
   const CustomTooltip = ({
@@ -173,27 +160,36 @@ export function MonthlyTrendChart() {
   });
 
   const monthlyData = useMemo(() => {
-    return MONTHS.map((month) => {
-      const monthTransactions = transactions.filter((t) => {
-        const transDate = new Date(t.transDate || '');
-        return transDate.getMonth() + 1 === month && transDate.getFullYear() === yearDateRange.year;
-      });
+    const monthlyTotals = transactions.reduce(
+      (acc, transaction) => {
+        const transDate = new Date(transaction.transDate || '');
+        const month = transDate.getMonth() + 1;
+        const year = transDate.getFullYear();
 
-      const income = monthTransactions
-        .filter((t) => t.type === TransactionType.income)
-        .reduce((sum, t) => sum + (t.amount || 0), 0);
+        if (year === yearDateRange.year) {
+          if (!acc[month]) {
+            acc[month] = { income: 0, expense: 0 };
+          }
 
-      const expense = monthTransactions
-        .filter((t) => t.type === TransactionType.expense)
-        .reduce((sum, t) => sum + (t.amount || 0), 0);
+          const amount = transaction.amount || 0;
+          if (transaction.type === TransactionType.income) {
+            acc[month].income += amount;
+          } else if (transaction.type === TransactionType.expense) {
+            acc[month].expense += amount;
+          }
+        }
 
-      return {
-        month: `${month}月`,
-        収入: income,
-        支出: expense,
-        残高: income - expense,
-      };
-    });
+        return acc;
+      },
+      {} as Record<number, { income: number; expense: number }>
+    );
+
+    return MONTHS.map((month) => ({
+      month: `${month}月`,
+      収入: monthlyTotals[month]?.income || 0,
+      支出: monthlyTotals[month]?.expense || 0,
+      残高: (monthlyTotals[month]?.income || 0) - (monthlyTotals[month]?.expense || 0),
+    }));
   }, [transactions, yearDateRange.year]);
 
   if (isLoading) {
