@@ -4,20 +4,17 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, TrendingUp, TrendingDown } from 'lucide-react';
 import Link from 'next/link';
-import { useGetTransactions } from '@/src/api/generated/transactions/transactions';
+import { useGetTransactionsRecent } from '@/src/api/generated/transactions/transactions';
 import { useGetCategories } from '@/src/api/generated/categories/categories';
 import { TransactionType } from '@/src/api/generated/model';
 import { formatCurrency, formatDateShort } from '@/utils/format';
 
 export function RecentTransactions() {
-  const { data: allTransactions = [], isLoading: transactionsLoading } = useGetTransactions();
+  const { data: transactions = [], isLoading: transactionsLoading } = useGetTransactionsRecent({
+    limit: 5,
+  });
 
   const { data: categories = [], isLoading: categoriesLoading } = useGetCategories();
-
-  // 最新5件の取引を取得（日付順でソート）
-  const transactions = allTransactions
-    .sort((a, b) => new Date(b.transDate || '').getTime() - new Date(a.transDate || '').getTime())
-    .slice(0, 5);
 
   const getCategoryName = (categoryId: number | null | undefined) => {
     if (!categoryId) return 'その他';

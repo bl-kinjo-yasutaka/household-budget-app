@@ -37,10 +37,13 @@ const MONTHS = Array.from({ length: 12 }, (_, i) => i + 1);
 export function MonthlyExpenseChart() {
   const dateRange = useMemo(() => getCurrentMonthDateRange(), []);
 
-  const { data: transactions = [], isLoading: transactionsLoading } = useGetTransactions({
+  const { data: transactionResponse, isLoading: transactionsLoading } = useGetTransactions({
     from: dateRange.from,
     to: dateRange.to,
+    // limitを省略して全件取得
   });
+
+  const transactions = useMemo(() => transactionResponse?.data || [], [transactionResponse]);
 
   const { data: categories = [], isLoading: categoriesLoading } = useGetCategories();
 
@@ -154,10 +157,13 @@ export function MonthlyExpenseChart() {
 export function MonthlyTrendChart() {
   const yearDateRange = useMemo(() => getYearDateRange(), []);
 
-  const { data: transactions = [], isLoading } = useGetTransactions({
+  const { data: transactionResponse, isLoading } = useGetTransactions({
     from: yearDateRange.from,
     to: yearDateRange.to,
+    // limitを省略して全件取得
   });
+
+  const transactions = useMemo(() => transactionResponse?.data || [], [transactionResponse]);
 
   const monthlyData = useMemo(() => {
     const monthlyTotals = transactions.reduce(

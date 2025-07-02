@@ -11,10 +11,13 @@ import { getCurrentMonthDateRange } from '@/utils/date';
 export function MonthlyStatsCards() {
   const dateRange = useMemo(() => getCurrentMonthDateRange(), []);
 
-  const { data: transactions = [], isLoading } = useGetTransactions({
+  const { data: transactionResponse, isLoading } = useGetTransactions({
     from: dateRange.from,
     to: dateRange.to,
+    // limitを省略して全件取得
   });
+
+  const transactions = useMemo(() => transactionResponse?.data || [], [transactionResponse]);
 
   const monthlyStats = useMemo(() => {
     return transactions.reduce(
