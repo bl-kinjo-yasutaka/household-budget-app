@@ -17,32 +17,36 @@ export default function TransactionsPage() {
   const [toDate, setToDate] = useState('');
   const [categoryId, setCategoryId] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   // APIクエリパラメータを構築
   const queryParams = useMemo(() => {
-    const params: GetTransactionsParams = {};
+    const params: GetTransactionsParams = {
+      limit: itemsPerPage,
+      offset: (currentPage - 1) * itemsPerPage,
+    };
     if (fromDate) params.from = fromDate;
     if (toDate) params.to = toDate;
     if (categoryId && categoryId !== 'all' && !isNaN(parseInt(categoryId))) {
       params.categoryId = parseInt(categoryId);
     }
+    if (searchTerm) params.memo = searchTerm;
     return params;
-  }, [fromDate, toDate, categoryId]);
+  }, [fromDate, toDate, categoryId, searchTerm, currentPage]);
 
-  const { data: transactions = [], isLoading: isLoadingTransactions } =
+  const { data: transactionResponse, isLoading: isLoadingTransactions } =
     useGetTransactions(queryParams);
+
+  const transactions = useMemo(() => transactionResponse?.data || [], [transactionResponse]);
+  const totalTransactions = transactionResponse?.total || 0;
 
   const { data: categories = [] } = useGetCategories();
 
-  const filteredTransactions = useMemo(() => {
-    // メモ検索のみクライアントサイドで実行（APIがメモ検索をサポートしていない場合）
-    if (!searchTerm) return transactions;
-
-    const lowerSearchTerm = searchTerm.toLowerCase();
-    return transactions.filter(
-      (transaction) => transaction.memo?.toLowerCase().includes(lowerSearchTerm) || false
-    );
-  }, [transactions, searchTerm]);
+  // フィルター変更時にページを1リセット
+  const handleFilterChange = () => {
+    setCurrentPage(1);
+  };
 
   return (
     <div className="container mx-auto px-4 py-6 space-y-6">
@@ -67,15 +71,28 @@ export default function TransactionsPage() {
         categoryId={categoryId}
         searchTerm={searchTerm}
         categories={categories}
-        onFromDateChange={setFromDate}
-        onToDateChange={setToDate}
-        onCategoryChange={setCategoryId}
-        onSearchTermChange={setSearchTerm}
+        onFromDateChange={(value) => {
+          setFromDate(value);
+          handleFilterChange();
+        }}
+        onToDateChange={(value) => {
+          setToDate(value);
+          handleFilterChange();
+        }}
+        onCategoryChange={(value) => {
+          setCategoryId(value);
+          handleFilterChange();
+        }}
+        onSearchTermChange={(value) => {
+          setSearchTerm(value);
+          handleFilterChange();
+        }}
         onClearFilters={() => {
           setFromDate('');
           setToDate('');
           setCategoryId('');
           setSearchTerm('');
+          handleFilterChange();
         }}
       />
 
@@ -89,7 +106,7 @@ export default function TransactionsPage() {
             <div className="p-6 text-center">
               <p className="text-muted-foreground">読み込み中...</p>
             </div>
-          ) : filteredTransactions.length === 0 ? (
+          ) : transactions.length === 0 ? (
             <TransactionEmptyState
               hasFilters={Boolean(
                 searchTerm || fromDate || toDate || (categoryId && categoryId !== 'all')
@@ -97,8 +114,11 @@ export default function TransactionsPage() {
             />
           ) : (
             <TransactionsDataTable
-              transactions={filteredTransactions}
+              transactions={transactions}
               categories={categories}
+              totalItems={totalTransactions}
+              currentPage={currentPage}
+              onPageChange={setCurrentPage}
               onDelete={(id) => {
                 console.log('Delete transaction:', id);
               }}
