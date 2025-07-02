@@ -1,26 +1,33 @@
 'use client';
 
 import { useState } from 'react';
-import { CategoryList } from '@/components/features/categories/category-list';
-import { CategoryFormModal } from '@/components/features/categories/category-form-modal';
+import {
+  CategoryList,
+  CreateCategoryModal,
+  EditCategoryModal,
+} from '@/components/features/categories';
 import type { Category } from '@/src/api/generated/model';
 
 export default function CategoriesPage() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
 
   const handleCreateCategory = () => {
-    setEditingCategory(null);
-    setIsModalOpen(true);
+    setIsCreateModalOpen(true);
   };
 
   const handleEditCategory = (category: Category) => {
     setEditingCategory(category);
-    setIsModalOpen(true);
+    setIsEditModalOpen(true);
   };
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
+  const handleCloseCreateModal = () => {
+    setIsCreateModalOpen(false);
+  };
+
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false);
     setEditingCategory(null);
   };
 
@@ -37,12 +44,17 @@ export default function CategoriesPage() {
       {/* Categories List */}
       <CategoryList onCreateCategory={handleCreateCategory} onEditCategory={handleEditCategory} />
 
-      {/* Category Form Modal */}
-      <CategoryFormModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        category={editingCategory}
-      />
+      {/* Create Category Modal */}
+      <CreateCategoryModal isOpen={isCreateModalOpen} onClose={handleCloseCreateModal} />
+
+      {/* Edit Category Modal */}
+      {editingCategory && (
+        <EditCategoryModal
+          isOpen={isEditModalOpen}
+          onClose={handleCloseEditModal}
+          category={editingCategory}
+        />
+      )}
     </div>
   );
 }
