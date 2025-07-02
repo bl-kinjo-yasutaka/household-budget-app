@@ -89,6 +89,23 @@ export const mockCategories: Category[] = [
     type: 'expense',
     createdAt: '2025-06-01T00:00:00Z',
   },
+  // 削除テスト用カテゴリ（取引データなし）
+  {
+    id: 9,
+    userId: 1,
+    name: 'テスト支出',
+    colorHex: '#64748b',
+    type: 'expense',
+    createdAt: '2025-07-02T00:00:00Z',
+  },
+  {
+    id: 10,
+    userId: 1,
+    name: 'テスト収入',
+    colorHex: '#22c55e',
+    type: 'income',
+    createdAt: '2025-07-02T00:00:00Z',
+  },
 ];
 
 // リアルなモック取引データ（正の値のみ）- 7月データ
@@ -550,7 +567,6 @@ export const handlers = [
       return HttpResponse.json({ error: '内部サーバーエラー' }, { status: 500 });
     }
   }),
-  getGetCategoriesIdMockHandler(),
   // カテゴリ更新のカスタムハンドラー
   http.put('*/categories/:id', async (info) => {
     const id = parseInt(info.params.id as string);
@@ -567,6 +583,17 @@ export const handlers = [
     try {
       const requestBody = await info.request.json();
       const validatedData = categoryFormSchema.parse(requestBody);
+
+      // 取引で使用されているカテゴリのタイプ変更をチェック
+      const hasTransactions = mockTransactions.some((t) => t.categoryId === id);
+      const currentCategory = mockCategories[categoryIndex];
+
+      if (hasTransactions && currentCategory.type !== validatedData.type) {
+        return HttpResponse.json(
+          { error: 'このカテゴリを使用している取引があるため、タイプを変更できません' },
+          { status: 409 }
+        );
+      }
 
       // 同じ名前のカテゴリが他に存在しないかチェック（自分以外）
       const nameExists = mockCategories.some(
@@ -638,6 +665,8 @@ export const handlers = [
       return HttpResponse.json({ error: 'カテゴリの削除に失敗しました' }, { status: 500 });
     }
   }),
+  // カテゴリ個別取得ハンドラー（削除・更新より後に配置）
+  getGetCategoriesIdMockHandler(),
 
   // Transactions handlers
   // Add explicit handler for /transactions/new to prevent it from matching :id pattern

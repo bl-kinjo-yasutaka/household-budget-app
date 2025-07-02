@@ -26,9 +26,35 @@ export function CategoryList({ onCreateCategory, onEditCategory }: CategoryListP
         toast.success('カテゴリを削除しました');
         queryClient.invalidateQueries({ queryKey: ['/categories'] });
       },
-      onError: (error) => {
+      onError: (error: unknown) => {
         console.error('カテゴリ削除エラー:', error);
-        toast.error('カテゴリの削除に失敗しました');
+
+        // エラーメッセージの詳細を取得
+        let errorMessage = 'カテゴリの削除に失敗しました';
+
+        try {
+          // レスポンスのエラーメッセージを確認
+          if (error && typeof error === 'object' && 'response' in error) {
+            const response = (error as { response?: { data?: { error?: string } } }).response;
+            if (response?.data?.error) {
+              errorMessage = response.data.error;
+            }
+          } else if (error && typeof error === 'object' && 'data' in error) {
+            const data = (error as { data?: { error?: string } }).data;
+            if (data?.error) {
+              errorMessage = data.error;
+            }
+          } else if (error && typeof error === 'object' && 'message' in error) {
+            const message = (error as { message?: string }).message;
+            if (message) {
+              errorMessage = message;
+            }
+          }
+        } catch (e) {
+          console.error('エラーメッセージ解析エラー:', e);
+        }
+
+        toast.error(errorMessage);
       },
       onSettled: () => {
         setDeletingId(null);
