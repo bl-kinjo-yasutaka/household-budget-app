@@ -8,9 +8,11 @@
  * OpenAPI spec version: 0.1.2
  */
 
-export interface User {
-  id: number;
-  email: string;
-  name: string;
-  createdAt: string;
-}
+export type GetTransactionsRecentParams = {
+/**
+ * 取得件数（最大20件）
+ * @minimum 1
+ * @maximum 20
+ */
+limit?: number;
+};

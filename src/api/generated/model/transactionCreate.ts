@@ -10,8 +10,7 @@
 import type { TransactionCreateType } from './transactionCreateType';
 
 export interface TransactionCreate {
-  /** @nullable */
-  categoryId?: number | null;
+  categoryId: number;
   type: TransactionCreateType;
   transDate: string;
   /** @minimum 0 */

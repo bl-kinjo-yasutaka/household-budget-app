@@ -22,7 +22,7 @@ import type {
 } from '.././model';
 
 
-export const getGetUserMeResponseMock = (overrideResponse: Partial< User > = {}): User => ({id: faker.helpers.arrayElement([faker.number.int({min: undefined, max: undefined, multipleOf: undefined}), undefined]), email: faker.helpers.arrayElement([faker.internet.email(), undefined]), name: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), undefined]), createdAt: faker.helpers.arrayElement([`${faker.date.past().toISOString().split('.')[0]}Z`, undefined]), ...overrideResponse})
+export const getGetUserMeResponseMock = (overrideResponse: Partial< User > = {}): User => ({id: faker.number.int({min: undefined, max: undefined, multipleOf: undefined}), email: faker.internet.email(), name: faker.string.alpha({length: {min: 10, max: 20}}), createdAt: `${faker.date.past().toISOString().split('.')[0]}Z`, ...overrideResponse})
 
 
 export const getGetUserMeMockHandler = (overrideResponse?: User | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<User> | User)) => {

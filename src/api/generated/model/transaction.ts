@@ -10,18 +10,17 @@
 import type { TransactionType } from './transactionType';
 
 export interface Transaction {
-  id?: number;
-  userId?: number;
-  /** @nullable */
-  categoryId?: number | null;
-  type?: TransactionType;
-  transDate?: string;
+  id: number;
+  userId: number;
+  categoryId: number;
+  type: TransactionType;
+  transDate: string;
   /** @minimum 0 */
-  amount?: number;
+  amount: number;
   /**
    * @maxLength 500
    * @nullable
    */
   memo?: string | null;
-  createdAt?: string;
+  createdAt: string;
 }

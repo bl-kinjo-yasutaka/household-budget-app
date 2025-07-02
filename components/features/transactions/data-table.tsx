@@ -14,11 +14,13 @@ import type { Transaction, Category } from '@/src/api/generated/model';
 import { Edit, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { formatCurrency, formatDate } from '@/utils/format';
-import { useState } from 'react';
 
 interface DataTableProps {
   transactions: Transaction[];
   categories: Category[];
+  totalItems: number;
+  currentPage: number;
+  onPageChange: (page: number) => void;
   onDelete?: (id: number) => void;
   itemsPerPage?: number;
 }
@@ -26,15 +28,13 @@ interface DataTableProps {
 export function TransactionsDataTable({
   transactions,
   categories,
+  totalItems,
+  currentPage,
+  onPageChange,
   onDelete,
   itemsPerPage = 10,
 }: DataTableProps) {
-  const [currentPage, setCurrentPage] = useState(1);
-
-  const totalPages = Math.ceil(transactions.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentTransactions = transactions.slice(startIndex, endIndex);
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
 
   const getCategoryById = (categoryId: number | null | undefined) => {
     if (!categoryId) return null;
@@ -75,7 +75,7 @@ export function TransactionsDataTable({
                 </TableCell>
               </TableRow>
             ) : (
-              currentTransactions.map((transaction) => {
+              transactions.map((transaction) => {
                 const category = getCategoryById(transaction.categoryId);
                 const isIncome = transaction.type === 'income';
 
@@ -142,10 +142,13 @@ export function TransactionsDataTable({
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
-        totalItems={transactions.length}
+        totalItems={totalItems}
         itemsPerPage={itemsPerPage}
-        onPageChange={setCurrentPage}
+        onPageChange={onPageChange}
         showItemsRange={true}
+        size="compact"
+        density="full"
+        className="md:px-6 px-4"
       />
     </div>
   );

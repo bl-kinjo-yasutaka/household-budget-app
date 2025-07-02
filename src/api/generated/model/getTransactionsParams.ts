@@ -18,4 +18,19 @@ from?: string;
  */
 to?: string;
 categoryId?: number;
+/**
+ * 取得件数（省略時は全件取得、指定時は最大100件）
+ * @minimum 1
+ * @maximum 100
+ */
+limit?: number;
+/**
+ * 取得開始位置
+ * @minimum 0
+ */
+offset?: number;
+/**
+ * メモ検索（部分一致）
+ */
+memo?: string;
 };

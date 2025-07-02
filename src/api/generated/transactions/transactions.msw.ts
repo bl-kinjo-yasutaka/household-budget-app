@@ -18,20 +18,23 @@ import {
 } from 'msw';
 
 import type {
-  Transaction
+  Transaction,
+  TransactionListResponse
 } from '.././model';
 
 
-export const getGetTransactionsResponseMock = (): Transaction[] => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({id: faker.helpers.arrayElement([faker.number.int({min: undefined, max: undefined, multipleOf: undefined}), undefined]), userId: faker.helpers.arrayElement([faker.number.int({min: undefined, max: undefined, multipleOf: undefined}), undefined]), categoryId: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.number.int({min: undefined, max: undefined, multipleOf: undefined}), null]), undefined]), type: faker.helpers.arrayElement([faker.helpers.arrayElement(['expense','income'] as const), undefined]), transDate: faker.helpers.arrayElement([faker.date.past().toISOString().split('T')[0], undefined]), amount: faker.helpers.arrayElement([faker.number.float({min: 0, max: undefined, fractionDigits: 2}), undefined]), memo: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 500}}), null]), undefined]), createdAt: faker.helpers.arrayElement([`${faker.date.past().toISOString().split('.')[0]}Z`, undefined])})))
+export const getGetTransactionsResponseMock = (overrideResponse: Partial< TransactionListResponse > = {}): TransactionListResponse => ({data: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({id: faker.number.int({min: undefined, max: undefined, multipleOf: undefined}), userId: faker.number.int({min: undefined, max: undefined, multipleOf: undefined}), categoryId: faker.number.int({min: undefined, max: undefined, multipleOf: undefined}), type: faker.helpers.arrayElement(['expense','income'] as const), transDate: faker.date.past().toISOString().split('T')[0], amount: faker.number.float({min: 0, max: undefined, fractionDigits: 2}), memo: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 500}}), null]), undefined]), createdAt: `${faker.date.past().toISOString().split('.')[0]}Z`})), total: faker.number.int({min: undefined, max: undefined, multipleOf: undefined}), limit: faker.number.int({min: undefined, max: undefined, multipleOf: undefined}), offset: faker.number.int({min: undefined, max: undefined, multipleOf: undefined}), ...overrideResponse})
 
-export const getPostTransactionsResponseMock = (overrideResponse: Partial< Transaction > = {}): Transaction => ({id: faker.helpers.arrayElement([faker.number.int({min: undefined, max: undefined, multipleOf: undefined}), undefined]), userId: faker.helpers.arrayElement([faker.number.int({min: undefined, max: undefined, multipleOf: undefined}), undefined]), categoryId: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.number.int({min: undefined, max: undefined, multipleOf: undefined}), null]), undefined]), type: faker.helpers.arrayElement([faker.helpers.arrayElement(['expense','income'] as const), undefined]), transDate: faker.helpers.arrayElement([faker.date.past().toISOString().split('T')[0], undefined]), amount: faker.helpers.arrayElement([faker.number.float({min: 0, max: undefined, fractionDigits: 2}), undefined]), memo: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 500}}), null]), undefined]), createdAt: faker.helpers.arrayElement([`${faker.date.past().toISOString().split('.')[0]}Z`, undefined]), ...overrideResponse})
+export const getPostTransactionsResponseMock = (overrideResponse: Partial< Transaction > = {}): Transaction => ({id: faker.number.int({min: undefined, max: undefined, multipleOf: undefined}), userId: faker.number.int({min: undefined, max: undefined, multipleOf: undefined}), categoryId: faker.number.int({min: undefined, max: undefined, multipleOf: undefined}), type: faker.helpers.arrayElement(['expense','income'] as const), transDate: faker.date.past().toISOString().split('T')[0], amount: faker.number.float({min: 0, max: undefined, fractionDigits: 2}), memo: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 500}}), null]), undefined]), createdAt: `${faker.date.past().toISOString().split('.')[0]}Z`, ...overrideResponse})
 
-export const getGetTransactionsIdResponseMock = (overrideResponse: Partial< Transaction > = {}): Transaction => ({id: faker.helpers.arrayElement([faker.number.int({min: undefined, max: undefined, multipleOf: undefined}), undefined]), userId: faker.helpers.arrayElement([faker.number.int({min: undefined, max: undefined, multipleOf: undefined}), undefined]), categoryId: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.number.int({min: undefined, max: undefined, multipleOf: undefined}), null]), undefined]), type: faker.helpers.arrayElement([faker.helpers.arrayElement(['expense','income'] as const), undefined]), transDate: faker.helpers.arrayElement([faker.date.past().toISOString().split('T')[0], undefined]), amount: faker.helpers.arrayElement([faker.number.float({min: 0, max: undefined, fractionDigits: 2}), undefined]), memo: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 500}}), null]), undefined]), createdAt: faker.helpers.arrayElement([`${faker.date.past().toISOString().split('.')[0]}Z`, undefined]), ...overrideResponse})
+export const getGetTransactionsRecentResponseMock = (): Transaction[] => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({id: faker.number.int({min: undefined, max: undefined, multipleOf: undefined}), userId: faker.number.int({min: undefined, max: undefined, multipleOf: undefined}), categoryId: faker.number.int({min: undefined, max: undefined, multipleOf: undefined}), type: faker.helpers.arrayElement(['expense','income'] as const), transDate: faker.date.past().toISOString().split('T')[0], amount: faker.number.float({min: 0, max: undefined, fractionDigits: 2}), memo: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 500}}), null]), undefined]), createdAt: `${faker.date.past().toISOString().split('.')[0]}Z`})))
 
-export const getPutTransactionsIdResponseMock = (overrideResponse: Partial< Transaction > = {}): Transaction => ({id: faker.helpers.arrayElement([faker.number.int({min: undefined, max: undefined, multipleOf: undefined}), undefined]), userId: faker.helpers.arrayElement([faker.number.int({min: undefined, max: undefined, multipleOf: undefined}), undefined]), categoryId: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.number.int({min: undefined, max: undefined, multipleOf: undefined}), null]), undefined]), type: faker.helpers.arrayElement([faker.helpers.arrayElement(['expense','income'] as const), undefined]), transDate: faker.helpers.arrayElement([faker.date.past().toISOString().split('T')[0], undefined]), amount: faker.helpers.arrayElement([faker.number.float({min: 0, max: undefined, fractionDigits: 2}), undefined]), memo: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 500}}), null]), undefined]), createdAt: faker.helpers.arrayElement([`${faker.date.past().toISOString().split('.')[0]}Z`, undefined]), ...overrideResponse})
+export const getGetTransactionsIdResponseMock = (overrideResponse: Partial< Transaction > = {}): Transaction => ({id: faker.number.int({min: undefined, max: undefined, multipleOf: undefined}), userId: faker.number.int({min: undefined, max: undefined, multipleOf: undefined}), categoryId: faker.number.int({min: undefined, max: undefined, multipleOf: undefined}), type: faker.helpers.arrayElement(['expense','income'] as const), transDate: faker.date.past().toISOString().split('T')[0], amount: faker.number.float({min: 0, max: undefined, fractionDigits: 2}), memo: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 500}}), null]), undefined]), createdAt: `${faker.date.past().toISOString().split('.')[0]}Z`, ...overrideResponse})
+
+export const getPutTransactionsIdResponseMock = (overrideResponse: Partial< Transaction > = {}): Transaction => ({id: faker.number.int({min: undefined, max: undefined, multipleOf: undefined}), userId: faker.number.int({min: undefined, max: undefined, multipleOf: undefined}), categoryId: faker.number.int({min: undefined, max: undefined, multipleOf: undefined}), type: faker.helpers.arrayElement(['expense','income'] as const), transDate: faker.date.past().toISOString().split('T')[0], amount: faker.number.float({min: 0, max: undefined, fractionDigits: 2}), memo: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 500}}), null]), undefined]), createdAt: `${faker.date.past().toISOString().split('.')[0]}Z`, ...overrideResponse})
 
 
-export const getGetTransactionsMockHandler = (overrideResponse?: Transaction[] | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<Transaction[]> | Transaction[])) => {
+export const getGetTransactionsMockHandler = (overrideResponse?: TransactionListResponse | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<TransactionListResponse> | TransactionListResponse)) => {
   return http.get('*/transactions', async (info) => {await delay(1000);
   
     return new HttpResponse(JSON.stringify(overrideResponse !== undefined
@@ -50,6 +53,18 @@ export const getPostTransactionsMockHandler = (overrideResponse?: Transaction | 
     ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse)
     : getPostTransactionsResponseMock()),
       { status: 201,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  })
+}
+
+export const getGetTransactionsRecentMockHandler = (overrideResponse?: Transaction[] | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<Transaction[]> | Transaction[])) => {
+  return http.get('*/transactions/recent', async (info) => {await delay(1000);
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined
+    ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse)
+    : getGetTransactionsRecentResponseMock()),
+      { status: 200,
         headers: { 'Content-Type': 'application/json' }
       })
   })
@@ -91,6 +106,7 @@ export const getDeleteTransactionsIdMockHandler = (overrideResponse?: void | ((i
 export const getTransactionsMock = () => [
   getGetTransactionsMockHandler(),
   getPostTransactionsMockHandler(),
+  getGetTransactionsRecentMockHandler(),
   getGetTransactionsIdMockHandler(),
   getPutTransactionsIdMockHandler(),
   getDeleteTransactionsIdMockHandler()

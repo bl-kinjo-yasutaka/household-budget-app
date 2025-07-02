@@ -15,3 +15,12 @@ export function formatDate(dateStr: string | undefined): string {
     day: '2-digit',
   });
 }
+
+export function formatDateShort(dateStr: string | undefined): string {
+  if (!dateStr) return '-';
+  const date = new Date(dateStr);
+  return new Intl.DateTimeFormat('ja-JP', {
+    month: 'short',
+    day: 'numeric',
+  }).format(date);
+}

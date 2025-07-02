@@ -50,6 +50,7 @@ export function Pagination({
 
   const containerClasses = cn(
     'flex items-center justify-between',
+    'flex-col sm:flex-row gap-3 sm:gap-0', // スマホは縦積み、デスクトップは横並び
     sizeVariants[size],
     styleVariants[variant],
     className
@@ -63,7 +64,12 @@ export function Pagination({
 
     return (
       <div className={cn(textSize, 'text-muted-foreground')}>
-        {totalItems} 件中 {startIndex + 1} - {Math.min(endIndex, totalItems)} 件を表示
+        <span className="hidden sm:inline">
+          {totalItems} 件中 {startIndex + 1} - {Math.min(endIndex, totalItems)} 件を表示
+        </span>
+        <span className="sm:hidden">
+          {startIndex + 1}-{Math.min(endIndex, totalItems)} / {totalItems}
+        </span>
       </div>
     );
   };
@@ -98,7 +104,7 @@ export function Pagination({
           aria-label="前のページへ"
         >
           <ChevronLeft className={iconSize} />
-          {size !== 'minimal' && '前へ'}
+          {size !== 'minimal' && <span className="hidden sm:inline">前へ</span>}
         </Button>
 
         {renderPageInfo()}
@@ -110,7 +116,7 @@ export function Pagination({
           disabled={disabled || currentPage === totalPages}
           aria-label="次のページへ"
         >
-          {size !== 'minimal' && '次へ'}
+          {size !== 'minimal' && <span className="hidden sm:inline">次へ</span>}
           <ChevronRight className={iconSize} />
         </Button>
       </div>
