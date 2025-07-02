@@ -1,19 +1,12 @@
 import {
-  getPostAuthSignupMockHandler,
-  getPostAuthLoginMockHandler,
-} from '@/src/api/generated/auth/auth.msw';
-import {
   getGetCategoriesMockHandler,
-  getPostCategoriesMockHandler,
   getGetCategoriesIdMockHandler,
   getPutCategoriesIdMockHandler,
   getDeleteCategoriesIdMockHandler,
 } from '@/src/api/generated/categories/categories.msw';
 import {
   getGetTransactionsMockHandler,
-  getPostTransactionsMockHandler,
   getGetTransactionsIdMockHandler,
-  getPutTransactionsIdMockHandler,
   getDeleteTransactionsIdMockHandler,
 } from '@/src/api/generated/transactions/transactions.msw';
 import {
@@ -23,6 +16,13 @@ import {
 import { getGetUserMeMockHandler } from '@/src/api/generated/users/users.msw';
 import type { Transaction, Category } from '@/src/api/generated/model';
 import { http, HttpResponse } from 'msw';
+import { z } from 'zod';
+import {
+  transactionFormSchema,
+  categoryFormSchema,
+  loginSchema,
+  signupSchema,
+} from '@/src/lib/schemas';
 
 // リアルなモックカテゴリデータ
 export const mockCategories: Category[] = [
@@ -311,23 +311,246 @@ export const mockTransactions: Transaction[] = [
   },
 ];
 
+// カスタムハンドラー（バリデーション付き）
+const createTransactionHandler = http.post('*/transactions', async (info) => {
+  try {
+    const requestBody = await info.request.json();
+    const validatedData = transactionFormSchema.parse(requestBody);
+
+    // カテゴリ存在チェック
+    const categoryExists = mockCategories.some((cat) => cat.id === validatedData.categoryId);
+    if (!categoryExists) {
+      return HttpResponse.json({ error: '指定されたカテゴリが存在しません' }, { status: 400 });
+    }
+
+    // 新しい取引を作成
+    const newTransaction: Transaction = {
+      id: mockTransactions.length + 1,
+      userId: 1,
+      categoryId: validatedData.categoryId,
+      type: validatedData.type,
+      transDate: validatedData.transDate,
+      amount: validatedData.amount,
+      memo: validatedData.memo || null,
+      createdAt: new Date().toISOString(),
+    };
+
+    mockTransactions.push(newTransaction);
+
+    console.log('POST /transactions 成功:', newTransaction);
+    return HttpResponse.json(newTransaction, { status: 201 });
+  } catch (error) {
+    console.error('POST /transactions バリデーションエラー:', error);
+
+    if (error instanceof z.ZodError) {
+      return HttpResponse.json(
+        {
+          error: '入力データにエラーがあります',
+          details: error.errors.map((err) => ({
+            field: err.path.join('.'),
+            message: err.message,
+          })),
+        },
+        { status: 400 }
+      );
+    }
+
+    return HttpResponse.json({ error: '内部サーバーエラー' }, { status: 500 });
+  }
+});
+
+const updateTransactionHandler = http.put('*/transactions/:id', async (info) => {
+  const id = parseInt(info.params.id as string);
+
+  if (isNaN(id) || id <= 0) {
+    return HttpResponse.json({ error: '無効な取引IDです' }, { status: 400 });
+  }
+
+  const transactionIndex = mockTransactions.findIndex((t) => t.id === id);
+  if (transactionIndex === -1) {
+    return HttpResponse.json({ error: '取引が見つかりません' }, { status: 404 });
+  }
+
+  try {
+    const requestBody = await info.request.json();
+    const validatedData = transactionFormSchema.parse(requestBody);
+
+    const categoryExists = mockCategories.some((cat) => cat.id === validatedData.categoryId);
+    if (!categoryExists) {
+      return HttpResponse.json({ error: '指定されたカテゴリが存在しません' }, { status: 400 });
+    }
+
+    const updatedTransaction: Transaction = {
+      ...mockTransactions[transactionIndex],
+      categoryId: validatedData.categoryId,
+      type: validatedData.type,
+      transDate: validatedData.transDate,
+      amount: validatedData.amount,
+      memo: validatedData.memo || null,
+    };
+
+    mockTransactions[transactionIndex] = updatedTransaction;
+
+    console.log('PUT /transactions/' + id + ' 成功:', updatedTransaction);
+    return HttpResponse.json(updatedTransaction, { status: 200 });
+  } catch (error) {
+    console.error('PUT /transactions/' + id + ' バリデーションエラー:', error);
+
+    if (error instanceof z.ZodError) {
+      return HttpResponse.json(
+        {
+          error: '入力データにエラーがあります',
+          details: error.errors.map((err) => ({
+            field: err.path.join('.'),
+            message: err.message,
+          })),
+        },
+        { status: 400 }
+      );
+    }
+
+    return HttpResponse.json({ error: '内部サーバーエラー' }, { status: 500 });
+  }
+});
+
 // 自動生成されたハンドラー
 export const handlers = [
-  // Auth handlers
-  getPostAuthSignupMockHandler(),
-  getPostAuthLoginMockHandler({
-    token: 'demo-jwt-token-12345',
-    user: {
-      id: 1,
-      email: 'demo@example.com',
-      name: 'デモユーザー',
-      createdAt: new Date().toISOString(),
-    },
+  // Auth handlers (with validation)
+  http.post('*/auth/signup', async (info) => {
+    try {
+      const requestBody = await info.request.json();
+      const validatedData = signupSchema.parse(requestBody);
+
+      const newUser = {
+        id: 1,
+        email: validatedData.email,
+        name: validatedData.name,
+        createdAt: new Date().toISOString(),
+      };
+
+      console.log('POST /auth/signup 成功:', newUser);
+      return HttpResponse.json(
+        {
+          token: 'demo-jwt-token-signup-' + Date.now(),
+          user: newUser,
+        },
+        { status: 201 }
+      );
+    } catch (error) {
+      console.error('POST /auth/signup バリデーションエラー:', error);
+
+      if (error instanceof z.ZodError) {
+        return HttpResponse.json(
+          {
+            error: '入力データにエラーがあります',
+            details: error.errors.map((err) => ({
+              field: err.path.join('.'),
+              message: err.message,
+            })),
+          },
+          { status: 400 }
+        );
+      }
+
+      return HttpResponse.json({ error: '内部サーバーエラー' }, { status: 500 });
+    }
+  }),
+  http.post('*/auth/login', async (info) => {
+    try {
+      const requestBody = await info.request.json();
+      const validatedData = loginSchema.parse(requestBody);
+
+      // デモ用の簡単な認証チェック
+      if (validatedData.email !== 'demo@example.com' || validatedData.password !== 'password123') {
+        return HttpResponse.json(
+          { error: 'メールアドレスまたはパスワードが正しくありません' },
+          { status: 401 }
+        );
+      }
+
+      const user = {
+        id: 1,
+        email: 'demo@example.com',
+        name: 'デモユーザー',
+        createdAt: new Date().toISOString(),
+      };
+
+      console.log('POST /auth/login 成功:', user);
+      return HttpResponse.json(
+        {
+          token: 'demo-jwt-token-12345',
+          user: user,
+        },
+        { status: 200 }
+      );
+    } catch (error) {
+      console.error('POST /auth/login バリデーションエラー:', error);
+
+      if (error instanceof z.ZodError) {
+        return HttpResponse.json(
+          {
+            error: '入力データにエラーがあります',
+            details: error.errors.map((err) => ({
+              field: err.path.join('.'),
+              message: err.message,
+            })),
+          },
+          { status: 400 }
+        );
+      }
+
+      return HttpResponse.json({ error: '内部サーバーエラー' }, { status: 500 });
+    }
   }),
 
   // Categories handlers
   getGetCategoriesMockHandler(mockCategories),
-  getPostCategoriesMockHandler(),
+  http.post('*/categories', async (info) => {
+    try {
+      const requestBody = await info.request.json();
+      const validatedData = categoryFormSchema.parse(requestBody);
+
+      // 同じ名前のカテゴリが存在しないかチェック
+      const nameExists = mockCategories.some(
+        (cat) => cat.name === validatedData.name && cat.type === validatedData.type
+      );
+      if (nameExists) {
+        return HttpResponse.json({ error: '同じ名前のカテゴリが既に存在します' }, { status: 409 });
+      }
+
+      // 新しいカテゴリを作成
+      const newCategory: Category = {
+        id: mockCategories.length + 1,
+        userId: 1,
+        name: validatedData.name,
+        colorHex: validatedData.colorHex,
+        type: validatedData.type,
+        createdAt: new Date().toISOString(),
+      };
+
+      mockCategories.push(newCategory);
+
+      console.log('POST /categories 成功:', newCategory);
+      return HttpResponse.json(newCategory, { status: 201 });
+    } catch (error) {
+      console.error('POST /categories バリデーションエラー:', error);
+
+      if (error instanceof z.ZodError) {
+        return HttpResponse.json(
+          {
+            error: '入力データにエラーがあります',
+            details: error.errors.map((err) => ({
+              field: err.path.join('.'),
+              message: err.message,
+            })),
+          },
+          { status: 400 }
+        );
+      }
+
+      return HttpResponse.json({ error: '内部サーバーエラー' }, { status: 500 });
+    }
+  }),
   getGetCategoriesIdMockHandler(),
   getPutCategoriesIdMockHandler(),
   getDeleteCategoriesIdMockHandler(),
@@ -343,6 +566,25 @@ export const handlers = [
     const from = url.searchParams.get('from');
     const to = url.searchParams.get('to');
     const categoryId = url.searchParams.get('categoryId');
+
+    // 日付形式検証
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (from && !dateRegex.test(from)) {
+      throw new Error('開始日の形式が正しくありません (YYYY-MM-DD)');
+    }
+    if (to && !dateRegex.test(to)) {
+      throw new Error('終了日の形式が正しくありません (YYYY-MM-DD)');
+    }
+
+    // カテゴリID検証
+    if (categoryId && isNaN(parseInt(categoryId))) {
+      throw new Error('カテゴリIDは数値である必要があります');
+    }
+
+    // 日付範囲の論理チェック
+    if (from && to && from > to) {
+      throw new Error('開始日は終了日より前である必要があります');
+    }
 
     let filteredTransactions = [...mockTransactions];
 
@@ -366,21 +608,8 @@ export const handlers = [
       return b.transDate.localeCompare(a.transDate);
     });
   }),
-  getPostTransactionsMockHandler((info) => {
-    console.log('POST /transactions called', info.request);
-    // 新しい取引を作成
-    const newTransaction: Transaction = {
-      id: mockTransactions.length + 1,
-      userId: 1,
-      categoryId: 1, // デフォルト値
-      type: 'expense',
-      transDate: new Date().toISOString().split('T')[0],
-      amount: 1000,
-      memo: '新しい取引',
-      createdAt: new Date().toISOString(),
-    };
-    return newTransaction;
-  }),
+  // カスタムハンドラーを使用
+  createTransactionHandler,
   getGetTransactionsIdMockHandler((info) => {
     const url = new URL(info.request.url);
     const pathParts = url.pathname.split('/');
@@ -388,19 +617,20 @@ export const handlers = [
 
     const id = parseInt(idString);
 
-    // If ID is not a number, it's not a valid transaction ID
-    if (isNaN(id)) {
-      // Return a dummy transaction that won't be used
-      return { id: -1, userId: -1 } as Transaction;
+    // IDが数値でない場合
+    if (isNaN(id) || id <= 0) {
+      throw new Error('無効な取引IDです');
     }
 
     const transaction = mockTransactions.find((t) => t.id === id);
     if (!transaction) {
-      throw new Error('Transaction not found');
+      throw new Error('取引が見つかりません');
     }
+
     return transaction;
   }),
-  getPutTransactionsIdMockHandler(),
+  // カスタムハンドラーを使用
+  updateTransactionHandler,
   getDeleteTransactionsIdMockHandler(),
 
   // Users handlers
