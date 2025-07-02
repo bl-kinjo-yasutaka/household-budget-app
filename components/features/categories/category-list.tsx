@@ -4,11 +4,11 @@ import { useState } from 'react';
 import { useGetCategories, useDeleteCategoriesId } from '@/src/api/generated/categories/categories';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Edit, Trash2, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import type { Category } from '@/src/api/generated/model';
+import { CategoryCard } from './category-card';
 
 interface CategoryListProps {
   onCreateCategory: () => void;
@@ -28,32 +28,14 @@ export function CategoryList({ onCreateCategory, onEditCategory }: CategoryListP
       },
       onError: (error: unknown) => {
         console.error('カテゴリ削除エラー:', error);
-
-        // エラーメッセージの詳細を取得
+        // MSWハンドラーが適切なエラーメッセージを返すので、シンプルな処理で十分
         let errorMessage = 'カテゴリの削除に失敗しました';
-
-        try {
-          // レスポンスのエラーメッセージを確認
-          if (error && typeof error === 'object' && 'response' in error) {
-            const response = (error as { response?: { data?: { error?: string } } }).response;
-            if (response?.data?.error) {
-              errorMessage = response.data.error;
-            }
-          } else if (error && typeof error === 'object' && 'data' in error) {
-            const data = (error as { data?: { error?: string } }).data;
-            if (data?.error) {
-              errorMessage = data.error;
-            }
-          } else if (error && typeof error === 'object' && 'message' in error) {
-            const message = (error as { message?: string }).message;
-            if (message) {
-              errorMessage = message;
-            }
+        if (error && typeof error === 'object' && 'response' in error) {
+          const response = (error as { response?: { data?: { error?: string } } }).response;
+          if (response?.data?.error) {
+            errorMessage = response.data.error;
           }
-        } catch (e) {
-          console.error('エラーメッセージ解析エラー:', e);
         }
-
         toast.error(errorMessage);
       },
       onSettled: () => {
@@ -214,55 +196,6 @@ export function CategoryList({ onCreateCategory, onEditCategory }: CategoryListP
           </CardContent>
         </Card>
       )}
-    </div>
-  );
-}
-
-interface CategoryCardProps {
-  category: Category;
-  onEdit: () => void;
-  onDelete: () => void;
-  isDeleting: boolean;
-}
-
-function CategoryCard({ category, onEdit, onDelete, isDeleting }: CategoryCardProps) {
-  return (
-    <div className="relative group">
-      <div
-        className="p-4 rounded-lg border bg-card hover:shadow-md transition-shadow"
-        style={{ borderLeftColor: category.colorHex, borderLeftWidth: '4px' }}
-      >
-        <div className="flex items-start justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <div
-              className="w-4 h-4 rounded-full"
-              style={{ backgroundColor: category.colorHex }}
-            ></div>
-            <h3 className="font-medium text-sm">{category.name}</h3>
-          </div>
-          <Badge
-            variant={category.type === 'income' ? 'default' : 'destructive'}
-            className="text-xs"
-          >
-            {category.type === 'income' ? '収入' : '支出'}
-          </Badge>
-        </div>
-
-        <div className="flex items-center gap-2 mt-3">
-          <Button variant="outline" size="sm" onClick={onEdit} className="h-8 px-2">
-            <Edit className="h-3 w-3" />
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onDelete}
-            disabled={isDeleting}
-            className="h-8 px-2 hover:bg-destructive hover:text-destructive-foreground"
-          >
-            <Trash2 className="h-3 w-3" />
-          </Button>
-        </div>
-      </div>
     </div>
   );
 }
