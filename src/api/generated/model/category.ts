@@ -10,11 +10,11 @@
 import type { CategoryType } from './categoryType';
 
 export interface Category {
-  id?: number;
-  userId?: number;
-  name?: string;
+  id: number;
+  userId: number;
+  name: string;
   /** @pattern ^#[0-9A-Fa-f]{6}$ */
-  colorHex?: string;
-  type?: CategoryType;
-  createdAt?: string;
+  colorHex: string;
+  type: CategoryType;
+  createdAt: string;
 }

@@ -22,9 +22,9 @@ import type {
 } from '.././model';
 
 
-export const getPostAuthSignupResponseMock = (overrideResponse: Partial< AuthResponse > = {}): AuthResponse => ({token: faker.string.alpha({length: {min: 10, max: 20}}), user: {id: faker.helpers.arrayElement([faker.number.int({min: undefined, max: undefined, multipleOf: undefined}), undefined]), email: faker.helpers.arrayElement([faker.internet.email(), undefined]), name: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), undefined]), createdAt: faker.helpers.arrayElement([`${faker.date.past().toISOString().split('.')[0]}Z`, undefined])}, ...overrideResponse})
+export const getPostAuthSignupResponseMock = (overrideResponse: Partial< AuthResponse > = {}): AuthResponse => ({token: faker.string.alpha({length: {min: 10, max: 20}}), user: {id: faker.number.int({min: undefined, max: undefined, multipleOf: undefined}), email: faker.internet.email(), name: faker.string.alpha({length: {min: 10, max: 20}}), createdAt: `${faker.date.past().toISOString().split('.')[0]}Z`}, ...overrideResponse})
 
-export const getPostAuthLoginResponseMock = (overrideResponse: Partial< AuthResponse > = {}): AuthResponse => ({token: faker.string.alpha({length: {min: 10, max: 20}}), user: {id: faker.helpers.arrayElement([faker.number.int({min: undefined, max: undefined, multipleOf: undefined}), undefined]), email: faker.helpers.arrayElement([faker.internet.email(), undefined]), name: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), undefined]), createdAt: faker.helpers.arrayElement([`${faker.date.past().toISOString().split('.')[0]}Z`, undefined])}, ...overrideResponse})
+export const getPostAuthLoginResponseMock = (overrideResponse: Partial< AuthResponse > = {}): AuthResponse => ({token: faker.string.alpha({length: {min: 10, max: 20}}), user: {id: faker.number.int({min: undefined, max: undefined, multipleOf: undefined}), email: faker.internet.email(), name: faker.string.alpha({length: {min: 10, max: 20}}), createdAt: `${faker.date.past().toISOString().split('.')[0]}Z`}, ...overrideResponse})
 
 
 export const getPostAuthSignupMockHandler = (overrideResponse?: AuthResponse | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<AuthResponse> | AuthResponse)) => {
