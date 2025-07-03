@@ -1,18 +1,41 @@
 'use client';
 
-import React, { createContext, useContext, ReactNode } from 'react';
+import React, { createContext, useContext, ReactNode, useMemo } from 'react';
 import { useGetUserSettings } from '@/src/api/generated/user-settings/user-settings';
 import { useAuth } from '@/src/contexts/auth-context';
 import type { UserSettings } from '@/src/api/generated/model';
 
-interface UserSettingsContextType {
+/**
+ * ユーザー設定データのコンテキスト型定義
+ */
+interface UserSettingsDataContextType {
   settings: UserSettings | null;
-  isLoading: boolean;
   refetch: () => void;
 }
 
-const UserSettingsContext = createContext<UserSettingsContextType | undefined>(undefined);
+/**
+ * ローディング状態のコンテキスト型定義
+ */
+interface UserSettingsLoadingContextType {
+  isLoading: boolean;
+}
 
+// データ用のコンテキスト
+const UserSettingsDataContext = createContext<UserSettingsDataContextType | undefined>(undefined);
+
+// ローディング状態用のコンテキスト
+const UserSettingsLoadingContext = createContext<UserSettingsLoadingContextType | undefined>(
+  undefined
+);
+
+/**
+ * ユーザー設定のプロバイダー
+ *
+ * @description
+ * データとローディング状態を分離することで、
+ * ローディング状態の変更時にデータを使用するコンポーネントが
+ * 不必要に再レンダリングされることを防ぐ
+ */
 export function UserSettingsProvider({ children }: { children: ReactNode }) {
   const { isAuthenticated } = useAuth();
 
@@ -26,23 +49,70 @@ export function UserSettingsProvider({ children }: { children: ReactNode }) {
     },
   });
 
+  // データコンテキストの値をメモ化
+  const dataValue = useMemo(
+    () => ({
+      settings: settings || null,
+      refetch,
+    }),
+    [settings, refetch]
+  );
+
+  // ローディングコンテキストの値をメモ化
+  const loadingValue = useMemo(
+    () => ({
+      isLoading,
+    }),
+    [isLoading]
+  );
+
   return (
-    <UserSettingsContext.Provider
-      value={{
-        settings: settings || null,
-        isLoading,
-        refetch,
-      }}
-    >
-      {children}
-    </UserSettingsContext.Provider>
+    <UserSettingsDataContext.Provider value={dataValue}>
+      <UserSettingsLoadingContext.Provider value={loadingValue}>
+        {children}
+      </UserSettingsLoadingContext.Provider>
+    </UserSettingsDataContext.Provider>
   );
 }
 
-export function useUserSettings() {
-  const context = useContext(UserSettingsContext);
+/**
+ * ユーザー設定データを取得するフック
+ *
+ * @returns ユーザー設定データとrefetch関数
+ */
+export function useUserSettingsData() {
+  const context = useContext(UserSettingsDataContext);
   if (context === undefined) {
-    throw new Error('useUserSettings must be used within a UserSettingsProvider');
+    throw new Error('useUserSettingsData must be used within a UserSettingsProvider');
   }
   return context;
+}
+
+/**
+ * ユーザー設定のローディング状態を取得するフック
+ *
+ * @returns ローディング状態
+ */
+export function useUserSettingsLoading() {
+  const context = useContext(UserSettingsLoadingContext);
+  if (context === undefined) {
+    throw new Error('useUserSettingsLoading must be used within a UserSettingsProvider');
+  }
+  return context;
+}
+
+/**
+ * ユーザー設定の全ての情報を取得するフック（後方互換性のため）
+ *
+ * @returns ユーザー設定データ、ローディング状態、refetch関数
+ */
+export function useUserSettings() {
+  const { settings, refetch } = useUserSettingsData();
+  const { isLoading } = useUserSettingsLoading();
+
+  return {
+    settings,
+    isLoading,
+    refetch,
+  };
 }

@@ -37,6 +37,19 @@ import {
 import { toast } from 'sonner';
 import { Settings } from 'lucide-react';
 
+/**
+ * ユーザー設定フォームコンポーネント
+ *
+ * @description
+ * ユーザーの基本設定（通貨、週開始曜日）を管理するフォーム。
+ * 設定変更はアプリケーション全体に即座に反映される。
+ *
+ * @features
+ * - 通貨設定（JPY/USD/EUR）の選択
+ * - 週開始曜日の設定
+ * - フォームバリデーション
+ * - 楽観的更新とキャッシュ無効化
+ */
 export function UserSettingsForm() {
   const queryClient = useQueryClient();
   const { data: userSettings, isLoading } = useGetUserSettings();
@@ -50,15 +63,15 @@ export function UserSettingsForm() {
     },
   });
 
-  // データ取得後にフォームの値を更新
+  // データ取得後にフォームの値を更新（フォームがダーティでない場合のみ）
   React.useEffect(() => {
-    if (userSettings) {
+    if (userSettings && !form.formState.isDirty) {
       form.reset({
         currency: userSettings.currency || 'JPY',
         startWeekday: userSettings.startWeekday || 0,
       });
     }
-  }, [userSettings, form]);
+  }, [userSettings, form, form.formState.isDirty]);
 
   const onSubmit = async (data: UserSettingsFormData) => {
     try {
