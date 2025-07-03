@@ -13,7 +13,8 @@ import { Pagination } from '@/components/ui/pagination';
 import type { Transaction, Category } from '@/src/api/generated/model';
 import { Edit, Trash2 } from 'lucide-react';
 import Link from 'next/link';
-import { formatCurrency, formatDate } from '@/utils/format';
+import { useFormatCurrency } from '@/hooks/use-format-currency';
+import { formatDate } from '@/utils/format';
 
 interface DataTableProps {
   transactions: Transaction[];
@@ -34,6 +35,7 @@ export function TransactionsDataTable({
   onDelete,
   itemsPerPage = 10,
 }: DataTableProps) {
+  const formatCurrency = useFormatCurrency();
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
   const getCategoryById = (categoryId: number | null | undefined) => {
