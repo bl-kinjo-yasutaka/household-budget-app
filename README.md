@@ -89,7 +89,7 @@ MSWはAPIリクエストをインターセプトしてモックレスポンス�
   /layout.tsx          # ルートレイアウト
   /not-found.tsx       # 404ページ
 /components            # Reactコンポーネント
-  /ui                 # shadcn/ui UIコンポーネント（Button、Card、Table、Pagination、LoadingSkeleton、ErrorState等）
+  /ui                 # shadcn/ui UIコンポーネント（Button、Card、Table、Pagination、LoadingIndicator、ErrorState等）
   /common             # 共通コンポーネント（Navigation、ErrorBoundary、UserSettingsErrorBoundary）
   /features           # 機能別コンポーネント（取引関連、認証関連、動的インポートラッパー）
 /src
@@ -106,7 +106,8 @@ MSWはAPIリクエストをインターセプトしてモックレスポンス�
   /providers          # Context Providers
 /store                # Redux store設定
 /types                # TypeScript型定義
-/hooks                # カスタムフック（エラーハンドリング、ローディング制御等）
+/hooks                # カスタムフック（エラーハンドリング、ローディング制御、API mutation等）
+  /api                # API関連カスタムフック（カテゴリ・取引・設定）
 /utils                # ユーティリティ関数
 ```
 
@@ -267,6 +268,8 @@ npx prettier --write "**/*.{js,jsx,ts,tsx,json,md,css}"
   - [x] 型安全性向上（非null assertion削除）
   - [x] カスタムフック整理（再利用性向上）
   - [x] 未使用エクスポート削除
+  - [x] API mutation hooks抽出（コード重複削減、約150行削減）
+  - [x] LoadingIndicator統一（パフォーマンス改善）
 
 - [x] **ダッシュボード機能**
   - [x] 月次統計カード（収入・支出・残高表示）

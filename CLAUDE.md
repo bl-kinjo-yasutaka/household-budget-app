@@ -56,7 +56,7 @@ Next.js 15.3のApp Routerアーキテクチャを使用して構築された日�
   - `layout.tsx` - ルートレイアウト（全Provider設定）
   - `not-found.tsx` - 404エラーページ
 - `/components` - タイプ別に整理されたReactコンポーネント
-  - `/ui` - shadcn/ui UIコンポーネント（Button、Card、Input、Table、Pagination、LoadingSkeleton、ErrorState等）
+  - `/ui` - shadcn/ui UIコンポーネント（Button、Card、Input、Table、Pagination、LoadingIndicator、ErrorState等）
   - `/common` - 共有コンポーネント（Navigation、ErrorBoundary、UserSettingsErrorBoundary）
   - `/features` - 機能固有のコンポーネント（取引関連、認証関連、動的インポートラッパー）
 - `/src` - アプリケーションのコアロジック
@@ -88,6 +88,10 @@ Next.js 15.3のApp Routerアーキテクチャを使用して構築された日�
   - `useDelayedLoading.ts` - ローディング表示制御
   - `useConfirmationDialog.ts` - 確認ダイアログ管理
   - `use-format-currency.ts` - 通貨フォーマット
+  - `/api` - API関連カスタムフック
+    - `useCategories.ts` - カテゴリ関連mutation hooks
+    - `useTransactions.ts` - 取引関連mutation hooks
+    - `useUserSettings.ts` - 設定関連mutation hooks
 - `/utils` - ユーティリティ関数
 - `/_docs` - ログ管理
 
@@ -132,7 +136,7 @@ Next.js 15.3のApp Routerアーキテクチャを使用して構築された日�
 - **ページヘッダー**: title + description + 主要アクション の統一フォーマット
 - **空状態**: アイコン + タイトル + 説明 + アクション の統一パターン
 - **エラー・成功**: 適切なvariant（destructive, default等）の使用
-- **ローディング**: LoadingSkeletonコンポーネントによる統一スケルトンUI
+- **ローディング**: LoadingIndicatorコンポーネントによる統一ローディングUI
 - **エラー表示**: ErrorStateコンポーネントによる統一エラーUI
 - **ログ出力**: loggerによる統一ログシステム（console.log使用禁止）
 
