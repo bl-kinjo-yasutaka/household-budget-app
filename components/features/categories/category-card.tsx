@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { CategoryColorBadge } from '@/components/ui/category-color-badge';
 import { Edit, Trash2 } from 'lucide-react';
 import type { Category } from '@/src/api/generated/model';
 
@@ -18,13 +19,7 @@ export function CategoryCard({ category, onEdit, onDelete, isDeleting }: Categor
         style={{ borderLeftColor: category.colorHex, borderLeftWidth: '4px' }}
       >
         <div className="flex items-start justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <div
-              className="w-4 h-4 rounded-full"
-              style={{ backgroundColor: category.colorHex }}
-            ></div>
-            <h3 className="font-medium text-sm">{category.name}</h3>
-          </div>
+          <CategoryColorBadge category={category} size="md" nameClassName="font-medium" />
           <Badge
             variant={category.type === 'income' ? 'default' : 'destructive'}
             className="text-xs"
