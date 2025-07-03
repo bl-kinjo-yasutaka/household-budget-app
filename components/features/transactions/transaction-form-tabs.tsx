@@ -14,21 +14,18 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Save, ArrowLeft, Plus, Minus, Trash2 } from 'lucide-react';
+import { Save, Plus, Minus, Trash2 } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { transactionFormSchema, type TransactionFormData } from '@/src/lib/schemas/transactions';
-import {
-  usePostTransactions,
-  usePutTransactionsId,
-  useDeleteTransactionsId,
-} from '@/src/api/generated/transactions/transactions';
-import { useQueryClient } from '@tanstack/react-query';
 import { EmptyState } from '@/components/common/empty-state';
 import { ConfirmationDialog } from '@/components/common/confirmation-dialog';
 import { useConfirmationDialog } from '@/hooks/useConfirmationDialog';
 import type { Transaction, Category } from '@/src/api/generated/model';
-import { useErrorHandler } from '@/hooks/useErrorHandler';
+import {
+  useCreateTransaction,
+  useUpdateTransaction,
+  useDeleteTransaction,
+} from '@/hooks/api/useTransactions';
 
 interface TransactionFormTabsProps {
   transaction?: Transaction;
@@ -36,9 +33,6 @@ interface TransactionFormTabsProps {
 }
 
 export function TransactionFormTabs({ transaction, categories }: TransactionFormTabsProps) {
-  const router = useRouter();
-  const queryClient = useQueryClient();
-  const { showError, showSuccess } = useErrorHandler();
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { state: confirmDialog, showConfirmation, hideConfirmation } = useConfirmationDialog();
@@ -73,54 +67,11 @@ export function TransactionFormTabs({ transaction, categories }: TransactionForm
     };
   }, [transaction, categories]);
 
-  const createMutation = usePostTransactions({
-    mutation: {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['/transactions'] });
-        showSuccess('取引を作成しました', '新しい取引が正常に記録されました。');
-        router.push('/transactions');
-      },
-      onError: (error) => {
-        showError(error, 'transaction creation', {
-          fallbackMessage: '取引の作成に失敗しました',
-          showValidationDetails: true,
-        });
-      },
-    },
-  });
-
-  const updateMutation = usePutTransactionsId({
-    mutation: {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['/transactions'] });
-        queryClient.invalidateQueries({ queryKey: [`/transactions/${transaction?.id}`] });
-        showSuccess('取引を更新しました', '取引情報が正常に更新されました。');
-        router.push('/transactions');
-      },
-      onError: (error) => {
-        showError(error, 'transaction update', {
-          fallbackMessage: '取引の更新に失敗しました',
-          showValidationDetails: true,
-        });
-      },
-    },
-  });
-
-  const deleteMutation = useDeleteTransactionsId({
-    mutation: {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['/transactions'] });
-        showSuccess('取引を削除しました', '取引が正常に削除されました。');
-        router.push('/transactions');
-      },
-      onError: (error) => {
-        showError(error, 'transaction deletion', {
-          fallbackMessage: '取引の削除に失敗しました',
-        });
-      },
-      onSettled: () => {
-        setIsDeleting(false);
-      },
+  const createMutation = useCreateTransaction();
+  const updateMutation = useUpdateTransaction(transaction?.id);
+  const deleteMutation = useDeleteTransaction({
+    onSettled: () => {
+      setIsDeleting(false);
     },
   });
 
@@ -220,25 +171,7 @@ export function TransactionFormTabs({ transaction, categories }: TransactionForm
   }
 
   return (
-    <div className="container mx-auto px-4 py-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href="/transactions">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            {mode === 'create' ? '収支入力' : '取引編集'}
-          </h1>
-          <p className="text-muted-foreground">
-            {mode === 'create' ? '新しい取引を記録します' : '取引情報を編集します'}
-          </p>
-        </div>
-      </div>
-
-      {/* Form */}
+    <>
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">取引情報</CardTitle>
@@ -401,6 +334,6 @@ export function TransactionFormTabs({ transaction, categories }: TransactionForm
           isLoading={isSubmitting || isDeleting}
         />
       )}
-    </div>
+    </>
   );
 }

@@ -3,7 +3,6 @@
 import React, { useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -25,7 +24,7 @@ import {
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
   useGetUserSettings,
-  usePutUserSettings,
+  putUserSettings,
   getGetUserSettingsQueryKey,
 } from '@/src/api/generated/user-settings/user-settings';
 import {
@@ -35,9 +34,13 @@ import {
   WEEKDAY_OPTIONS,
 } from '@/src/lib/schemas/settings';
 import { Settings } from 'lucide-react';
-import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useDelayedLoading } from '@/hooks/useDelayedLoading';
-import { LoadingSkeleton } from '@/components/ui/loading-skeleton';
+import { LoadingIndicator } from '@/components/ui/loading-indicator';
+import { NetworkErrorState } from '@/components/ui/error-state';
+import {
+  useMutationWithErrorHandling,
+  mutationPresets,
+} from '@/hooks/useMutationWithErrorHandling';
 
 /**
  * ユーザー設定フォームコンポーネント
@@ -53,10 +56,15 @@ import { LoadingSkeleton } from '@/components/ui/loading-skeleton';
  * - 楽観的更新とキャッシュ無効化
  */
 export function UserSettingsForm() {
-  const queryClient = useQueryClient();
-  const { showError, showSuccess } = useErrorHandler();
-  const { data: userSettings, isLoading } = useGetUserSettings();
-  const putUserSettings = usePutUserSettings();
+  const { data: userSettings, isLoading, error, refetch } = useGetUserSettings();
+
+  const updateUserSettings = useMutationWithErrorHandling(
+    (data: { data: UserSettingsFormData }) => putUserSettings(data.data),
+    {
+      ...mutationPresets.update('設定', '/user-settings'),
+      invalidateQueries: [getGetUserSettingsQueryKey()[0]],
+    }
+  );
 
   const form = useForm<UserSettingsFormData>({
     resolver: zodResolver(userSettingsSchema),
@@ -76,24 +84,27 @@ export function UserSettingsForm() {
     }
   }, [userSettings, form, form.formState.isDirty]);
 
-  const onSubmit = async (data: UserSettingsFormData) => {
-    try {
-      await putUserSettings.mutateAsync({ data });
-
-      // 設定更新後にキャッシュを無効化
-      const queryKey = getGetUserSettingsQueryKey();
-      await queryClient.invalidateQueries({ queryKey });
-
-      showSuccess('設定を更新しました');
-    } catch (error) {
-      showError(error, 'user settings update', {
-        fallbackMessage: '設定の更新に失敗しました',
-        showValidationDetails: true,
-      });
-    }
+  const onSubmit = (data: UserSettingsFormData) => {
+    updateUserSettings.mutate({ data });
   };
 
   const showLoading = useDelayedLoading(isLoading, 200);
+
+  if (error) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Settings className="h-5 w-5" />
+            アプリ設定
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <NetworkErrorState onRetry={() => refetch()} />
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (showLoading) {
     return (
@@ -105,7 +116,7 @@ export function UserSettingsForm() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <LoadingSkeleton variant="form" count={2} />
+          <LoadingIndicator variant="spinner" height="h-40" />
         </CardContent>
       </Card>
     );
@@ -186,8 +197,8 @@ export function UserSettingsForm() {
               )}
             />
 
-            <Button type="submit" disabled={putUserSettings.isPending} className="w-full">
-              {putUserSettings.isPending ? '更新中...' : '設定を保存'}
+            <Button type="submit" disabled={updateUserSettings.isPending} className="w-full">
+              {updateUserSettings.isPending ? '更新中...' : '設定を保存'}
             </Button>
           </form>
         </Form>

@@ -2,11 +2,9 @@
 
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { usePostCategories } from '@/src/api/generated/categories/categories';
 import { categoryFormSchema, type CategoryFormData } from '@/src/lib/schemas/categories';
-import { useErrorHandler } from '@/hooks/useErrorHandler';
-import { useQueryClient } from '@tanstack/react-query';
 import { CategoryFormContent, PRESET_COLORS } from './category-form-content';
+import { useCreateCategory } from '@/hooks/api/useCategories';
 
 interface CreateCategoryModalProps {
   isOpen: boolean;
@@ -14,9 +12,6 @@ interface CreateCategoryModalProps {
 }
 
 export function CreateCategoryModal({ isOpen, onClose }: CreateCategoryModalProps) {
-  const { showError, showSuccess } = useErrorHandler();
-  const queryClient = useQueryClient();
-
   // 新規作成用の固定初期値
   const form = useForm<CategoryFormData>({
     resolver: zodResolver(categoryFormSchema),
@@ -27,20 +22,10 @@ export function CreateCategoryModal({ isOpen, onClose }: CreateCategoryModalProp
     },
   });
 
-  const createCategory = usePostCategories({
-    mutation: {
-      onSuccess: () => {
-        showSuccess('カテゴリを作成しました');
-        queryClient.invalidateQueries({ queryKey: ['/categories'] });
-        form.reset(); // フォームをリセット
-        onClose();
-      },
-      onError: (error) => {
-        showError(error, 'category creation', {
-          fallbackMessage: 'カテゴリの作成に失敗しました',
-          showValidationDetails: true,
-        });
-      },
+  const createCategory = useCreateCategory({
+    onSuccess: () => {
+      form.reset(); // フォームをリセット
+      onClose();
     },
   });
 

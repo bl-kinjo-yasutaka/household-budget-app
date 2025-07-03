@@ -3,7 +3,6 @@
 import React from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -16,10 +15,8 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { passwordChangeSchema, PasswordChangeFormData } from '@/src/lib/schemas/settings';
-import { usePutUserPassword } from '@/src/api/generated/users/users';
 import { Lock } from 'lucide-react';
-import { useAuth } from '@/src/contexts/auth-context';
-import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { useChangePassword } from '@/hooks/api/useUserSettings';
 
 /**
  * パスワード変更フォームコンポーネント
@@ -35,11 +32,6 @@ import { useErrorHandler } from '@/hooks/useErrorHandler';
  * - 適切なエラーハンドリング
  */
 export function PasswordChangeForm() {
-  const router = useRouter();
-  const { logout } = useAuth();
-  const { showError, showSuccess } = useErrorHandler();
-  const putUserPassword = usePutUserPassword();
-
   const form = useForm<PasswordChangeFormData>({
     resolver: zodResolver(passwordChangeSchema),
     defaultValues: {
@@ -49,30 +41,20 @@ export function PasswordChangeForm() {
     },
   });
 
-  const onSubmit = async (data: PasswordChangeFormData) => {
-    try {
-      // API用のデータ形式に変換（confirmPasswordを除く）
-      const requestData = {
-        currentPassword: data.currentPassword,
-        newPassword: data.newPassword,
-      };
-
-      await putUserPassword.mutateAsync({ data: requestData });
-
-      // フォームをリセット
+  const changePassword = useChangePassword({
+    onSuccess: () => {
       form.reset();
+    },
+  });
 
-      showSuccess('パスワードを変更しました', 'セキュリティのため、再度ログインしてください');
+  const onSubmit = (data: PasswordChangeFormData) => {
+    // API用のデータ形式に変換（confirmPasswordを除く）
+    const requestData = {
+      currentPassword: data.currentPassword,
+      newPassword: data.newPassword,
+    };
 
-      // セキュリティのためログアウトしてログインページにリダイレクト
-      logout();
-      router.push('/login');
-    } catch (error) {
-      showError(error, 'password change', {
-        fallbackMessage: 'パスワードの変更に失敗しました',
-        showValidationDetails: true,
-      });
-    }
+    changePassword.mutate({ data: requestData });
   };
 
   return (
@@ -128,8 +110,8 @@ export function PasswordChangeForm() {
               )}
             />
 
-            <Button type="submit" className="w-full" disabled={putUserPassword.isPending}>
-              {putUserPassword.isPending ? '変更中...' : 'パスワードを変更'}
+            <Button type="submit" className="w-full" disabled={changePassword.isPending}>
+              {changePassword.isPending ? '変更中...' : 'パスワードを変更'}
             </Button>
           </form>
         </Form>

@@ -3,20 +3,17 @@
 import React, { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, FormProvider } from 'react-hook-form';
-import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useDeleteUserMe } from '@/src/api/generated/users/users';
 import {
   accountDeleteRequestSchema,
   AccountDeleteRequestFormData,
 } from '@/src/lib/schemas/settings';
 import { Trash2 } from 'lucide-react';
-import { useAuth } from '@/src/contexts/auth-context';
-import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useConfirmationDialog } from '@/hooks/useConfirmationDialog';
 import { ConfirmationDialog } from '@/components/common/confirmation-dialog';
 import { AccountDeleteWarning } from './account-delete-warning';
 import { AccountDeletePasswordForm } from './account-delete-password-form';
+import { useDeleteAccount } from '@/hooks/api/useUserSettings';
 
 /**
  * アカウント削除フォームコンポーネント
@@ -33,10 +30,6 @@ import { AccountDeletePasswordForm } from './account-delete-password-form';
  * - 削除後の自動ログアウト
  */
 export function AccountDeleteForm() {
-  const router = useRouter();
-  const { logout } = useAuth();
-  const { showError, showSuccess } = useErrorHandler();
-  const deleteAccount = useDeleteUserMe();
   const { state: confirmState, showConfirmation, hideConfirmation } = useConfirmationDialog();
 
   const form = useForm<AccountDeleteRequestFormData>({
@@ -48,27 +41,20 @@ export function AccountDeleteForm() {
 
   const [pendingData, setPendingData] = useState<AccountDeleteRequestFormData | null>(null);
 
+  const deleteAccount = useDeleteAccount({
+    onSettled: () => {
+      hideConfirmation();
+      setPendingData(null);
+    },
+  });
+
   /**
    * アカウント削除の実行処理
    *
    * @param data - フォームデータ（パスワード）
    */
-  const handleAccountDelete = async (data: AccountDeleteRequestFormData) => {
-    try {
-      await deleteAccount.mutateAsync({ data: pendingData || data });
-      showSuccess('アカウントが削除されました');
-
-      // ログアウトしてログインページにリダイレクト
-      logout();
-      router.push('/login');
-    } catch (error) {
-      showError(error, 'account deletion', {
-        fallbackMessage: 'アカウントの削除に失敗しました',
-      });
-    } finally {
-      hideConfirmation();
-      setPendingData(null);
-    }
+  const handleAccountDelete = (data: AccountDeleteRequestFormData) => {
+    deleteAccount.mutate({ data: pendingData || data });
   };
 
   /**
