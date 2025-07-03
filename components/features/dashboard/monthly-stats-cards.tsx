@@ -13,10 +13,7 @@ import { LoadingSkeleton } from '@/components/ui/loading-skeleton';
 export function MonthlyStatsCards() {
   const formatCurrency = useFormatCurrency();
 
-  // getCurrentMonthDateRange()は内部で現在の日付を使用するため、依存配列は不要
-  const dateRange = useMemo(() => {
-    return getCurrentMonthDateRange();
-  }, []);
+  const dateRange = getCurrentMonthDateRange();
 
   const { data: transactionResponse, isLoading } = useGetTransactions({
     from: dateRange.from,

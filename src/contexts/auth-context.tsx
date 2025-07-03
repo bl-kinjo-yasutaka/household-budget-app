@@ -121,10 +121,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.push('/login');
   }, [dispatch, queryClient, router]);
 
-  // ローディング状態の統合をメモ化
-  const isLoading = useMemo(() => {
-    return userLoading || (isAuthenticated && !user && userQuery.isLoading);
-  }, [userLoading, isAuthenticated, user, userQuery.isLoading]);
+  // ローディング状態の統合
+  const isLoading = userLoading || (isAuthenticated && !user && userQuery.isLoading);
 
   // Context値をメモ化して不要な再レンダリングを防止
   const contextValue = useMemo(

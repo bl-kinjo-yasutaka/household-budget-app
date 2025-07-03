@@ -12,7 +12,7 @@ import { useGetCategories } from '@/src/api/generated/categories/categories';
 import { useState, useMemo, useEffect } from 'react';
 import type { GetTransactionsParams } from '@/src/api/generated/model';
 import { logger } from '@/src/lib/logger';
-import { useDelayedLoading, usePageLoading } from '@/hooks/useDelayedLoading';
+import { useDelayedLoading } from '@/hooks/useDelayedLoading';
 import { LoadingSkeleton } from '@/components/ui/loading-skeleton';
 import { ErrorState } from '@/components/ui/error-state';
 
@@ -22,7 +22,7 @@ export default function TransactionsPage() {
   const [categoryId, setCategoryId] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const { isPageLoading, setPageLoading } = usePageLoading();
+  const [isPageLoading, setPageLoading] = useState(false);
   const itemsPerPage = 10;
 
   // APIクエリパラメータを構築
