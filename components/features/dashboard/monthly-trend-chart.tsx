@@ -16,7 +16,7 @@ import { useGetTransactions } from '@/src/api/generated/transactions/transaction
 import { TransactionType } from '@/src/api/generated/model';
 import { useFormatCurrency } from '@/hooks/use-format-currency';
 import { getYearDateRange } from '@/utils/date';
-import { ChartLoading } from './chart-loading';
+import { LoadingSkeleton } from '@/components/ui/loading-skeleton';
 
 // 1年分の月配列（1-12月）
 const MONTHS = Array.from({ length: 12 }, (_, i) => i + 1);
@@ -99,7 +99,7 @@ export function MonthlyTrendChart() {
   }, [transactions, yearDateRange.year]);
 
   if (isLoading) {
-    return <ChartLoading title="月別推移" />;
+    return <LoadingSkeleton variant="chart" />;
   }
 
   return (

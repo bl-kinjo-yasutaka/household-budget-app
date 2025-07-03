@@ -8,8 +8,7 @@ import { useGetCategories } from '@/src/api/generated/categories/categories';
 import { TransactionType } from '@/src/api/generated/model';
 import { useFormatCurrency } from '@/hooks/use-format-currency';
 import { getCurrentMonthDateRange } from '@/utils/date';
-import { ChartLoading } from './chart-loading';
-import { ChartEmpty } from './chart-empty';
+import { LoadingSkeleton } from '@/components/ui/loading-skeleton';
 
 // チャートで使用するデフォルトカラーパレット
 const COLORS = [
@@ -92,11 +91,22 @@ export function MonthlyExpenseChart() {
   };
 
   if (transactionsLoading || categoriesLoading) {
-    return <ChartLoading title="支出内訳" />;
+    return <LoadingSkeleton variant="chart" />;
   }
 
   if (categoryData.length === 0) {
-    return <ChartEmpty title="支出内訳" message="今月の支出データがありません" />;
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">支出内訳</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[300px] flex items-center justify-center">
+            <p className="text-muted-foreground">今月の支出データがありません</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (
