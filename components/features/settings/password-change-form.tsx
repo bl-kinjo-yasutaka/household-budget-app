@@ -3,6 +3,7 @@
 import React from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -18,6 +19,7 @@ import { passwordChangeSchema, PasswordChangeFormData } from '@/src/lib/schemas/
 import { usePutUserPassword } from '@/src/api/generated/users/users';
 import { toast } from 'sonner';
 import { Lock } from 'lucide-react';
+import { useAuth } from '@/src/contexts/auth-context';
 
 /**
  * パスワード変更フォームコンポーネント
@@ -33,6 +35,8 @@ import { Lock } from 'lucide-react';
  * - 適切なエラーハンドリング
  */
 export function PasswordChangeForm() {
+  const router = useRouter();
+  const { logout } = useAuth();
   const putUserPassword = usePutUserPassword();
 
   const form = useForm<PasswordChangeFormData>({
@@ -61,22 +65,14 @@ export function PasswordChangeForm() {
         description: 'セキュリティのため、再度ログインしてください',
       });
 
-      // 実際の実装では、ここでログアウト処理を行う
-      // router.push('/login');
+      // セキュリティのためログアウトしてログインページにリダイレクト
+      logout();
+      router.push('/login');
     } catch (error) {
       console.error('パスワード変更エラー:', error);
 
-      // エラーハンドリング
-      if (error && typeof error === 'object' && 'response' in error) {
-        const response = error.response as { status?: number };
-        if (response?.status === 401) {
-          toast.error('現在のパスワードが正しくありません');
-        } else {
-          toast.error('パスワードの変更に失敗しました');
-        }
-      } else {
-        toast.error('パスワードの変更に失敗しました');
-      }
+      // エラーメッセージはバックエンドで処理済みのため、汎用的なメッセージを表示
+      toast.error('パスワードの変更に失敗しました');
     }
   };
 
