@@ -5,10 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp, TrendingDown, Wallet } from 'lucide-react';
 import { useGetTransactions } from '@/src/api/generated/transactions/transactions';
 import { TransactionType } from '@/src/api/generated/model';
-import { formatCurrency } from '@/utils/format';
+import { useFormatCurrency } from '@/hooks/use-format-currency';
 import { getCurrentMonthDateRange } from '@/utils/date';
 
 export function MonthlyStatsCards() {
+  const formatCurrency = useFormatCurrency();
   const dateRange = useMemo(() => getCurrentMonthDateRange(), []);
 
   const { data: transactionResponse, isLoading } = useGetTransactions({

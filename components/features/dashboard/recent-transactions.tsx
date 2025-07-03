@@ -7,9 +7,11 @@ import Link from 'next/link';
 import { useGetTransactionsRecent } from '@/src/api/generated/transactions/transactions';
 import { useGetCategories } from '@/src/api/generated/categories/categories';
 import { TransactionType } from '@/src/api/generated/model';
-import { formatCurrency, formatDateShort } from '@/utils/format';
+import { useFormatCurrency } from '@/hooks/use-format-currency';
+import { formatDateShort } from '@/utils/format';
 
 export function RecentTransactions() {
+  const formatCurrency = useFormatCurrency();
   const { data: transactions = [], isLoading: transactionsLoading } = useGetTransactionsRecent({
     limit: 5,
   });

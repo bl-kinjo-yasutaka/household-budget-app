@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   PieChart,
@@ -18,7 +18,7 @@ import {
 import { useGetTransactions } from '@/src/api/generated/transactions/transactions';
 import { useGetCategories } from '@/src/api/generated/categories/categories';
 import { TransactionType } from '@/src/api/generated/model';
-import { formatCurrency } from '@/utils/format';
+import { useFormatCurrency } from '@/hooks/use-format-currency';
 import { getCurrentMonthDateRange, getYearDateRange } from '@/utils/date';
 
 const COLORS = [
@@ -35,6 +35,7 @@ const COLORS = [
 const MONTHS = Array.from({ length: 12 }, (_, i) => i + 1);
 
 export function MonthlyExpenseChart() {
+  const formatCurrency = useFormatCurrency();
   const dateRange = useMemo(() => getCurrentMonthDateRange(), []);
 
   const { data: transactionResponse, isLoading: transactionsLoading } = useGetTransactions({
@@ -155,7 +156,27 @@ export function MonthlyExpenseChart() {
 }
 
 export function MonthlyTrendChart() {
+  const formatCurrency = useFormatCurrency();
   const yearDateRange = useMemo(() => getYearDateRange(), []);
+
+  // Recharts用のformatter関数をメモ化
+  const tooltipFormatter = useCallback(
+    (value: number, name: string) => {
+      return [formatCurrency(value), name];
+    },
+    [formatCurrency]
+  );
+
+  // Y軸のフォーマッター（通貨記号を動的に設定）
+  const yAxisFormatter = useCallback(
+    (value: number) => {
+      const formatted = formatCurrency(value);
+      // 通貨記号を抽出して短縮表示用に使用
+      const currencySymbol = formatted.match(/^[^\d\s]+/)?.[0] || '¥';
+      return `${currencySymbol}${(value / 1000).toFixed(0)}k`;
+    },
+    [formatCurrency]
+  );
 
   const { data: transactionResponse, isLoading } = useGetTransactions({
     from: yearDateRange.from,
@@ -227,9 +248,9 @@ export function MonthlyTrendChart() {
             <BarChart data={monthlyData} role="img" aria-label="月別収支推移棒グラフ">
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="month" />
-              <YAxis tickFormatter={(value) => `¥${(value / 1000).toFixed(0)}k`} />
+              <YAxis tickFormatter={yAxisFormatter} />
               <Tooltip
-                formatter={(value: number, name: string) => [formatCurrency(value), name]}
+                formatter={tooltipFormatter}
                 labelStyle={{ color: 'hsl(var(--foreground))' }}
                 contentStyle={{
                   backgroundColor: 'hsl(var(--background))',
