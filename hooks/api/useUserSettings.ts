@@ -1,5 +1,8 @@
-import { putUserSettings, putUserPassword, deleteUserMe } from '@/src/api/generated/users/users';
-import { getGetUserSettingsQueryKey } from '@/src/api/generated/user-settings/user-settings';
+import {
+  putUserSettings,
+  getGetUserSettingsQueryKey,
+} from '@/src/api/generated/user-settings/user-settings';
+import { putUserPassword, deleteUserMe } from '@/src/api/generated/users/users';
 import {
   useMutationWithErrorHandling,
   mutationPresets,
