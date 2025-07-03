@@ -2,20 +2,9 @@
 
 import React, { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { useForm, FormProvider } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { useDeleteUserMe } from '@/src/api/generated/users/users';
 import {
   accountDeleteRequestSchema,
@@ -26,7 +15,23 @@ import { Trash2 } from 'lucide-react';
 import { useAuth } from '@/src/contexts/auth-context';
 import { useConfirmationDialog } from '@/hooks/useConfirmationDialog';
 import { ConfirmationDialog } from '@/components/common/confirmation-dialog';
+import { AccountDeleteWarning } from './account-delete-warning';
+import { AccountDeletePasswordForm } from './account-delete-password-form';
 
+/**
+ * アカウント削除フォームコンポーネント
+ *
+ * @description
+ * ユーザーアカウントの削除機能を提供する。
+ * セキュリティのためパスワード確認と二重確認ダイアログを実装。
+ * 削除後は自動的にログアウトしてログインページにリダイレクトする。
+ *
+ * @features
+ * - パスワード確認による本人認証
+ * - 確認ダイアログによる誤操作防止
+ * - 視覚的な警告表示
+ * - 削除後の自動ログアウト
+ */
 export function AccountDeleteForm() {
   const router = useRouter();
   const { logout } = useAuth();
@@ -42,29 +47,40 @@ export function AccountDeleteForm() {
 
   const [pendingData, setPendingData] = useState<AccountDeleteRequestFormData | null>(null);
 
+  /**
+   * アカウント削除の実行処理
+   *
+   * @param data - フォームデータ（パスワード）
+   */
+  const handleAccountDelete = async (data: AccountDeleteRequestFormData) => {
+    try {
+      await deleteAccount.mutateAsync({ data: pendingData || data });
+      toast.success('アカウントが削除されました');
+
+      // ログアウトしてログインページにリダイレクト
+      logout();
+      router.push('/login');
+    } catch (error) {
+      console.error('アカウント削除エラー:', error);
+      toast.error('アカウントの削除に失敗しました');
+    } finally {
+      hideConfirmation();
+      setPendingData(null);
+    }
+  };
+
+  /**
+   * フォーム送信時の処理（確認ダイアログを表示）
+   *
+   * @param data - フォームデータ（パスワード）
+   */
   const onSubmit = async (data: AccountDeleteRequestFormData) => {
     setPendingData(data);
     showConfirmation(
       {
         title: 'アカウントを削除しますか？',
         description: 'この操作は取り消すことができません。すべてのデータが完全に削除されます。',
-        onConfirm: async () => {
-          try {
-            await deleteAccount.mutateAsync({ data: pendingData || data });
-
-            toast.success('アカウントが削除されました');
-
-            // ログアウトしてログインページにリダイレクト
-            logout();
-            router.push('/login');
-          } catch (error) {
-            console.error('アカウント削除エラー:', error);
-            toast.error('アカウントの削除に失敗しました');
-          } finally {
-            hideConfirmation();
-            setPendingData(null);
-          }
-        },
+        onConfirm: () => handleAccountDelete(data),
       },
       {
         confirmText: '削除する',
@@ -84,48 +100,11 @@ export function AccountDeleteForm() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="rounded-lg bg-destructive/10 p-4">
-              <h4 className="text-sm font-medium text-destructive mb-2">⚠️ 重要な注意事項</h4>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• アカウントを削除すると、すべてのデータが完全に削除されます</li>
-                <li>• 取引履歴、カテゴリ、設定などすべての情報が失われます</li>
-                <li>• この操作は取り消すことができません</li>
-              </ul>
-            </div>
+            <AccountDeleteWarning />
 
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>パスワード確認</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="password"
-                          placeholder="現在のパスワードを入力してください"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        アカウント削除の確認のため、現在のパスワードを入力してください
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <Button
-                  type="submit"
-                  variant="destructive"
-                  disabled={deleteAccount.isPending}
-                  className="w-full"
-                >
-                  {deleteAccount.isPending ? '削除中...' : 'アカウントを削除'}
-                </Button>
-              </form>
-            </Form>
+            <FormProvider {...form}>
+              <AccountDeletePasswordForm onSubmit={onSubmit} isLoading={deleteAccount.isPending} />
+            </FormProvider>
           </div>
         </CardContent>
       </Card>
