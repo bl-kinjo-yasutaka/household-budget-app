@@ -13,7 +13,7 @@ import { useState, useMemo, useEffect } from 'react';
 import type { GetTransactionsParams } from '@/src/api/generated/model';
 import { logger } from '@/src/lib/logger';
 import { useDelayedLoading } from '@/hooks/useDelayedLoading';
-import { LoadingSkeleton } from '@/components/ui/loading-skeleton';
+import { LoadingIndicator } from '@/components/ui/loading-indicator';
 import { ErrorState } from '@/components/ui/error-state';
 
 export default function TransactionsPage() {
@@ -44,11 +44,13 @@ export default function TransactionsPage() {
     data: transactionResponse,
     isLoading: isLoadingTransactions,
     error: transactionsError,
+    refetch: refetchTransactions,
   } = useGetTransactions(queryParams);
   const {
     data: categories = [],
     isLoading: isLoadingCategories,
     error: categoriesError,
+    refetch: refetchCategories,
   } = useGetCategories();
 
   const transactions = useMemo(() => transactionResponse?.data || [], [transactionResponse]);
@@ -137,11 +139,12 @@ export default function TransactionsPage() {
               variant="network"
               message="データの読み込みに失敗しました。ネットワーク接続を確認してください。"
               onRetry={() => {
-                window.location.reload();
+                refetchTransactions();
+                refetchCategories();
               }}
             />
           ) : showInitialLoading ? (
-            <LoadingSkeleton variant="table" count={5} />
+            <LoadingIndicator variant="spinner" height="h-64" />
           ) : transactions.length === 0 ? (
             <TransactionEmptyState
               hasFilters={Boolean(
@@ -167,7 +170,7 @@ export default function TransactionsPage() {
               {isPageLoading && (
                 <div className="absolute inset-0 flex items-center justify-center bg-background/50">
                   <div className="flex items-center gap-2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent"></div>
                     <span className="text-sm text-muted-foreground">読み込み中...</span>
                   </div>
                 </div>

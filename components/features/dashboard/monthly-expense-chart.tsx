@@ -8,7 +8,8 @@ import { useGetCategories } from '@/src/api/generated/categories/categories';
 import { TransactionType } from '@/src/api/generated/model';
 import { useFormatCurrency } from '@/hooks/use-format-currency';
 import { getCurrentMonthDateRange } from '@/utils/date';
-import { LoadingSkeleton } from '@/components/ui/loading-skeleton';
+import { LoadingIndicator } from '@/components/ui/loading-indicator';
+import { NetworkErrorState } from '@/components/ui/error-state';
 
 // チャートで使用するデフォルトカラーパレット
 const COLORS = [
@@ -35,7 +36,12 @@ export function MonthlyExpenseChart() {
   // 当月の日付範囲を取得（月が変わっても自動的に更新される）
   const dateRange = useMemo(() => getCurrentMonthDateRange(), []);
 
-  const { data: transactionResponse, isLoading: transactionsLoading } = useGetTransactions({
+  const {
+    data: transactionResponse,
+    isLoading: transactionsLoading,
+    error: transactionsError,
+    refetch: refetchTransactions,
+  } = useGetTransactions({
     from: dateRange.from,
     to: dateRange.to,
     // 全件取得してクライアントサイドでカテゴリ集計
@@ -43,7 +49,12 @@ export function MonthlyExpenseChart() {
 
   const transactions = useMemo(() => transactionResponse?.data || [], [transactionResponse]);
 
-  const { data: categories = [], isLoading: categoriesLoading } = useGetCategories();
+  const {
+    data: categories = [],
+    isLoading: categoriesLoading,
+    error: categoriesError,
+    refetch: refetchCategories,
+  } = useGetCategories();
 
   // カテゴリ別支出データの集計
   const categoryData = useMemo(() => {
@@ -90,8 +101,28 @@ export function MonthlyExpenseChart() {
     return null;
   };
 
+  const hasError = transactionsError || categoriesError;
+
+  if (hasError) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">支出内訳</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <NetworkErrorState
+            onRetry={() => {
+              refetchTransactions();
+              refetchCategories();
+            }}
+          />
+        </CardContent>
+      </Card>
+    );
+  }
+
   if (transactionsLoading || categoriesLoading) {
-    return <LoadingSkeleton variant="chart" />;
+    return <LoadingIndicator variant="chart" />;
   }
 
   if (categoryData.length === 0) {

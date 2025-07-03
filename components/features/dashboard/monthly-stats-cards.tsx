@@ -8,14 +8,20 @@ import { TransactionType } from '@/src/api/generated/model';
 import { useFormatCurrency } from '@/hooks/use-format-currency';
 import { getCurrentMonthDateRange } from '@/utils/date';
 import { useDelayedLoading } from '@/hooks/useDelayedLoading';
-import { LoadingSkeleton } from '@/components/ui/loading-skeleton';
+import { LoadingIndicator } from '@/components/ui/loading-indicator';
+import { NetworkErrorState } from '@/components/ui/error-state';
 
 export function MonthlyStatsCards() {
   const formatCurrency = useFormatCurrency();
 
   const dateRange = getCurrentMonthDateRange();
 
-  const { data: transactionResponse, isLoading } = useGetTransactions({
+  const {
+    data: transactionResponse,
+    isLoading,
+    error,
+    refetch,
+  } = useGetTransactions({
     from: dateRange.from,
     to: dateRange.to,
     // limitを省略して全件取得
@@ -44,8 +50,12 @@ export function MonthlyStatsCards() {
 
   const showLoading = useDelayedLoading(isLoading, 150);
 
+  if (error) {
+    return <NetworkErrorState onRetry={() => refetch()} />;
+  }
+
   if (showLoading) {
-    return <LoadingSkeleton variant="stats" count={3} />;
+    return <LoadingIndicator variant="stats-skeleton" count={3} />;
   }
 
   return (

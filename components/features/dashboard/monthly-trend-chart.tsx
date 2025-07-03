@@ -16,7 +16,8 @@ import { useGetTransactions } from '@/src/api/generated/transactions/transaction
 import { TransactionType } from '@/src/api/generated/model';
 import { useFormatCurrency } from '@/hooks/use-format-currency';
 import { getYearDateRange } from '@/utils/date';
-import { LoadingSkeleton } from '@/components/ui/loading-skeleton';
+import { LoadingIndicator } from '@/components/ui/loading-indicator';
+import { NetworkErrorState } from '@/components/ui/error-state';
 
 // 1年分の月配列（1-12月）
 const MONTHS = Array.from({ length: 12 }, (_, i) => i + 1);
@@ -53,7 +54,12 @@ export function MonthlyTrendChart() {
     [formatCurrency]
   );
 
-  const { data: transactionResponse, isLoading } = useGetTransactions({
+  const {
+    data: transactionResponse,
+    isLoading,
+    error,
+    refetch,
+  } = useGetTransactions({
     from: yearDateRange.from,
     to: yearDateRange.to,
     // 全件取得して月別集計を実行
@@ -98,8 +104,21 @@ export function MonthlyTrendChart() {
     }));
   }, [transactions, yearDateRange.year]);
 
+  if (error) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">月別推移</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <NetworkErrorState onRetry={() => refetch()} />
+        </CardContent>
+      </Card>
+    );
+  }
+
   if (isLoading) {
-    return <LoadingSkeleton variant="chart" />;
+    return <LoadingIndicator variant="chart" />;
   }
 
   return (

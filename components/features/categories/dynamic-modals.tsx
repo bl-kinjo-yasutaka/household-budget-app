@@ -2,6 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import type { Category } from '@/src/api/generated/model';
+import { LoadingIndicator } from '@/components/ui/loading-indicator';
 
 // モーダルコンポーネントの動的インポート
 // モーダルは条件的に表示されるため、必要な時だけ読み込む
@@ -9,7 +10,7 @@ const CreateCategoryModal = dynamic(
   () =>
     import('./forms/create-category-modal').then((mod) => ({ default: mod.CreateCategoryModal })),
   {
-    loading: () => null, // モーダルのローディング状態は表示しない（背景が見える）
+    loading: () => <LoadingIndicator variant="spinner" height="h-32" />, // モーダルローディング表示
     ssr: false,
   }
 );
@@ -17,7 +18,7 @@ const CreateCategoryModal = dynamic(
 const EditCategoryModal = dynamic(
   () => import('./forms/edit-category-modal').then((mod) => ({ default: mod.EditCategoryModal })),
   {
-    loading: () => null, // モーダルのローディング状態は表示しない（背景が見える）
+    loading: () => <LoadingIndicator variant="spinner" height="h-32" />, // モーダルローディング表示
     ssr: false,
   }
 );
