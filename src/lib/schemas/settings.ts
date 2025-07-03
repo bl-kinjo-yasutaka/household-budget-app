@@ -51,10 +51,10 @@ export const userSettingsSchema = z.object({
  * @description
  * パスワード変更フォームの入力値を検証するZodスキーマ。
  * 現在のパスワード、新しいパスワード、確認用パスワードを含む。
- * 新しいパスワードの強度チェックと確認パスワードの一致検証を実装。
+ * 既存ユーザーとの整合性のため、認証機能と同じ条件（8文字以上のみ）を適用。
  *
  * @validation
- * - 新しいパスワード: 8文字以上、英大文字・小文字・数字を含む
+ * - 新しいパスワード: 8文字以上、191文字以内
  * - 確認パスワード: 新しいパスワードと一致する必要がある
  */
 export const passwordChangeSchema = z
@@ -63,10 +63,7 @@ export const passwordChangeSchema = z
     newPassword: z
       .string()
       .min(8, 'パスワードは8文字以上で入力してください')
-      .regex(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-        'パスワードは英大文字・小文字・数字を含む必要があります'
-      ),
+      .max(191, 'パスワードは191文字以内で入力してください'),
     confirmPassword: z.string().min(1, 'パスワード確認を入力してください'),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
@@ -80,16 +77,14 @@ export const passwordChangeSchema = z
  * @description
  * パスワード変更APIに送信するデータを検証するZodスキーマ。
  * フォーム用スキーマから確認用パスワードを除いたもの。
+ * 認証機能と統一された条件を適用。
  */
 export const passwordChangeRequestSchema = z.object({
   currentPassword: z.string().min(1, '現在のパスワードを入力してください'),
   newPassword: z
     .string()
     .min(8, 'パスワードは8文字以上で入力してください')
-    .regex(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-      'パスワードは英大文字・小文字・数字を含む必要があります'
-    ),
+    .max(191, 'パスワードは191文字以内で入力してください'),
 });
 
 /**
