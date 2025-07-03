@@ -270,6 +270,8 @@ npx prettier --write "**/*.{js,jsx,ts,tsx,json,md,css}"
   - [x] 未使用エクスポート削除
   - [x] API mutation hooks抽出（コード重複削減、約150行削減）
   - [x] LoadingIndicator統一（パフォーマンス改善）
+  - [x] ページ内構成統一（チャートコンポーネント）
+  - [x] コードレビュー完了（A+評価、エラー0件）
 
 - [x] **ダッシュボード機能**
   - [x] 月次統計カード（収入・支出・残高表示）
