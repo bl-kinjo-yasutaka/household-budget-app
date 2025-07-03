@@ -8,10 +8,10 @@ import {
   getGetTransactionsIdMockHandler,
   getDeleteTransactionsIdMockHandler,
 } from '@/src/api/generated/transactions/transactions.msw';
-import {
-  getGetUserSettingsMockHandler,
-  getPutUserSettingsMockHandler,
-} from '@/src/api/generated/user-settings/user-settings.msw';
+// user-settings.mswからは使用しない（カスタムハンドラーで実装）
+// import {
+//   getGetUserSettingsMockHandler,
+// } from '@/src/api/generated/user-settings/user-settings.msw';
 import { getGetUserMeMockHandler } from '@/src/api/generated/users/users.msw';
 import type { Transaction, Category } from '@/src/api/generated/model';
 import { http, HttpResponse } from 'msw';
@@ -21,6 +21,9 @@ import {
   categoryFormSchema,
   loginSchema,
   signupSchema,
+  userSettingsSchema,
+  passwordChangeRequestSchema,
+  accountDeleteRequestSchema,
 } from '@/src/lib/schemas';
 
 // リアルなモックカテゴリデータ
@@ -326,6 +329,13 @@ export const mockTransactions: Transaction[] = [
     createdAt: '2025-06-15T10:00:00Z',
   },
 ];
+
+// ユーザー設定の状態管理
+let mockUserSettings = {
+  currency: 'JPY',
+  startWeekday: 0,
+  updatedAt: new Date().toISOString(),
+};
 
 // カスタムハンドラー（バリデーション付き）
 const createTransactionHandler = http.post('*/transactions', async (info) => {
@@ -826,7 +836,111 @@ export const handlers = [
     createdAt: '2025-06-01T00:00:00Z',
   }),
 
-  // UserSettings handlers
-  getGetUserSettingsMockHandler(),
-  getPutUserSettingsMockHandler(),
+  // UserSettings GET handler
+  http.get('*/user/settings', () => {
+    return HttpResponse.json(mockUserSettings, { status: 200 });
+  }),
+  http.put('*/user/settings', async (info) => {
+    try {
+      const requestBody = await info.request.json();
+      const validatedData = userSettingsSchema.parse(requestBody);
+
+      // グローバル変数を更新
+      mockUserSettings = {
+        currency: validatedData.currency,
+        startWeekday: validatedData.startWeekday,
+        updatedAt: new Date().toISOString(),
+      };
+
+      return HttpResponse.json(mockUserSettings, { status: 200 });
+    } catch (error) {
+      console.error('PUT /user/settings バリデーションエラー:', error);
+
+      if (error instanceof z.ZodError) {
+        return HttpResponse.json(
+          {
+            error: '入力データにエラーがあります',
+            details: error.errors.map((err) => ({
+              field: err.path.join('.'),
+              message: err.message,
+            })),
+          },
+          { status: 400 }
+        );
+      }
+
+      return HttpResponse.json({ error: '内部サーバーエラー' }, { status: 500 });
+    }
+  }),
+
+  // Password Change Handler with validation
+  http.put('*/user/password', async (info) => {
+    try {
+      const requestBody = await info.request.json();
+      const validatedData = passwordChangeRequestSchema.parse(requestBody);
+
+      // デモ用の現在のパスワードチェック
+      if (validatedData.currentPassword !== 'password123') {
+        return HttpResponse.json({ error: '現在のパスワードが正しくありません' }, { status: 401 });
+      }
+
+      const response = {
+        success: true,
+        message: 'パスワードが正常に変更されました',
+      };
+
+      console.log('PUT /user/password 成功:', response);
+      return HttpResponse.json(response, { status: 200 });
+    } catch (error) {
+      console.error('PUT /user/password バリデーションエラー:', error);
+
+      if (error instanceof z.ZodError) {
+        return HttpResponse.json(
+          {
+            error: '入力データにエラーがあります',
+            details: error.errors.map((err) => ({
+              field: err.path.join('.'),
+              message: err.message,
+            })),
+          },
+          { status: 400 }
+        );
+      }
+
+      return HttpResponse.json({ error: '内部サーバーエラー' }, { status: 500 });
+    }
+  }),
+
+  // Account Delete Handler
+  http.delete('*/user/me', async (info) => {
+    try {
+      const requestBody = await info.request.json();
+      const validatedData = accountDeleteRequestSchema.parse(requestBody);
+
+      // デモ用のパスワードチェック
+      if (validatedData.password !== 'password123') {
+        return HttpResponse.json({ error: 'パスワードが正しくありません' }, { status: 401 });
+      }
+
+      // アカウント削除成功
+      return new HttpResponse(null, { status: 204 });
+    } catch (error) {
+      console.error('DELETE /user/me バリデーションエラー:', error);
+
+      if (error instanceof z.ZodError) {
+        return HttpResponse.json(
+          {
+            error: '入力データにエラーがあります',
+            details: error.errors.map((err) => ({
+              field: err.path.join('.'),
+              message: err.message,
+            })),
+          },
+          { status: 400 }
+        );
+      }
+
+      return HttpResponse.json({ error: '内部サーバーエラー' }, { status: 500 });
+    }
+  }),
 ];
