@@ -8,21 +8,28 @@
  * OpenAPI spec version: 0.1.2
  */
 import {
+  useMutation,
   useQuery
 } from '@tanstack/react-query';
 import type {
   DataTag,
   DefinedInitialDataOptions,
   DefinedUseQueryResult,
+  MutationFunction,
   QueryClient,
   QueryFunction,
   QueryKey,
   UndefinedInitialDataOptions,
+  UseMutationOptions,
+  UseMutationResult,
   UseQueryOptions,
   UseQueryResult
 } from '@tanstack/react-query';
 
 import type {
+  AccountDeleteRequest,
+  PasswordChangeRequest,
+  PasswordChangeResponse,
   User
 } from '.././model';
 
@@ -120,3 +127,130 @@ export function useGetUserMe<TData = Awaited<ReturnType<typeof getUserMe>>, TErr
 
 
 
+/**
+ * @summary アカウント削除
+ */
+export const deleteUserMe = (
+    accountDeleteRequest: AccountDeleteRequest,
+ options?: SecondParameter<typeof customInstance>,) => {
+      
+      
+      return customInstance<void>(
+      {url: `/user/me`, method: 'DELETE',
+      headers: {'Content-Type': 'application/json', },
+      data: accountDeleteRequest
+    },
+      options);
+    }
+  
+
+
+export const getDeleteUserMeMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteUserMe>>, TError,{data: AccountDeleteRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteUserMe>>, TError,{data: AccountDeleteRequest}, TContext> => {
+
+const mutationKey = ['deleteUserMe'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteUserMe>>, {data: AccountDeleteRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  deleteUserMe(data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteUserMeMutationResult = NonNullable<Awaited<ReturnType<typeof deleteUserMe>>>
+    export type DeleteUserMeMutationBody = AccountDeleteRequest
+    export type DeleteUserMeMutationError = void
+
+    /**
+ * @summary アカウント削除
+ */
+export const useDeleteUserMe = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteUserMe>>, TError,{data: AccountDeleteRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteUserMe>>,
+        TError,
+        {data: AccountDeleteRequest},
+        TContext
+      > => {
+
+      const mutationOptions = getDeleteUserMeMutationOptions(options);
+
+      return useMutation(mutationOptions , queryClient);
+    }
+    /**
+ * @summary パスワード変更
+ */
+export const putUserPassword = (
+    passwordChangeRequest: PasswordChangeRequest,
+ options?: SecondParameter<typeof customInstance>,) => {
+      
+      
+      return customInstance<PasswordChangeResponse>(
+      {url: `/user/password`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: passwordChangeRequest
+    },
+      options);
+    }
+  
+
+
+export const getPutUserPasswordMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putUserPassword>>, TError,{data: PasswordChangeRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof putUserPassword>>, TError,{data: PasswordChangeRequest}, TContext> => {
+
+const mutationKey = ['putUserPassword'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof putUserPassword>>, {data: PasswordChangeRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  putUserPassword(data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PutUserPasswordMutationResult = NonNullable<Awaited<ReturnType<typeof putUserPassword>>>
+    export type PutUserPasswordMutationBody = PasswordChangeRequest
+    export type PutUserPasswordMutationError = void
+
+    /**
+ * @summary パスワード変更
+ */
+export const usePutUserPassword = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putUserPassword>>, TError,{data: PasswordChangeRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof putUserPassword>>,
+        TError,
+        {data: PasswordChangeRequest},
+        TContext
+      > => {
+
+      const mutationOptions = getPutUserPasswordMutationOptions(options);
+
+      return useMutation(mutationOptions , queryClient);
+    }
+    

@@ -1,6 +1,8 @@
 'use client';
 
 import { useAuth } from '@/src/contexts/auth-context';
+import { UserSettingsProvider } from '@/src/contexts/user-settings-context';
+import { UserSettingsErrorBoundary } from '@/components/common/user-settings-error-boundary';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import Navigation from '@/components/common/Navigation';
@@ -38,9 +40,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      <main className="container mx-auto px-4 py-6">{children}</main>
-    </div>
+    <UserSettingsErrorBoundary>
+      <UserSettingsProvider>
+        <div className="min-h-screen bg-background">
+          <Navigation />
+          <main className="container mx-auto px-4 py-6" role="main">
+            {children}
+          </main>
+        </div>
+      </UserSettingsProvider>
+    </UserSettingsErrorBoundary>
   );
 }

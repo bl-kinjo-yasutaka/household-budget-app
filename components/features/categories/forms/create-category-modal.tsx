@@ -2,11 +2,9 @@
 
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { usePostCategories } from '@/src/api/generated/categories/categories';
 import { categoryFormSchema, type CategoryFormData } from '@/src/lib/schemas/categories';
-import { useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
 import { CategoryFormContent, PRESET_COLORS } from './category-form-content';
+import { useCreateCategory } from '@/hooks/api/useCategories';
 
 interface CreateCategoryModalProps {
   isOpen: boolean;
@@ -14,8 +12,6 @@ interface CreateCategoryModalProps {
 }
 
 export function CreateCategoryModal({ isOpen, onClose }: CreateCategoryModalProps) {
-  const queryClient = useQueryClient();
-
   // 新規作成用の固定初期値
   const form = useForm<CategoryFormData>({
     resolver: zodResolver(categoryFormSchema),
@@ -26,18 +22,10 @@ export function CreateCategoryModal({ isOpen, onClose }: CreateCategoryModalProp
     },
   });
 
-  const createCategory = usePostCategories({
-    mutation: {
-      onSuccess: () => {
-        toast.success('カテゴリを作成しました');
-        queryClient.invalidateQueries({ queryKey: ['/categories'] });
-        form.reset(); // フォームをリセット
-        onClose();
-      },
-      onError: (error) => {
-        console.error('カテゴリ作成エラー:', error);
-        toast.error('カテゴリの作成に失敗しました');
-      },
+  const createCategory = useCreateCategory({
+    onSuccess: () => {
+      form.reset(); // フォームをリセット
+      onClose();
     },
   });
 

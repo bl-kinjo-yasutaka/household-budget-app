@@ -1,8 +1,22 @@
-export function formatCurrency(amount: string | number): string {
+export function formatCurrency(amount: string | number, currency: string = 'JPY'): string {
   const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
-  return new Intl.NumberFormat('ja-JP', {
+
+  // 通貨に応じてロケールを決定
+  const getLocale = (): string => {
+    switch (currency) {
+      case 'USD':
+        return 'en-US';
+      case 'EUR':
+        return 'de-DE';
+      case 'JPY':
+      default:
+        return 'ja-JP';
+    }
+  };
+
+  return new Intl.NumberFormat(getLocale(), {
     style: 'currency',
-    currency: 'JPY',
+    currency: currency,
   }).format(Math.abs(numAmount));
 }
 

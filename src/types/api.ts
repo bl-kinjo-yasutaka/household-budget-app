@@ -20,24 +20,17 @@ export function isApiError(error: unknown): error is ApiError {
     return false;
   }
 
-  const errorObj = error as Record<string, unknown>;
-
-  if (
-    !('response' in errorObj) ||
-    typeof errorObj.response !== 'object' ||
-    errorObj.response === null
-  ) {
+  // 型アサーションの代わりにプロパティ存在チェックを使用
+  if (!('response' in error) || typeof error.response !== 'object' || error.response === null) {
     return false;
   }
 
-  const response = errorObj.response as Record<string, unknown>;
-
+  const response = error.response;
   if (!('data' in response) || typeof response.data !== 'object' || response.data === null) {
     return false;
   }
 
-  const data = response.data as Record<string, unknown>;
-
+  const data = response.data;
   return 'message' in data && typeof data.message === 'string';
 }
 

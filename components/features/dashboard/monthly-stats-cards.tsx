@@ -5,13 +5,23 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp, TrendingDown, Wallet } from 'lucide-react';
 import { useGetTransactions } from '@/src/api/generated/transactions/transactions';
 import { TransactionType } from '@/src/api/generated/model';
-import { formatCurrency } from '@/utils/format';
+import { useFormatCurrency } from '@/hooks/use-format-currency';
 import { getCurrentMonthDateRange } from '@/utils/date';
+import { useDelayedLoading } from '@/hooks/useDelayedLoading';
+import { LoadingIndicator } from '@/components/ui/loading-indicator';
+import { NetworkErrorState } from '@/components/ui/error-state';
 
 export function MonthlyStatsCards() {
-  const dateRange = useMemo(() => getCurrentMonthDateRange(), []);
+  const formatCurrency = useFormatCurrency();
 
-  const { data: transactionResponse, isLoading } = useGetTransactions({
+  const dateRange = getCurrentMonthDateRange();
+
+  const {
+    data: transactionResponse,
+    isLoading,
+    error,
+    refetch,
+  } = useGetTransactions({
     from: dateRange.from,
     to: dateRange.to,
     // limitを省略して全件取得
@@ -38,23 +48,14 @@ export function MonthlyStatsCards() {
 
   const balance = monthlyStats.income - monthlyStats.expense;
 
-  if (isLoading) {
-    return (
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <Card key={i}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <div className="h-4 w-20 bg-muted rounded animate-pulse" />
-              <div className="h-4 w-4 bg-muted rounded animate-pulse" />
-            </CardHeader>
-            <CardContent>
-              <div className="h-8 w-24 bg-muted rounded animate-pulse mb-2" />
-              <div className="h-3 w-16 bg-muted rounded animate-pulse" />
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    );
+  const showLoading = useDelayedLoading(isLoading, 150);
+
+  if (error) {
+    return <NetworkErrorState onRetry={() => refetch()} />;
+  }
+
+  if (showLoading) {
+    return <LoadingIndicator variant="stats-skeleton" count={3} />;
   }
 
   return (

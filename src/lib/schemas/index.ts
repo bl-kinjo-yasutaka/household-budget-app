@@ -7,5 +7,5 @@ export * from './transactions';
 // カテゴリ関連スキーマ
 export * from './categories';
 
-// 将来的に追加されるスキーマのためのプレースホルダー
-// export * from './settings';
+// 設定関連スキーマ
+export * from './settings';

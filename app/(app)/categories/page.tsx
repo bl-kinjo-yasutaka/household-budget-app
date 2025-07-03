@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { CategoryList } from '@/components/features/categories';
 import {
-  CategoryList,
   CreateCategoryModal,
   EditCategoryModal,
-} from '@/components/features/categories';
+} from '@/components/features/categories/dynamic-modals';
 import type { Category } from '@/src/api/generated/model';
 
 export default function CategoriesPage() {

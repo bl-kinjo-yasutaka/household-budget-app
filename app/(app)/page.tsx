@@ -5,7 +5,7 @@ import { MonthlyStatsCards } from '@/components/features/dashboard/monthly-stats
 import {
   MonthlyExpenseChart,
   MonthlyTrendChart,
-} from '@/components/features/dashboard/monthly-expense-chart';
+} from '@/components/features/dashboard/dynamic-charts';
 import { RecentTransactions } from '@/components/features/dashboard/recent-transactions';
 
 export default function Home() {

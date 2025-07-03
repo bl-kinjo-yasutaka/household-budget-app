@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { AlertCircle, Home, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
+import { logger } from '@/src/lib/logger';
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -28,7 +29,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     // エラーログをコンソールに出力
-    console.error('Error caught by ErrorBoundary:', error, errorInfo);
+    logger.error('Error caught by ErrorBoundary:', error, errorInfo);
 
     // ここで外部のエラー追跡サービスにエラーを送信することも可能
     // 例: Sentry.captureException(error, { contexts: { react: { componentStack: errorInfo.componentStack } } });

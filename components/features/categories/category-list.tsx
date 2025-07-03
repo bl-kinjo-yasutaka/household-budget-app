@@ -1,14 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { useGetCategories, useDeleteCategoriesId } from '@/src/api/generated/categories/categories';
+import { useGetCategories } from '@/src/api/generated/categories/categories';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
-import { useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
 import type { Category } from '@/src/api/generated/model';
 import { CategoryCard } from './category-card';
+import { LoadingIndicator } from '@/components/ui/loading-indicator';
+import { NetworkErrorState } from '@/components/ui/error-state';
+import { useDeleteCategory } from '@/hooks/api/useCategories';
 
 interface CategoryListProps {
   onCreateCategory: () => void;
@@ -16,31 +17,12 @@ interface CategoryListProps {
 }
 
 export function CategoryList({ onCreateCategory, onEditCategory }: CategoryListProps) {
-  const queryClient = useQueryClient();
-  const { data: categories, isLoading, error } = useGetCategories();
+  const { data: categories, isLoading, error, refetch } = useGetCategories();
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  const deleteCategory = useDeleteCategoriesId({
-    mutation: {
-      onSuccess: () => {
-        toast.success('カテゴリを削除しました');
-        queryClient.invalidateQueries({ queryKey: ['/categories'] });
-      },
-      onError: (error: unknown) => {
-        console.error('カテゴリ削除エラー:', error);
-        // MSWハンドラーが適切なエラーメッセージを返すので、シンプルな処理で十分
-        let errorMessage = 'カテゴリの削除に失敗しました';
-        if (error && typeof error === 'object' && 'response' in error) {
-          const response = (error as { response?: { data?: { error?: string } } }).response;
-          if (response?.data?.error) {
-            errorMessage = response.data.error;
-          }
-        }
-        toast.error(errorMessage);
-      },
-      onSettled: () => {
-        setDeletingId(null);
-      },
+  const deleteCategory = useDeleteCategory({
+    onSettled: () => {
+      setDeletingId(null);
     },
   });
 
@@ -51,48 +33,41 @@ export function CategoryList({ onCreateCategory, onEditCategory }: CategoryListP
 
   if (isLoading) {
     return (
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-lg">カテゴリ一覧</CardTitle>
-            <Button onClick={onCreateCategory}>
-              <Plus className="h-4 w-4" />
-              新しいカテゴリ
-            </Button>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <div className="animate-pulse bg-muted rounded h-6 w-32" />
+            <div className="animate-pulse bg-muted rounded h-4 w-24" />
           </div>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="animate-pulse">
-                <div className="h-20 bg-muted rounded-lg"></div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+          <Button onClick={onCreateCategory}>
+            <Plus className="h-4 w-4" />
+            新しいカテゴリ
+          </Button>
+        </div>
+        <LoadingIndicator variant="list-skeleton" count={4} />
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">カテゴリ一覧</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-8">
-            <p className="text-destructive">カテゴリの読み込みに失敗しました</p>
-            <Button
-              variant="outline"
-              className="mt-2"
-              onClick={() => queryClient.invalidateQueries({ queryKey: ['/categories'] })}
-            >
-              再試行
-            </Button>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-semibold">カテゴリ一覧</h2>
+            <p className="text-sm text-muted-foreground">エラーが発生しました</p>
           </div>
-        </CardContent>
-      </Card>
+          <Button onClick={onCreateCategory}>
+            <Plus className="h-4 w-4" />
+            新しいカテゴリ
+          </Button>
+        </div>
+        <Card>
+          <CardContent className="pt-6">
+            <NetworkErrorState onRetry={() => refetch()} />
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 

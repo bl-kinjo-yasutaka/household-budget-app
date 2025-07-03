@@ -56,19 +56,24 @@ Next.js 15.3のApp Routerアーキテクチャを使用して構築された日�
   - `layout.tsx` - ルートレイアウト（全Provider設定）
   - `not-found.tsx` - 404エラーページ
 - `/components` - タイプ別に整理されたReactコンポーネント
-  - `/ui` - shadcn/ui UIコンポーネント（Button、Card、Input、Table、Pagination等）
-  - `/common` - 共有コンポーネント（Navigation、ErrorBoundary）
-  - `/features` - 機能固有のコンポーネント（取引関連、認証関連）
+  - `/ui` - shadcn/ui UIコンポーネント（Button、Card、Input、Table、Pagination、LoadingIndicator、ErrorState等）
+  - `/common` - 共有コンポーネント（Navigation、ErrorBoundary、UserSettingsErrorBoundary）
+  - `/features` - 機能固有のコンポーネント（取引関連、認証関連、動的インポートラッパー）
 - `/src` - アプリケーションのコアロジック
   - `/api/generated` - Orvalで生成されたAPI関連コード
   - `/api/mutator` - カスタムfetchインスタンス（Cookie認証対応）
   - `/contexts` - React Contexts
-    - `auth-context.tsx` - 認証状態管理
+    - `auth-context.tsx` - 認証状態管理（パフォーマンス最適化済み）
+    - `user-settings-context.tsx` - ユーザー設定状態管理
   - `/lib` - ライブラリユーティリティ
     - `utils.ts` - shadcn/ui ユーティリティ関数
     - `cookies.ts` - Cookie管理ユーティリティ
+    - `logger.ts` - 統一ログシステム（開発/本番環境分離）
     - `/schemas` - Zodスキーマ定義
       - `auth.ts` - 認証関連スキーマ
+      - `categories.ts` - カテゴリ関連スキーマ
+      - `settings.ts` - 設定関連スキーマ
+      - `transactions.ts` - 取引関連スキーマ
       - `index.ts` - バレルエクスポート
   - `/mocks` - MSWモックハンドラー
   - `/providers` - Context Providers
@@ -78,6 +83,15 @@ Next.js 15.3のApp Routerアーキテクチャを使用して構築された日�
   - `/slices/appSlice.ts` - 基本的なアプリ状態のslice
 - `/types` - TypeScript型定義
 - `/hooks` - カスタムReactフック
+  - `useErrorHandler.ts` - 統一エラーハンドリング
+  - `useMutationWithErrorHandling.ts` - React Query拡張ミューテーション
+  - `useDelayedLoading.ts` - ローディング表示制御
+  - `useConfirmationDialog.ts` - 確認ダイアログ管理
+  - `use-format-currency.ts` - 通貨フォーマット
+  - `/api` - API関連カスタムフック
+    - `useCategories.ts` - カテゴリ関連mutation hooks
+    - `useTransactions.ts` - 取引関連mutation hooks
+    - `useUserSettings.ts` - 設定関連mutation hooks
 - `/utils` - ユーティリティ関数
 - `/_docs` - ログ管理
 
@@ -122,6 +136,9 @@ Next.js 15.3のApp Routerアーキテクチャを使用して構築された日�
 - **ページヘッダー**: title + description + 主要アクション の統一フォーマット
 - **空状態**: アイコン + タイトル + 説明 + アクション の統一パターン
 - **エラー・成功**: 適切なvariant（destructive, default等）の使用
+- **ローディング**: LoadingIndicatorコンポーネントによる統一ローディングUI
+- **エラー表示**: ErrorStateコンポーネントによる統一エラーUI
+- **ログ出力**: loggerによる統一ログシステム（console.log使用禁止）
 
 ## 実装履歴の活用
 

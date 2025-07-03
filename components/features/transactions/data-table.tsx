@@ -10,10 +10,12 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Pagination } from '@/components/ui/pagination';
+import { CategoryColorBadge } from '@/components/ui/category-color-badge';
 import type { Transaction, Category } from '@/src/api/generated/model';
 import { Edit, Trash2 } from 'lucide-react';
 import Link from 'next/link';
-import { formatCurrency, formatDate } from '@/utils/format';
+import { useFormatCurrency } from '@/hooks/use-format-currency';
+import { formatDate } from '@/utils/format';
 
 interface DataTableProps {
   transactions: Transaction[];
@@ -34,6 +36,7 @@ export function TransactionsDataTable({
   onDelete,
   itemsPerPage = 10,
 }: DataTableProps) {
+  const formatCurrency = useFormatCurrency();
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
   const getCategoryById = (categoryId: number | null | undefined) => {
@@ -85,17 +88,7 @@ export function TransactionsDataTable({
                       {formatDate(transaction.transDate)}
                     </TableCell>
                     <TableCell className="py-4 px-6">
-                      {category ? (
-                        <div className="flex items-center gap-2">
-                          <div
-                            className="h-3 w-3 rounded-full"
-                            style={{ backgroundColor: category.colorHex }}
-                          />
-                          <span className="text-sm">{category.name}</span>
-                        </div>
-                      ) : (
-                        <span className="text-muted-foreground">-</span>
-                      )}
+                      <CategoryColorBadge category={category} />
                     </TableCell>
                     <TableCell
                       className={`py-4 px-6 text-right font-medium ${

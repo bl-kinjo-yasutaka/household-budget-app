@@ -7,7 +7,7 @@ import { usePostAuthLogin } from '@/src/api/generated/auth/auth';
 import { useAuth } from '@/src/contexts/auth-context';
 import { useState } from 'react';
 import { loginSchema, type LoginForm } from '@/src/lib/schemas';
-import { getErrorMessage } from '@/src/types/api';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -16,6 +16,7 @@ import { AlertCircle } from 'lucide-react';
 
 export default function LoginPage() {
   const { login } = useAuth();
+  const { showError } = useErrorHandler();
   const [serverError, setServerError] = useState<string>('');
 
   const {
@@ -32,11 +33,14 @@ export default function LoginPage() {
         login(response.token, response.user);
       },
       onError: (error: unknown) => {
-        const errorMessage = getErrorMessage(
-          error,
-          'ログインに失敗しました。メールアドレスとパスワードを確認してください。'
-        );
-        setServerError(errorMessage);
+        // ログインフォームでは画面内にエラー表示するため silent モードを使用
+        showError(error, 'user login', {
+          silent: true,
+          fallbackMessage: 'ログインに失敗しました。メールアドレスとパスワードを確認してください。',
+        });
+
+        // フォーム内表示用のエラーメッセージを設定
+        setServerError('ログインに失敗しました。メールアドレスとパスワードを確認してください。');
       },
     },
   });

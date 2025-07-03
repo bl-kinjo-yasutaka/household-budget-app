@@ -7,14 +7,27 @@ import Link from 'next/link';
 import { useGetTransactionsRecent } from '@/src/api/generated/transactions/transactions';
 import { useGetCategories } from '@/src/api/generated/categories/categories';
 import { TransactionType } from '@/src/api/generated/model';
-import { formatCurrency, formatDateShort } from '@/utils/format';
+import { useFormatCurrency } from '@/hooks/use-format-currency';
+import { formatDateShort } from '@/utils/format';
+import { NetworkErrorState } from '@/components/ui/error-state';
 
 export function RecentTransactions() {
-  const { data: transactions = [], isLoading: transactionsLoading } = useGetTransactionsRecent({
+  const formatCurrency = useFormatCurrency();
+  const {
+    data: transactions = [],
+    isLoading: transactionsLoading,
+    error: transactionsError,
+    refetch: refetchTransactions,
+  } = useGetTransactionsRecent({
     limit: 5,
   });
 
-  const { data: categories = [], isLoading: categoriesLoading } = useGetCategories();
+  const {
+    data: categories = [],
+    isLoading: categoriesLoading,
+    error: categoriesError,
+    refetch: refetchCategories,
+  } = useGetCategories();
 
   const getCategoryName = (categoryId: number | null | undefined) => {
     if (!categoryId) return 'その他';
@@ -23,6 +36,25 @@ export function RecentTransactions() {
   };
 
   const isLoading = transactionsLoading || categoriesLoading;
+  const hasError = transactionsError || categoriesError;
+
+  if (hasError) {
+    return (
+      <Card className="h-fit">
+        <CardHeader>
+          <CardTitle className="text-lg">最近の取引</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <NetworkErrorState
+            onRetry={() => {
+              refetchTransactions();
+              refetchCategories();
+            }}
+          />
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -34,19 +66,19 @@ export function RecentTransactions() {
           {Array.from({ length: 5 }).map((_, i) => (
             <div key={i} className="flex items-center justify-between py-2">
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-muted rounded-full animate-pulse" />
+                <div className="animate-pulse bg-muted rounded-full w-8 h-8" />
                 <div className="space-y-1">
-                  <div className="w-20 h-4 bg-muted rounded animate-pulse" />
-                  <div className="w-16 h-3 bg-muted rounded animate-pulse" />
+                  <div className="animate-pulse bg-muted rounded h-4 w-16" />
+                  <div className="animate-pulse bg-muted rounded h-3 w-12" />
                 </div>
               </div>
-              <div className="text-right">
-                <div className="w-16 h-4 bg-muted rounded animate-pulse mb-1" />
-                <div className="w-12 h-3 bg-muted rounded animate-pulse" />
+              <div className="text-right space-y-1">
+                <div className="animate-pulse bg-muted rounded h-4 w-20" />
+                <div className="animate-pulse bg-muted rounded h-3 w-16" />
               </div>
             </div>
           ))}
-          <div className="w-full h-10 bg-muted rounded animate-pulse" />
+          <div className="animate-pulse bg-muted rounded h-10 w-full" />
         </CardContent>
       </Card>
     );
