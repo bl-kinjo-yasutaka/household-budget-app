@@ -18,11 +18,14 @@ import {
 } from 'msw';
 
 import type {
+  PasswordChangeResponse,
   User
 } from '.././model';
 
 
 export const getGetUserMeResponseMock = (overrideResponse: Partial< User > = {}): User => ({id: faker.number.int({min: undefined, max: undefined, multipleOf: undefined}), email: faker.internet.email(), name: faker.string.alpha({length: {min: 10, max: 20}}), createdAt: `${faker.date.past().toISOString().split('.')[0]}Z`, ...overrideResponse})
+
+export const getPutUserPasswordResponseMock = (overrideResponse: Partial< PasswordChangeResponse > = {}): PasswordChangeResponse => ({success: faker.datatype.boolean(), message: faker.string.alpha({length: {min: 10, max: 20}}), ...overrideResponse})
 
 
 export const getGetUserMeMockHandler = (overrideResponse?: User | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<User> | User)) => {
@@ -36,6 +39,30 @@ export const getGetUserMeMockHandler = (overrideResponse?: User | ((info: Parame
       })
   })
 }
+
+export const getDeleteUserMeMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.delete>[1]>[0]) => Promise<void> | void)) => {
+  return http.delete('*/user/me', async (info) => {await delay(1000);
+  if (typeof overrideResponse === 'function') {await overrideResponse(info); }
+    return new HttpResponse(null,
+      { status: 204,
+        
+      })
+  })
+}
+
+export const getPutUserPasswordMockHandler = (overrideResponse?: PasswordChangeResponse | ((info: Parameters<Parameters<typeof http.put>[1]>[0]) => Promise<PasswordChangeResponse> | PasswordChangeResponse)) => {
+  return http.put('*/user/password', async (info) => {await delay(1000);
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined
+    ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse)
+    : getPutUserPasswordResponseMock()),
+      { status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  })
+}
 export const getUsersMock = () => [
-  getGetUserMeMockHandler()
+  getGetUserMeMockHandler(),
+  getDeleteUserMeMockHandler(),
+  getPutUserPasswordMockHandler()
 ]

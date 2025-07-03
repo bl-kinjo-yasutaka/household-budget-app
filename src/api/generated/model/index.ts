@@ -8,6 +8,7 @@
  * OpenAPI spec version: 0.1.2
  */
 
+export * from './accountDeleteRequest';
 export * from './authResponse';
 export * from './category';
 export * from './categoryCreate';
@@ -17,6 +18,8 @@ export * from './categoryUpdate';
 export * from './getTransactionsParams';
 export * from './getTransactionsRecentParams';
 export * from './loginRequest';
+export * from './passwordChangeRequest';
+export * from './passwordChangeResponse';
 export * from './signupRequest';
 export * from './transaction';
 export * from './transactionCreate';
