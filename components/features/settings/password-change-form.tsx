@@ -19,6 +19,19 @@ import { usePutUserPassword } from '@/src/api/generated/users/users';
 import { toast } from 'sonner';
 import { Lock } from 'lucide-react';
 
+/**
+ * パスワード変更フォームコンポーネント
+ *
+ * @description
+ * ユーザーのパスワード変更機能を提供する。
+ * セキュリティのため現在のパスワード確認と新しいパスワードの二重入力を要求。
+ *
+ * @features
+ * - 現在のパスワード確認
+ * - 新しいパスワードの強度チェック
+ * - パスワード確認による入力ミス防止
+ * - 適切なエラーハンドリング
+ */
 export function PasswordChangeForm() {
   const putUserPassword = usePutUserPassword();
 

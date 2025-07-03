@@ -1,13 +1,25 @@
 import { z } from 'zod';
 
-// 通貨選択肢
+/**
+ * 通貨選択肢の定数配列
+ *
+ * @description
+ * アプリケーションでサポートする通貨の選択肢を定義。
+ * 表示用のラベル（記号付き）と内部で使用する通貨コードを含む。
+ */
 export const CURRENCY_OPTIONS = [
   { label: '日本円 (¥)', value: 'JPY' },
   { label: '米ドル ($)', value: 'USD' },
   { label: 'ユーロ (€)', value: 'EUR' },
 ] as const;
 
-// 週開始曜日選択肢
+/**
+ * 週開始曜日選択肢の定数配列
+ *
+ * @description
+ * 週間統計やカレンダー表示で使用する週開始曜日の選択肢。
+ * JavaScript標準のDate.getDay()の値（0=日曜日〜6=土曜日）に対応。
+ */
 export const WEEKDAY_OPTIONS = [
   { label: '日曜日', value: 0 },
   { label: '月曜日', value: 1 },
@@ -18,7 +30,13 @@ export const WEEKDAY_OPTIONS = [
   { label: '土曜日', value: 6 },
 ] as const;
 
-// ユーザー設定スキーマ
+/**
+ * ユーザー設定フォーム用バリデーションスキーマ
+ *
+ * @description
+ * 通貨設定と週開始曜日の設定を検証するZodスキーマ。
+ * フォームの入力値検証とAPIリクエストデータの検証に使用。
+ */
 export const userSettingsSchema = z.object({
   currency: z.string().max(3, '通貨コードは3文字以内で入力してください'),
   startWeekday: z
@@ -27,7 +45,18 @@ export const userSettingsSchema = z.object({
     .max(6, '週開始曜日は0-6の間で選択してください'),
 });
 
-// パスワード変更フォーム用スキーマ（confirmPasswordを含む）
+/**
+ * パスワード変更フォーム用バリデーションスキーマ
+ *
+ * @description
+ * パスワード変更フォームの入力値を検証するZodスキーマ。
+ * 現在のパスワード、新しいパスワード、確認用パスワードを含む。
+ * 新しいパスワードの強度チェックと確認パスワードの一致検証を実装。
+ *
+ * @validation
+ * - 新しいパスワード: 8文字以上、英大文字・小文字・数字を含む
+ * - 確認パスワード: 新しいパスワードと一致する必要がある
+ */
 export const passwordChangeSchema = z
   .object({
     currentPassword: z.string().min(1, '現在のパスワードを入力してください'),
@@ -45,7 +74,13 @@ export const passwordChangeSchema = z
     path: ['confirmPassword'],
   });
 
-// API用パスワード変更スキーマ（confirmPasswordを除く）
+/**
+ * パスワード変更API用リクエストスキーマ
+ *
+ * @description
+ * パスワード変更APIに送信するデータを検証するZodスキーマ。
+ * フォーム用スキーマから確認用パスワードを除いたもの。
+ */
 export const passwordChangeRequestSchema = z.object({
   currentPassword: z.string().min(1, '現在のパスワードを入力してください'),
   newPassword: z
@@ -57,12 +92,43 @@ export const passwordChangeRequestSchema = z.object({
     ),
 });
 
-// アカウント削除用スキーマ
+/**
+ * アカウント削除リクエスト用バリデーションスキーマ
+ *
+ * @description
+ * アカウント削除時の本人確認用パスワード入力を検証するZodスキーマ。
+ * セキュリティのため現在のパスワードの入力を必須とする。
+ */
 export const accountDeleteRequestSchema = z.object({
   password: z.string().min(1, 'パスワードを入力してください'),
 });
 
 // TypeScript型定義
+
+/**
+ * ユーザー設定フォームデータの型定義
+ *
+ * @description
+ * userSettingsSchemaから自動生成される型定義。
+ * ユーザー設定フォームのデータ構造を表す。
+ */
 export type UserSettingsFormData = z.infer<typeof userSettingsSchema>;
+
+/**
+ * パスワード変更フォームデータの型定義
+ *
+ * @description
+ * passwordChangeSchemaから自動生成される型定義。
+ * パスワード変更フォームのデータ構造を表す。
+ * 確認用パスワードフィールドを含む。
+ */
 export type PasswordChangeFormData = z.infer<typeof passwordChangeSchema>;
+
+/**
+ * アカウント削除リクエストデータの型定義
+ *
+ * @description
+ * accountDeleteRequestSchemaから自動生成される型定義。
+ * アカウント削除リクエストのデータ構造を表す。
+ */
 export type AccountDeleteRequestFormData = z.infer<typeof accountDeleteRequestSchema>;
