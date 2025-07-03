@@ -5,7 +5,7 @@ import {
   UserSettingsForm,
   PasswordChangeForm,
   AccountDeleteForm,
-} from '@/components/features/settings';
+} from '@/components/features/settings/dynamic-forms';
 
 export default function SettingsPage() {
   return (

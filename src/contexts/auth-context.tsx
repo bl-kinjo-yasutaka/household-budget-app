@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useEffect, ReactNode, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { User } from '@/src/api/generated/model';
 import { cookieAuth } from '@/src/lib/cookies';
@@ -85,24 +85,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     userQuery.data,
     userQuery.error,
     userQuery.isLoading,
-    dispatch,
-    router,
     user,
     userLoading,
+    dispatch,
+    router,
   ]);
 
-  const login = (token: string, user: User) => {
-    // 1. トークンをCookieに保存
-    cookieAuth.setToken(token);
+  // useCallbackでログイン関数をメモ化（不要な再レンダリングを防止）
+  const login = useCallback(
+    (token: string, user: User) => {
+      // 1. トークンをCookieに保存
+      cookieAuth.setToken(token);
 
-    // 2. ユーザー情報をReduxに保存（ログイン時はAPIレスポンスから直接設定）
-    dispatch(setUser(user));
+      // 2. ユーザー情報をReduxに保存（ログイン時はAPIレスポンスから直接設定）
+      dispatch(setUser(user));
 
-    // 3. ダッシュボードにリダイレクト
-    router.push('/');
-  };
+      // 3. ダッシュボードにリダイレクト
+      router.push('/');
+    },
+    [dispatch, router]
+  );
 
-  const logout = () => {
+  // useCallbackでログアウト関数をメモ化（不要な再レンダリングを防止）
+  const logout = useCallback(() => {
     // 1. トークンをクリア
     cookieAuth.clearToken();
 
@@ -114,18 +119,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // 4. ログインページにリダイレクト
     router.push('/login');
-  };
+  }, [dispatch, queryClient, router]);
 
-  // ローディング状態の統合
-  // - 初回ロード時: トークンがあるがユーザー情報が未取得の場合
-  // - API取得中: userQuery.isLoading が true の場合
-  const isLoading = userLoading || (isAuthenticated && !user && userQuery.isLoading);
+  // ローディング状態の統合をメモ化
+  const isLoading = useMemo(() => {
+    return userLoading || (isAuthenticated && !user && userQuery.isLoading);
+  }, [userLoading, isAuthenticated, user, userQuery.isLoading]);
 
-  return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading, isAuthenticated }}>
-      {children}
-    </AuthContext.Provider>
+  // Context値をメモ化して不要な再レンダリングを防止
+  const contextValue = useMemo(
+    () => ({
+      user,
+      login,
+      logout,
+      isLoading,
+      isAuthenticated,
+    }),
+    [user, login, logout, isLoading, isAuthenticated]
   );
+
+  return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {

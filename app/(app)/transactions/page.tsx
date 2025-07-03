@@ -9,8 +9,12 @@ import { TransactionFilters } from '@/components/features/transactions/transacti
 import { TransactionEmptyState } from '@/components/features/transactions/transaction-empty-state';
 import { useGetTransactions } from '@/src/api/generated/transactions/transactions';
 import { useGetCategories } from '@/src/api/generated/categories/categories';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import type { GetTransactionsParams } from '@/src/api/generated/model';
+import { logger } from '@/src/lib/logger';
+import { useDelayedLoading, usePageLoading } from '@/hooks/useDelayedLoading';
+import { LoadingSkeleton } from '@/components/ui/loading-skeleton';
+import { ErrorState } from '@/components/ui/error-state';
 
 export default function TransactionsPage() {
   const [fromDate, setFromDate] = useState('');
@@ -18,6 +22,7 @@ export default function TransactionsPage() {
   const [categoryId, setCategoryId] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const { isPageLoading, setPageLoading } = usePageLoading();
   const itemsPerPage = 10;
 
   // APIクエリパラメータを構築
@@ -35,17 +40,41 @@ export default function TransactionsPage() {
     return params;
   }, [fromDate, toDate, categoryId, searchTerm, currentPage]);
 
-  const { data: transactionResponse, isLoading: isLoadingTransactions } =
-    useGetTransactions(queryParams);
+  const {
+    data: transactionResponse,
+    isLoading: isLoadingTransactions,
+    error: transactionsError,
+  } = useGetTransactions(queryParams);
+  const {
+    data: categories = [],
+    isLoading: isLoadingCategories,
+    error: categoriesError,
+  } = useGetCategories();
 
   const transactions = useMemo(() => transactionResponse?.data || [], [transactionResponse]);
   const totalTransactions = transactionResponse?.total || 0;
 
-  const { data: categories = [] } = useGetCategories();
+  // ローディング状態の管理
+  const isInitialLoading = isLoadingTransactions || isLoadingCategories;
+  const showInitialLoading = useDelayedLoading(isInitialLoading, 200);
+
+  // データ取得完了時にページローディングを終了
+  useEffect(() => {
+    if (!isLoadingTransactions) {
+      setPageLoading(false);
+    }
+  }, [isLoadingTransactions, setPageLoading]);
 
   // フィルター変更時にページを1リセット
   const handleFilterChange = () => {
     setCurrentPage(1);
+    setPageLoading(true);
+  };
+
+  // ページ変更時のローディング
+  const handlePageChange = (page: number) => {
+    setPageLoading(true);
+    setCurrentPage(page);
   };
 
   return (
@@ -101,11 +130,18 @@ export default function TransactionsPage() {
         <CardHeader>
           <CardTitle className="text-lg">取引一覧</CardTitle>
         </CardHeader>
-        <CardContent>
-          {isLoadingTransactions ? (
-            <div className="p-6 text-center">
-              <p className="text-muted-foreground">読み込み中...</p>
-            </div>
+        <CardContent className="relative">
+          {/* エラー状態の表示 */}
+          {transactionsError || categoriesError ? (
+            <ErrorState
+              variant="network"
+              message="データの読み込みに失敗しました。ネットワーク接続を確認してください。"
+              onRetry={() => {
+                window.location.reload();
+              }}
+            />
+          ) : showInitialLoading ? (
+            <LoadingSkeleton variant="table" count={5} />
           ) : transactions.length === 0 ? (
             <TransactionEmptyState
               hasFilters={Boolean(
@@ -113,16 +149,30 @@ export default function TransactionsPage() {
               )}
             />
           ) : (
-            <TransactionsDataTable
-              transactions={transactions}
-              categories={categories}
-              totalItems={totalTransactions}
-              currentPage={currentPage}
-              onPageChange={setCurrentPage}
-              onDelete={(id) => {
-                console.log('Delete transaction:', id);
-              }}
-            />
+            <div
+              className={`transition-opacity duration-200 ${
+                isPageLoading ? 'opacity-50 pointer-events-none' : 'opacity-100'
+              }`}
+            >
+              <TransactionsDataTable
+                transactions={transactions}
+                categories={categories}
+                totalItems={totalTransactions}
+                currentPage={currentPage}
+                onPageChange={handlePageChange}
+                onDelete={(id) => {
+                  logger.info('Delete transaction:', id);
+                }}
+              />
+              {isPageLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-background/50">
+                  <div className="flex items-center gap-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                    <span className="text-sm text-muted-foreground">読み込み中...</span>
+                  </div>
+                </div>
+              )}
+            </div>
           )}
         </CardContent>
       </Card>

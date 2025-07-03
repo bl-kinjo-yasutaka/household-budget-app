@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { usePostAuthLogin } from '@/src/api/generated/auth/auth';
 import { useGetCategories } from '@/src/api/generated/categories/categories';
+import { logger } from '@/src/lib/logger';
 
 export default function TestApiConnection() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -27,7 +28,7 @@ export default function TestApiConnection() {
         setIsLoggedIn(true);
       }
     } catch (error) {
-      console.error('ログインエラー:', error);
+      logger.error('ログインエラー:', error);
     }
   };
 

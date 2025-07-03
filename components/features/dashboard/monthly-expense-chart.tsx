@@ -63,7 +63,7 @@ export function MonthlyExpenseChart() {
     return categories
       .map((category) => ({
         name: category.name,
-        value: categoryTotals[category.id] || 0,
+        value: categoryTotals[category.id ?? 0] ?? 0,
         color: category.colorHex,
       }))
       .filter((item) => item.value > 0);
@@ -75,15 +75,18 @@ export function MonthlyExpenseChart() {
     payload,
   }: {
     active?: boolean;
-    payload?: Array<{ name: string; value: number }>;
+    payload?: Array<{ name: string; value: number; [key: string]: unknown }>;
   }) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-background border rounded-lg p-2 shadow-lg">
-          <p className="font-medium">{payload[0].name}</p>
-          <p className="text-primary">{formatCurrency(payload[0].value)}</p>
-        </div>
-      );
+    if (active && payload?.length) {
+      const firstPayload = payload[0];
+      if (firstPayload && 'name' in firstPayload && 'value' in firstPayload) {
+        return (
+          <div className="bg-background border rounded-lg p-2 shadow-lg">
+            <p className="font-medium">{firstPayload.name}</p>
+            <p className="text-primary">{formatCurrency(firstPayload.value)}</p>
+          </div>
+        );
+      }
     }
     return null;
   };

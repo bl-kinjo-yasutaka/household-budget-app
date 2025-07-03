@@ -1,8 +1,5 @@
 export { CategoryList } from './category-list';
 export { CategoryCard } from './category-card';
-export {
-  CategoryFormContent,
-  CreateCategoryModal,
-  EditCategoryModal,
-  PRESET_COLORS,
-} from './forms';
+export { CategoryFormContent, PRESET_COLORS } from './forms/category-form-content';
+export { CreateCategoryModal } from './forms/create-category-modal';
+export { EditCategoryModal } from './forms/edit-category-modal';

@@ -34,8 +34,10 @@ import {
   CURRENCY_OPTIONS,
   WEEKDAY_OPTIONS,
 } from '@/src/lib/schemas/settings';
-import { toast } from 'sonner';
 import { Settings } from 'lucide-react';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { useDelayedLoading } from '@/hooks/useDelayedLoading';
+import { LoadingSkeleton } from '@/components/ui/loading-skeleton';
 
 /**
  * ユーザー設定フォームコンポーネント
@@ -52,6 +54,7 @@ import { Settings } from 'lucide-react';
  */
 export function UserSettingsForm() {
   const queryClient = useQueryClient();
+  const { showError, showSuccess } = useErrorHandler();
   const { data: userSettings, isLoading } = useGetUserSettings();
   const putUserSettings = usePutUserSettings();
 
@@ -81,14 +84,18 @@ export function UserSettingsForm() {
       const queryKey = getGetUserSettingsQueryKey();
       await queryClient.invalidateQueries({ queryKey });
 
-      toast.success('設定を更新しました');
+      showSuccess('設定を更新しました');
     } catch (error) {
-      console.error('設定更新エラー:', error);
-      toast.error('設定の更新に失敗しました');
+      showError(error, 'user settings update', {
+        fallbackMessage: '設定の更新に失敗しました',
+        showValidationDetails: true,
+      });
     }
   };
 
-  if (isLoading) {
+  const showLoading = useDelayedLoading(isLoading, 200);
+
+  if (showLoading) {
     return (
       <Card>
         <CardHeader>
@@ -98,7 +105,7 @@ export function UserSettingsForm() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-sm text-muted-foreground">読み込み中...</div>
+          <LoadingSkeleton variant="form" count={2} />
         </CardContent>
       </Card>
     );

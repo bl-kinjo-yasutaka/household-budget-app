@@ -1,6 +1,6 @@
 'use client';
 
-import { TransactionFormTabs } from '@/components/features/transactions/transaction-form-tabs';
+import { TransactionFormTabs } from '@/components/features/transactions/dynamic-forms';
 import { EmptyState } from '@/components/common/empty-state';
 import { useGetCategories } from '@/src/api/generated/categories/categories';
 

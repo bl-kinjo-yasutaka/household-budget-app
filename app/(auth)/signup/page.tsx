@@ -7,7 +7,7 @@ import { usePostAuthSignup } from '@/src/api/generated/auth/auth';
 import { useAuth } from '@/src/contexts/auth-context';
 import { useState } from 'react';
 import { signupSchema, type SignupForm } from '@/src/lib/schemas';
-import { getErrorMessage } from '@/src/types/api';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -16,6 +16,7 @@ import { AlertCircle } from 'lucide-react';
 
 export default function SignupPage() {
   const { login } = useAuth();
+  const { showError } = useErrorHandler();
   const [serverError, setServerError] = useState<string>('');
 
   const {
@@ -32,8 +33,14 @@ export default function SignupPage() {
         login(response.token, response.user);
       },
       onError: (error: unknown) => {
-        const errorMessage = getErrorMessage(error, 'サインアップに失敗しました');
-        setServerError(errorMessage);
+        // サインアップフォームでは画面内にエラー表示するため silent モードを使用
+        showError(error, 'user signup', {
+          silent: true,
+          fallbackMessage: 'アカウントの作成に失敗しました',
+        });
+
+        // フォーム内表示用のエラーメッセージを設定
+        setServerError('アカウントの作成に失敗しました');
       },
     },
   });

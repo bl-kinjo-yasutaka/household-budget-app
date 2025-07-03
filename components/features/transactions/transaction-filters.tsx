@@ -103,7 +103,7 @@ export function TransactionFilters({
               <SelectContent>
                 <SelectItem value="all">すべて</SelectItem>
                 {categories.map((category) => (
-                  <SelectItem key={category.id} value={category.id?.toString() || ''}>
+                  <SelectItem key={category.id} value={category.id?.toString() ?? ''}>
                     <div className="flex items-center gap-2">
                       <div
                         className="h-3 w-3 rounded-full"

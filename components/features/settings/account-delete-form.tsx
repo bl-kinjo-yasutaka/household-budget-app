@@ -10,9 +10,9 @@ import {
   accountDeleteRequestSchema,
   AccountDeleteRequestFormData,
 } from '@/src/lib/schemas/settings';
-import { toast } from 'sonner';
 import { Trash2 } from 'lucide-react';
 import { useAuth } from '@/src/contexts/auth-context';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useConfirmationDialog } from '@/hooks/useConfirmationDialog';
 import { ConfirmationDialog } from '@/components/common/confirmation-dialog';
 import { AccountDeleteWarning } from './account-delete-warning';
@@ -35,6 +35,7 @@ import { AccountDeletePasswordForm } from './account-delete-password-form';
 export function AccountDeleteForm() {
   const router = useRouter();
   const { logout } = useAuth();
+  const { showError, showSuccess } = useErrorHandler();
   const deleteAccount = useDeleteUserMe();
   const { state: confirmState, showConfirmation, hideConfirmation } = useConfirmationDialog();
 
@@ -55,14 +56,15 @@ export function AccountDeleteForm() {
   const handleAccountDelete = async (data: AccountDeleteRequestFormData) => {
     try {
       await deleteAccount.mutateAsync({ data: pendingData || data });
-      toast.success('アカウントが削除されました');
+      showSuccess('アカウントが削除されました');
 
       // ログアウトしてログインページにリダイレクト
       logout();
       router.push('/login');
     } catch (error) {
-      console.error('アカウント削除エラー:', error);
-      toast.error('アカウントの削除に失敗しました');
+      showError(error, 'account deletion', {
+        fallbackMessage: 'アカウントの削除に失敗しました',
+      });
     } finally {
       hideConfirmation();
       setPendingData(null);

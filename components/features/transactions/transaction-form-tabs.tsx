@@ -27,8 +27,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { EmptyState } from '@/components/common/empty-state';
 import { ConfirmationDialog } from '@/components/common/confirmation-dialog';
 import { useConfirmationDialog } from '@/hooks/useConfirmationDialog';
-import { toast } from 'sonner';
 import type { Transaction, Category } from '@/src/api/generated/model';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 
 interface TransactionFormTabsProps {
   transaction?: Transaction;
@@ -38,6 +38,7 @@ interface TransactionFormTabsProps {
 export function TransactionFormTabs({ transaction, categories }: TransactionFormTabsProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { showError, showSuccess } = useErrorHandler();
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { state: confirmDialog, showConfirmation, hideConfirmation } = useConfirmationDialog();
@@ -76,15 +77,13 @@ export function TransactionFormTabs({ transaction, categories }: TransactionForm
     mutation: {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['/transactions'] });
-        toast.success('取引を作成しました', {
-          description: '新しい取引が正常に記録されました。',
-        });
+        showSuccess('取引を作成しました', '新しい取引が正常に記録されました。');
         router.push('/transactions');
       },
       onError: (error) => {
-        console.error('取引の作成に失敗しました:', error);
-        toast.error('作成に失敗しました', {
-          description: '取引の作成に失敗しました。もう一度お試しください。',
+        showError(error, 'transaction creation', {
+          fallbackMessage: '取引の作成に失敗しました',
+          showValidationDetails: true,
         });
       },
     },
@@ -95,15 +94,13 @@ export function TransactionFormTabs({ transaction, categories }: TransactionForm
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['/transactions'] });
         queryClient.invalidateQueries({ queryKey: [`/transactions/${transaction?.id}`] });
-        toast.success('取引を更新しました', {
-          description: '取引情報が正常に更新されました。',
-        });
+        showSuccess('取引を更新しました', '取引情報が正常に更新されました。');
         router.push('/transactions');
       },
       onError: (error) => {
-        console.error('取引の更新に失敗しました:', error);
-        toast.error('更新に失敗しました', {
-          description: '取引の更新に失敗しました。もう一度お試しください。',
+        showError(error, 'transaction update', {
+          fallbackMessage: '取引の更新に失敗しました',
+          showValidationDetails: true,
         });
       },
     },
@@ -113,15 +110,12 @@ export function TransactionFormTabs({ transaction, categories }: TransactionForm
     mutation: {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['/transactions'] });
-        toast.success('取引を削除しました', {
-          description: '取引が正常に削除されました。',
-        });
+        showSuccess('取引を削除しました', '取引が正常に削除されました。');
         router.push('/transactions');
       },
       onError: (error) => {
-        console.error('取引の削除に失敗しました:', error);
-        toast.error('削除に失敗しました', {
-          description: '取引の削除に失敗しました。もう一度お試しください。',
+        showError(error, 'transaction deletion', {
+          fallbackMessage: '取引の削除に失敗しました',
         });
       },
       onSettled: () => {
@@ -178,9 +172,9 @@ export function TransactionFormTabs({ transaction, categories }: TransactionForm
           memo: data.memo || null,
         },
       });
-    } else if (mode === 'edit' && transaction) {
+    } else if (mode === 'edit' && transaction?.id) {
       updateMutation.mutate({
-        id: transaction.id!,
+        id: transaction.id,
         data: {
           categoryId: data.categoryId,
           type: data.type,
@@ -201,9 +195,9 @@ export function TransactionFormTabs({ transaction, categories }: TransactionForm
         title: '取引を削除します',
         description: 'この取引を削除してもよろしいですか？この操作は取り消せません。',
         onConfirm: () => {
-          if (transaction) {
+          if (transaction?.id) {
             setIsDeleting(true);
-            deleteMutation.mutate({ id: transaction.id! });
+            deleteMutation.mutate({ id: transaction.id });
             hideConfirmation();
           }
         },

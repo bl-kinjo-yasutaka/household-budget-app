@@ -44,7 +44,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <UserSettingsProvider>
         <div className="min-h-screen bg-background">
           <Navigation />
-          <main className="container mx-auto px-4 py-6">{children}</main>
+          <main className="container mx-auto px-4 py-6" role="main">
+            {children}
+          </main>
         </div>
       </UserSettingsProvider>
     </UserSettingsErrorBoundary>

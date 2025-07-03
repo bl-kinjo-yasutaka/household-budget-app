@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 import type { Category } from '@/src/api/generated/model';
 import { CategoryCard } from './category-card';
 
@@ -17,26 +17,20 @@ interface CategoryListProps {
 
 export function CategoryList({ onCreateCategory, onEditCategory }: CategoryListProps) {
   const queryClient = useQueryClient();
+  const { showError, showSuccess } = useErrorHandler();
   const { data: categories, isLoading, error } = useGetCategories();
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const deleteCategory = useDeleteCategoriesId({
     mutation: {
       onSuccess: () => {
-        toast.success('カテゴリを削除しました');
+        showSuccess('カテゴリを削除しました');
         queryClient.invalidateQueries({ queryKey: ['/categories'] });
       },
       onError: (error: unknown) => {
-        console.error('カテゴリ削除エラー:', error);
-        // MSWハンドラーが適切なエラーメッセージを返すので、シンプルな処理で十分
-        let errorMessage = 'カテゴリの削除に失敗しました';
-        if (error && typeof error === 'object' && 'response' in error) {
-          const response = (error as { response?: { data?: { error?: string } } }).response;
-          if (response?.data?.error) {
-            errorMessage = response.data.error;
-          }
-        }
-        toast.error(errorMessage);
+        showError(error, 'category deletion', {
+          fallbackMessage: 'カテゴリの削除に失敗しました',
+        });
       },
       onSettled: () => {
         setDeletingId(null);

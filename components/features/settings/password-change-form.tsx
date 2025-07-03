@@ -17,9 +17,9 @@ import {
 import { Input } from '@/components/ui/input';
 import { passwordChangeSchema, PasswordChangeFormData } from '@/src/lib/schemas/settings';
 import { usePutUserPassword } from '@/src/api/generated/users/users';
-import { toast } from 'sonner';
 import { Lock } from 'lucide-react';
 import { useAuth } from '@/src/contexts/auth-context';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 
 /**
  * パスワード変更フォームコンポーネント
@@ -37,6 +37,7 @@ import { useAuth } from '@/src/contexts/auth-context';
 export function PasswordChangeForm() {
   const router = useRouter();
   const { logout } = useAuth();
+  const { showError, showSuccess } = useErrorHandler();
   const putUserPassword = usePutUserPassword();
 
   const form = useForm<PasswordChangeFormData>({
@@ -61,18 +62,16 @@ export function PasswordChangeForm() {
       // フォームをリセット
       form.reset();
 
-      toast.success('パスワードを変更しました', {
-        description: 'セキュリティのため、再度ログインしてください',
-      });
+      showSuccess('パスワードを変更しました', 'セキュリティのため、再度ログインしてください');
 
       // セキュリティのためログアウトしてログインページにリダイレクト
       logout();
       router.push('/login');
     } catch (error) {
-      console.error('パスワード変更エラー:', error);
-
-      // エラーメッセージはバックエンドで処理済みのため、汎用的なメッセージを表示
-      toast.error('パスワードの変更に失敗しました');
+      showError(error, 'password change', {
+        fallbackMessage: 'パスワードの変更に失敗しました',
+        showValidationDetails: true,
+      });
     }
   };
 

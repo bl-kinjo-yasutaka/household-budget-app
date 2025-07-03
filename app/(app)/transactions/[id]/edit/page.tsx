@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { TransactionFormTabs } from '@/components/features/transactions/transaction-form-tabs';
+import { TransactionFormTabs } from '@/components/features/transactions/dynamic-forms';
 import { EmptyState } from '@/components/common/empty-state';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
