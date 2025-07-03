@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { useQueryClient } from '@tanstack/react-query';
@@ -64,7 +64,7 @@ export function UserSettingsForm() {
   });
 
   // データ取得後にフォームの値を更新（フォームがダーティでない場合のみ）
-  React.useEffect(() => {
+  useEffect(() => {
     if (userSettings && !form.formState.isDirty) {
       form.reset({
         currency: userSettings.currency || 'JPY',

@@ -100,19 +100,3 @@ export function useUserSettingsLoading() {
   }
   return context;
 }
-
-/**
- * ユーザー設定の全ての情報を取得するフック（後方互換性のため）
- *
- * @returns ユーザー設定データ、ローディング状態、refetch関数
- */
-export function useUserSettings() {
-  const { settings, refetch } = useUserSettingsData();
-  const { isLoading } = useUserSettingsLoading();
-
-  return {
-    settings,
-    isLoading,
-    refetch,
-  };
-}
