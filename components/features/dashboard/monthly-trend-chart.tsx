@@ -104,50 +104,39 @@ export function MonthlyTrendChart() {
     }));
   }, [transactions, yearDateRange.year]);
 
-  if (error) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">月別推移</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <NetworkErrorState onRetry={() => refetch()} />
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (isLoading) {
-    return <LoadingIndicator variant="chart" />;
-  }
-
   return (
     <Card>
       <CardHeader>
         <CardTitle className="text-lg">月別推移</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={monthlyData} role="img" aria-label="月別収支推移棒グラフ">
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis tickFormatter={yAxisFormatter} />
-              <Tooltip
-                formatter={tooltipFormatter}
-                labelStyle={{ color: 'hsl(var(--foreground))' }}
-                contentStyle={{
-                  backgroundColor: 'hsl(var(--background))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '8px',
-                }}
-              />
-              <Legend />
-              <Bar dataKey="収入" fill="#059669" />
-              <Bar dataKey="支出" fill="#DC2626" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+        {isLoading ? (
+          <LoadingIndicator variant="chart" />
+        ) : error ? (
+          <NetworkErrorState onRetry={() => refetch()} />
+        ) : (
+          <div className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={monthlyData} role="img" aria-label="月別収支推移棒グラフ">
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis tickFormatter={yAxisFormatter} />
+                <Tooltip
+                  formatter={tooltipFormatter}
+                  labelStyle={{ color: 'hsl(var(--foreground))' }}
+                  contentStyle={{
+                    backgroundColor: 'hsl(var(--background))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px',
+                  }}
+                />
+                <Legend />
+                <Bar dataKey="収入" fill="#059669" />
+                <Bar dataKey="支出" fill="#DC2626" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

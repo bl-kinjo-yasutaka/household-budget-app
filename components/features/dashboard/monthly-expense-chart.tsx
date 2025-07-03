@@ -103,72 +103,53 @@ export function MonthlyExpenseChart() {
 
   const hasError = transactionsError || categoriesError;
 
-  if (hasError) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">支出内訳</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <NetworkErrorState
-            onRetry={() => {
-              refetchTransactions();
-              refetchCategories();
-            }}
-          />
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (transactionsLoading || categoriesLoading) {
-    return <LoadingIndicator variant="chart" />;
-  }
-
-  if (categoryData.length === 0) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">支出内訳</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[300px] flex items-center justify-center">
-            <p className="text-muted-foreground">今月の支出データがありません</p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
   return (
     <Card>
       <CardHeader>
         <CardTitle className="text-lg">支出内訳</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart role="img" aria-label="カテゴリ別支出内訳円グラフ">
-              <Pie
-                data={categoryData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, percent }: { name?: string; percent?: number }) =>
-                  `${name} ${((percent || 0) * 100).toFixed(0)}%`
-                }
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {categoryData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color || COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip content={<CustomTooltip />} />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
+        {transactionsLoading || categoriesLoading ? (
+          <LoadingIndicator variant="chart" />
+        ) : hasError ? (
+          <NetworkErrorState
+            onRetry={() => {
+              refetchTransactions();
+              refetchCategories();
+            }}
+          />
+        ) : categoryData.length === 0 ? (
+          <div className="h-[300px] flex items-center justify-center">
+            <p className="text-muted-foreground">今月の支出データがありません</p>
+          </div>
+        ) : (
+          <div className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart role="img" aria-label="カテゴリ別支出内訳円グラフ">
+                <Pie
+                  data={categoryData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }: { name?: string; percent?: number }) =>
+                    `${name} ${((percent || 0) * 100).toFixed(0)}%`
+                  }
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {categoryData.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={entry.color || COLORS[index % COLORS.length]}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip content={<CustomTooltip />} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
