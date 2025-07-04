@@ -1,7 +1,7 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
 import { ArrowRight, TrendingUp, TrendingDown } from 'lucide-react';
 import Link from 'next/link';
 import { useGetTransactionsRecent } from '@/src/api/generated/transactions/transactions';
@@ -9,7 +9,7 @@ import { useGetCategories } from '@/src/api/generated/categories/categories';
 import { TransactionType } from '@/src/api/generated/model';
 import { useFormatCurrency } from '@/hooks/use-format-currency';
 import { formatDateShort } from '@/utils/format';
-import { NetworkErrorState } from '@/components/ui/error-state';
+import { NetworkErrorState } from '@/components/ui/ErrorState';
 
 export function RecentTransactions() {
   const formatCurrency = useFormatCurrency();

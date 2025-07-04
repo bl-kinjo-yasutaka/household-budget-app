@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import type { Category } from '@/src/api/generated/model';
-import { LoadingIndicator } from '@/components/ui/loading-indicator';
+import { LoadingIndicator } from '@/components/ui/LoadingIndicator';
 
 // モーダルコンポーネントの動的インポート
 // モーダルは条件的に表示されるため、必要な時だけ読み込む

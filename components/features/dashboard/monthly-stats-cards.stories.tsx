@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { TrendingUp, TrendingDown, Wallet } from 'lucide-react';
 
 // Storybook用のStatCardコンポーネント

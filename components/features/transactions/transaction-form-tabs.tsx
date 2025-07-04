@@ -3,17 +3,17 @@
 import { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Label } from '@/components/ui/Label';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+} from '@/components/ui/Select';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Save, Plus, Minus, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { transactionFormSchema, type TransactionFormData } from '@/src/lib/schemas/transactions';

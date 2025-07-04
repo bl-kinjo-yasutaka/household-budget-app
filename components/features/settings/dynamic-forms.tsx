@@ -1,7 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { LoadingIndicator } from '@/components/ui/loading-indicator';
+import { LoadingIndicator } from '@/components/ui/LoadingIndicator';
 
 // 設定フォームコンポーネントの動的インポート（ローディング状態付き）
 const UserSettingsForm = dynamic(

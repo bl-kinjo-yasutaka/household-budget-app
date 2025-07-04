@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/Button';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
 import { MonthlyStatsCards } from '@/components/features/dashboard/monthly-stats-cards';

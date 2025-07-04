@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
 import { AlertCircle, Home, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { logger } from '@/src/lib/logger';

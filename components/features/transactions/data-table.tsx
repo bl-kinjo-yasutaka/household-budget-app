@@ -7,10 +7,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Pagination } from '@/components/ui/pagination';
-import { CategoryColorBadge } from '@/components/ui/category-color-badge';
+} from '@/components/ui/Table';
+import { Button } from '@/components/ui/Button';
+import { Pagination } from '@/components/ui/Pagination';
+import { CategoryColorBadge } from '@/components/ui/CategoryColorBadge';
 import type { Transaction, Category } from '@/src/api/generated/model';
 import { Edit, Trash2 } from 'lucide-react';
 import Link from 'next/link';

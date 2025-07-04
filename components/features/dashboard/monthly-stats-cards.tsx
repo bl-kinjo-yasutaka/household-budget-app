@@ -1,15 +1,15 @@
 'use client';
 
 import { useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { TrendingUp, TrendingDown, Wallet } from 'lucide-react';
 import { useGetTransactions } from '@/src/api/generated/transactions/transactions';
 import { TransactionType } from '@/src/api/generated/model';
 import { useFormatCurrency } from '@/hooks/use-format-currency';
 import { getCurrentMonthDateRange } from '@/utils/date';
 import { useDelayedLoading } from '@/hooks/useDelayedLoading';
-import { LoadingIndicator } from '@/components/ui/loading-indicator';
-import { NetworkErrorState } from '@/components/ui/error-state';
+import { LoadingIndicator } from '@/components/ui/LoadingIndicator';
+import { NetworkErrorState } from '@/components/ui/ErrorState';
 
 export function MonthlyStatsCards() {
   const formatCurrency = useFormatCurrency();

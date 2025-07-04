@@ -2,7 +2,7 @@
 
 import React from 'react';
 import dynamic from 'next/dynamic';
-import { LoadingIndicator } from '@/components/ui/loading-indicator';
+import { LoadingIndicator } from '@/components/ui/LoadingIndicator';
 import type { Transaction, Category } from '@/src/api/generated/model';
 
 // 型定義をエクスポート用に再定義
