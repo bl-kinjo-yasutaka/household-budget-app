@@ -58,7 +58,12 @@ Next.js 15.3のApp Routerアーキテクチャを使用して構築された日�
 - `/components` - タイプ別に整理されたReactコンポーネント
   - `/ui` - shadcn/ui UIコンポーネント（Button、Card、Input、Table、Pagination、LoadingIndicator、ErrorState等）
   - `/common` - 共有コンポーネント（Navigation、ErrorBoundary、UserSettingsErrorBoundary）
-  - `/features` - 機能固有のコンポーネント（取引関連、認証関連、動的インポートラッパー）
+  - `/features` - 機能固有のコンポーネント
+    - `/auth` - 認証関連（LoginForm、SignupForm）
+    - `/categories` - カテゴリ関連（CategoryCard、フォーム等）
+    - `/dashboard` - ダッシュボード関連（MonthlyStatsCards、チャート等）
+    - `/settings` - 設定関連（各種設定フォーム）
+    - `/transactions` - 取引関連（テーブル、フィルター、フォーム等）
 - `/src` - アプリケーションのコアロジック
   - `/api/generated` - Orvalで生成されたAPI関連コード
   - `/api/mutator` - カスタムfetchインスタンス（Cookie認証対応）

@@ -2,13 +2,13 @@
 
 import { useState } from 'react';
 import { useGetCategories } from '@/src/api/generated/categories/categories';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
 import { Plus } from 'lucide-react';
 import type { Category } from '@/src/api/generated/model';
-import { CategoryCard } from './category-card';
-import { LoadingIndicator } from '@/components/ui/loading-indicator';
-import { NetworkErrorState } from '@/components/ui/error-state';
+import { CategoryCard } from './CategoryCard';
+import { LoadingIndicator } from '@/components/ui/LoadingIndicator';
+import { NetworkErrorState } from '@/components/ui/ErrorState';
 import { useDeleteCategory } from '@/hooks/api/useCategories';
 
 interface CategoryListProps {

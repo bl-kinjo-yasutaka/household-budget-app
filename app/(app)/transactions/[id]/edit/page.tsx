@@ -2,14 +2,14 @@
 
 import React from 'react';
 import { TransactionFormTabs } from '@/components/features/transactions/dynamic-forms';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent } from '@/components/ui/Card';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useGetTransactionsId } from '@/src/api/generated/transactions/transactions';
 import { useGetCategories } from '@/src/api/generated/categories/categories';
-import { LoadingIndicator } from '@/components/ui/loading-indicator';
-import { NetworkErrorState, NotFoundErrorState } from '@/components/ui/error-state';
+import { LoadingIndicator } from '@/components/ui/LoadingIndicator';
+import { NetworkErrorState, NotFoundErrorState } from '@/components/ui/ErrorState';
 
 export default function EditTransactionPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = React.use(params);

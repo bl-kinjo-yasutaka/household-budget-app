@@ -1,7 +1,7 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
 import { TransactionsDataTable } from '@/components/features/transactions/data-table';
@@ -13,8 +13,8 @@ import { useState, useMemo, useEffect } from 'react';
 import type { GetTransactionsParams } from '@/src/api/generated/model';
 import { logger } from '@/src/lib/logger';
 import { useDelayedLoading } from '@/hooks/useDelayedLoading';
-import { LoadingIndicator } from '@/components/ui/loading-indicator';
-import { ErrorState } from '@/components/ui/error-state';
+import { LoadingIndicator } from '@/components/ui/LoadingIndicator';
+import { ErrorState } from '@/components/ui/ErrorState';
 
 export default function TransactionsPage() {
   const [fromDate, setFromDate] = useState('');

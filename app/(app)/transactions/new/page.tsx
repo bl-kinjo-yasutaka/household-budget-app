@@ -2,12 +2,12 @@
 
 import { TransactionFormTabs } from '@/components/features/transactions/dynamic-forms';
 import { useGetCategories } from '@/src/api/generated/categories/categories';
-import { LoadingIndicator } from '@/components/ui/loading-indicator';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { LoadingIndicator } from '@/components/ui/LoadingIndicator';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent } from '@/components/ui/Card';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-import { NetworkErrorState, NotFoundErrorState } from '@/components/ui/error-state';
+import { NetworkErrorState, NotFoundErrorState } from '@/components/ui/ErrorState';
 
 export default function NewTransactionPage() {
   const { data: categories, isLoading, error, refetch } = useGetCategories();

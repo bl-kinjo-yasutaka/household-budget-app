@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import {
   BarChart,
   Bar,
@@ -16,8 +16,8 @@ import { useGetTransactions } from '@/src/api/generated/transactions/transaction
 import { TransactionType } from '@/src/api/generated/model';
 import { useFormatCurrency } from '@/hooks/use-format-currency';
 import { getYearDateRange } from '@/utils/date';
-import { LoadingIndicator } from '@/components/ui/loading-indicator';
-import { NetworkErrorState } from '@/components/ui/error-state';
+import { LoadingIndicator } from '@/components/ui/LoadingIndicator';
+import { NetworkErrorState } from '@/components/ui/ErrorState';
 
 // 1年分の月配列（1-12月）
 const MONTHS = Array.from({ length: 12 }, (_, i) => i + 1);

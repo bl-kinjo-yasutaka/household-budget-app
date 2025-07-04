@@ -3,17 +3,17 @@
 import { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Label } from '@/components/ui/Label';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+} from '@/components/ui/Select';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Save, Plus, Minus, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { transactionFormSchema, type TransactionFormData } from '@/src/lib/schemas/transactions';
@@ -191,6 +191,7 @@ export function TransactionFormTabs({ transaction, categories }: TransactionForm
                   type="button"
                   variant={selectedType === 'income' ? 'default' : 'outline'}
                   className="flex-1"
+                  data-testid="income-tab"
                   onClick={() => {
                     setValue('type', 'income');
                     // Set first available category for income
@@ -207,6 +208,7 @@ export function TransactionFormTabs({ transaction, categories }: TransactionForm
                   type="button"
                   variant={selectedType === 'expense' ? 'default' : 'outline'}
                   className="flex-1"
+                  data-testid="expense-tab"
                   onClick={() => {
                     setValue('type', 'expense');
                     // Set first available category for expense
@@ -263,12 +265,16 @@ export function TransactionFormTabs({ transaction, categories }: TransactionForm
                   setValue('categoryId', parseInt(value));
                 }}
               >
-                <SelectTrigger>
+                <SelectTrigger data-testid="category-select">
                   <SelectValue placeholder="カテゴリを選択してください" />
                 </SelectTrigger>
                 <SelectContent>
                   {filteredCategories.map((category) => (
-                    <SelectItem key={category.id} value={category.id!.toString()}>
+                    <SelectItem
+                      key={category.id}
+                      value={category.id!.toString()}
+                      data-testid="category-option"
+                    >
                       {category.name}
                     </SelectItem>
                   ))}

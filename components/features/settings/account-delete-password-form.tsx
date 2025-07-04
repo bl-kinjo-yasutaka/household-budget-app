@@ -1,7 +1,7 @@
 'use client';
 
 import { useFormContext } from 'react-hook-form';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/Button';
 import {
   FormControl,
   FormDescription,
@@ -9,8 +9,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+} from '@/components/ui/Form';
+import { Input } from '@/components/ui/Input';
 import { AccountDeleteRequestFormData } from '@/src/lib/schemas/settings';
 
 interface AccountDeletePasswordFormProps {

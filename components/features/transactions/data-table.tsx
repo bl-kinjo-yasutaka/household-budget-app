@@ -7,10 +7,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Pagination } from '@/components/ui/pagination';
-import { CategoryColorBadge } from '@/components/ui/category-color-badge';
+} from '@/components/ui/Table';
+import { Button } from '@/components/ui/Button';
+import { Pagination } from '@/components/ui/Pagination';
+import { CategoryColorBadge } from '@/components/ui/CategoryColorBadge';
 import type { Transaction, Category } from '@/src/api/generated/model';
 import { Edit, Trash2 } from 'lucide-react';
 import Link from 'next/link';
@@ -83,7 +83,11 @@ export function TransactionsDataTable({
                 const isIncome = transaction.type === 'income';
 
                 return (
-                  <TableRow key={transaction.id} className="border-b hover:bg-muted/50">
+                  <TableRow
+                    key={transaction.id}
+                    className="border-b hover:bg-muted/50"
+                    data-testid="transaction-row"
+                  >
                     <TableCell className="font-medium py-4 px-6">
                       {formatDate(transaction.transDate)}
                     </TableCell>
