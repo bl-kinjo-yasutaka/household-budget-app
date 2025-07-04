@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { CategoryCard } from './category-card';
+import { CategoryCard } from './CategoryCard';
 import { CategoryType } from '@/src/api/generated/model';
 
 // Storybookで使用するモックデータ

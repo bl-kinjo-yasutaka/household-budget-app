@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Plus } from 'lucide-react';
 import type { Category } from '@/src/api/generated/model';
-import { CategoryCard } from './category-card';
+import { CategoryCard } from './CategoryCard';
 import { LoadingIndicator } from '@/components/ui/LoadingIndicator';
 import { NetworkErrorState } from '@/components/ui/ErrorState';
 import { useDeleteCategory } from '@/hooks/api/useCategories';
