@@ -11,6 +11,17 @@ const compat = new FlatCompat({
 
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
+  // Storybook ESLint rules with overrides
+  ...compat.extends("plugin:storybook/recommended"),
+  {
+    files: ["**/*.stories.@(js|jsx|ts|tsx)", ".storybook/**/*"],
+    rules: {
+      "storybook/hierarchy-separator": "off",
+      "storybook/prefer-pascal-case": "off",
+      "storybook/story-exports": "off",
+      "storybook/no-uninstalled-addons": "off",
+    },
+  },
 ];
 
 export default eslintConfig;
