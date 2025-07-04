@@ -40,7 +40,7 @@ export function RecentTransactions() {
 
   if (hasError) {
     return (
-      <Card className="h-fit">
+      <Card className="h-fit" data-testid="recent-transactions">
         <CardHeader>
           <CardTitle className="text-lg">最近の取引</CardTitle>
         </CardHeader>
@@ -58,7 +58,7 @@ export function RecentTransactions() {
 
   if (isLoading) {
     return (
-      <Card className="h-fit">
+      <Card className="h-fit" data-testid="recent-transactions">
         <CardHeader>
           <CardTitle className="text-lg">最近の取引</CardTitle>
         </CardHeader>
@@ -86,7 +86,7 @@ export function RecentTransactions() {
 
   if (transactions.length === 0) {
     return (
-      <Card className="h-fit">
+      <Card className="h-fit" data-testid="recent-transactions">
         <CardHeader>
           <CardTitle className="text-lg">最近の取引</CardTitle>
         </CardHeader>
@@ -103,7 +103,7 @@ export function RecentTransactions() {
   }
 
   return (
-    <Card className="h-fit">
+    <Card className="h-fit" data-testid="recent-transactions">
       <CardHeader>
         <CardTitle className="text-lg">最近の取引</CardTitle>
       </CardHeader>

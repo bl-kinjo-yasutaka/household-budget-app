@@ -60,7 +60,7 @@ export function MonthlyStatsCards() {
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      <Card>
+      <Card data-testid="income-card">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">今月の収入</CardTitle>
           <TrendingUp className="h-4 w-4 text-primary" />
@@ -73,7 +73,7 @@ export function MonthlyStatsCards() {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card data-testid="expense-card">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">今月の支出</CardTitle>
           <TrendingDown className="h-4 w-4 text-destructive" />
@@ -86,7 +86,7 @@ export function MonthlyStatsCards() {
         </CardContent>
       </Card>
 
-      <Card className="md:col-span-2 lg:col-span-1">
+      <Card className="md:col-span-2 lg:col-span-1" data-testid="balance-card">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">今月の残高</CardTitle>
           <Wallet className="h-4 w-4 text-chart-2" />
