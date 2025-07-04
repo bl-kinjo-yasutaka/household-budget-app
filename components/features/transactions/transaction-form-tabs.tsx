@@ -191,6 +191,7 @@ export function TransactionFormTabs({ transaction, categories }: TransactionForm
                   type="button"
                   variant={selectedType === 'income' ? 'default' : 'outline'}
                   className="flex-1"
+                  data-testid="income-tab"
                   onClick={() => {
                     setValue('type', 'income');
                     // Set first available category for income
@@ -207,6 +208,7 @@ export function TransactionFormTabs({ transaction, categories }: TransactionForm
                   type="button"
                   variant={selectedType === 'expense' ? 'default' : 'outline'}
                   className="flex-1"
+                  data-testid="expense-tab"
                   onClick={() => {
                     setValue('type', 'expense');
                     // Set first available category for expense
@@ -263,12 +265,16 @@ export function TransactionFormTabs({ transaction, categories }: TransactionForm
                   setValue('categoryId', parseInt(value));
                 }}
               >
-                <SelectTrigger>
+                <SelectTrigger data-testid="category-select">
                   <SelectValue placeholder="カテゴリを選択してください" />
                 </SelectTrigger>
                 <SelectContent>
                   {filteredCategories.map((category) => (
-                    <SelectItem key={category.id} value={category.id!.toString()}>
+                    <SelectItem
+                      key={category.id}
+                      value={category.id!.toString()}
+                      data-testid="category-option"
+                    >
                       {category.name}
                     </SelectItem>
                   ))}

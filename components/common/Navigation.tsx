@@ -14,11 +14,11 @@ const Navigation = () => {
   const [open, setOpen] = useState(false);
 
   const navItems = [
-    { href: '/', label: 'ホーム', icon: Home },
+    { href: '/', label: 'ホーム', icon: Home, testId: 'nav-dashboard' },
     { href: '/transactions/new', label: '収支入力', icon: Plus },
-    { href: '/transactions', label: '取引履歴', icon: BarChart3 },
-    { href: '/categories', label: 'カテゴリ管理', icon: Tag },
-    { href: '/settings', label: '設定', icon: Settings },
+    { href: '/transactions', label: '取引履歴', icon: BarChart3, testId: 'nav-transactions' },
+    { href: '/categories', label: 'カテゴリ管理', icon: Tag, testId: 'nav-categories' },
+    { href: '/settings', label: '設定', icon: Settings, testId: 'nav-settings' },
   ];
 
   const NavLink = ({
@@ -26,11 +26,13 @@ const Navigation = () => {
     label,
     icon: Icon,
     mobile = false,
+    testId,
   }: {
     href: string;
     label: string;
     icon: React.ComponentType<{ className?: string }>;
     mobile?: boolean;
+    testId?: string;
   }) => {
     const isActive = pathname === href;
 
@@ -44,6 +46,7 @@ const Navigation = () => {
               ? 'bg-primary text-primary-foreground'
               : 'text-muted-foreground hover:text-foreground hover:bg-accent'
           }`}
+          data-testid={testId}
         >
           <Icon className="h-4 w-4" />
           {label}
@@ -59,6 +62,7 @@ const Navigation = () => {
             ? 'text-primary bg-primary/10'
             : 'text-muted-foreground hover:text-foreground hover:bg-accent'
         }`}
+        data-testid={testId}
       >
         <Icon className="h-4 w-4" />
         <span className="hidden md:inline">{label}</span>

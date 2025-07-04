@@ -83,7 +83,11 @@ export function TransactionsDataTable({
                 const isIncome = transaction.type === 'income';
 
                 return (
-                  <TableRow key={transaction.id} className="border-b hover:bg-muted/50">
+                  <TableRow
+                    key={transaction.id}
+                    className="border-b hover:bg-muted/50"
+                    data-testid="transaction-row"
+                  >
                     <TableCell className="font-medium py-4 px-6">
                       {formatDate(transaction.transDate)}
                     </TableCell>
