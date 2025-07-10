@@ -1,6 +1,6 @@
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { CategoryColorBadge } from '@/components/ui/category-color-badge';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
+import { CategoryColorBadge } from '@/components/ui/CategoryColorBadge';
 import { Edit, Trash2 } from 'lucide-react';
 import type { Category } from '@/src/api/generated/model';
 

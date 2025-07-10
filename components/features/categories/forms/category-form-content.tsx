@@ -8,7 +8,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from '@/components/ui/Dialog';
 import {
   Form,
   FormControl,
@@ -16,11 +16,11 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
+} from '@/components/ui/Form';
+import { Input } from '@/components/ui/Input';
+import { Button } from '@/components/ui/Button';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/RadioGroup';
+import { Label } from '@/components/ui/Label';
 import type { CategoryFormData } from '@/src/lib/schemas/categories';
 
 // 事前定義色パレット

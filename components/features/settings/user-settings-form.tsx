@@ -3,8 +3,8 @@
 import React, { useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import {
   Form,
   FormControl,
@@ -13,15 +13,15 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
+} from '@/components/ui/Form';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+} from '@/components/ui/Select';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/RadioGroup';
 import {
   useGetUserSettings,
   putUserSettings,
@@ -35,8 +35,8 @@ import {
 } from '@/src/lib/schemas/settings';
 import { Settings } from 'lucide-react';
 import { useDelayedLoading } from '@/hooks/useDelayedLoading';
-import { LoadingIndicator } from '@/components/ui/loading-indicator';
-import { NetworkErrorState } from '@/components/ui/error-state';
+import { LoadingIndicator } from '@/components/ui/LoadingIndicator';
+import { NetworkErrorState } from '@/components/ui/ErrorState';
 import {
   useMutationWithErrorHandling,
   mutationPresets,

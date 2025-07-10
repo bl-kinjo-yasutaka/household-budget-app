@@ -6,7 +6,7 @@ import { MSWProvider } from '@/src/providers/msw-provider';
 import { QueryProvider } from '@/src/providers/query-provider';
 import { AuthProvider } from '@/src/contexts/auth-context';
 import ErrorBoundary from '@/components/common/error-boundary';
-import { Toaster } from '@/components/ui/sonner';
+import { Toaster } from '@/components/ui/Sonner';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',

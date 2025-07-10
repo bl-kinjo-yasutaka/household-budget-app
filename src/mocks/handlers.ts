@@ -20,7 +20,6 @@ import {
   transactionFormSchema,
   categoryFormSchema,
   loginSchema,
-  signupSchema,
   userSettingsSchema,
   passwordChangeRequestSchema,
   accountDeleteRequestSchema,
@@ -445,7 +444,22 @@ export const handlers = [
   http.post('*/auth/signup', async (info) => {
     try {
       const requestBody = await info.request.json();
-      const validatedData = signupSchema.parse(requestBody);
+      // APIリクエスト用のバリデーション（confirmPasswordは不要）
+      const signupRequestSchema = z.object({
+        name: z
+          .string()
+          .min(1, '名前を入力してください')
+          .max(100, '名前は100文字以内で入力してください'),
+        email: z
+          .string()
+          .email('有効なメールアドレスを入力してください')
+          .max(191, 'メールアドレスは191文字以内で入力してください'),
+        password: z
+          .string()
+          .min(8, 'パスワードは8文字以上で入力してください')
+          .max(191, 'パスワードは191文字以内で入力してください'),
+      });
+      const validatedData = signupRequestSchema.parse(requestBody);
 
       const newUser = {
         id: 1,

@@ -1,5 +1,5 @@
 import { cn } from '@/src/lib/utils';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/Card';
 
 interface LoadingIndicatorProps {
   /** ローディングのバリアント */

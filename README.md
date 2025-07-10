@@ -16,6 +16,7 @@ Next.js 15を使用した家計簿管理アプリケーションのフロント�
 - **フォームバリデーション**: React Hook Form + Zod
 - **認証**: JWT (Cookie-based)
 - **Git Hooks**: Husky + lint-staged
+- **テスト**: Storybook + Playwright (E2E)
 
 ## セットアップ
 
@@ -91,7 +92,12 @@ MSWはAPIリクエストをインターセプトしてモックレスポンス�
 /components            # Reactコンポーネント
   /ui                 # shadcn/ui UIコンポーネント（Button、Card、Table、Pagination、LoadingIndicator、ErrorState等）
   /common             # 共通コンポーネント（Navigation、ErrorBoundary、UserSettingsErrorBoundary）
-  /features           # 機能別コンポーネント（取引関連、認証関連、動的インポートラッパー）
+  /features           # 機能別コンポーネント
+    /auth             # 認証関連（LoginForm、SignupForm）
+    /categories       # カテゴリ関連（CategoryCard、フォーム等）
+    /dashboard        # ダッシュボード関連（MonthlyStatsCards、チャート等）
+    /settings         # 設定関連（各種設定フォーム）
+    /transactions     # 取引関連（テーブル、フィルター、フォーム等）
 /src
   /api
     /generated        # Orvalで生成されたAPI関連コード
@@ -120,6 +126,11 @@ MSWはAPIリクエストをインターセプトしてモックレスポンス�
 - `npm run lint` - ESLintの実行
 - `npm run generate:api` - APIクライアントの生成
 - `npm run generate:api:watch` - APIクライアントの自動生成（監視モード）
+- `npm run storybook` - Storybookの起動（http://localhost:6006）
+- `npm run build-storybook` - Storybookの静的ビルド
+- `npm run test:e2e` - Playwrightによるe2eテストの実行
+- `npm run test:e2e:ui` - Playwrightのインタラクティブモード
+- `npm run test:e2e:report` - テスト結果レポートの表示
 
 ## 環境変数
 
@@ -148,6 +159,20 @@ NODE_ENV=development
 - **NODE_ENV**: Next.jsが自動設定（development/production）
 
 ## 開発者向け情報
+
+### Storybook
+
+UIコンポーネントの開発・確認用にStorybookを導入しています：
+
+```bash
+npm run storybook
+```
+
+現在以下のコンポーネントのStoryが利用可能：
+
+- 認証フォーム（LoginForm、SignupForm）
+- カテゴリカード（CategoryCard）
+- 月次統計カード（MonthlyStatsCards）
 
 ### テスト用APIクライアント
 
