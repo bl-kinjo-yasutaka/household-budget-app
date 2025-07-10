@@ -16,7 +16,11 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Save, Plus, Minus, Trash2 } from 'lucide-react';
 import Link from 'next/link';
-import { transactionFormSchema, type TransactionFormData } from '@/src/lib/schemas/transactions';
+import {
+  transactionFormSchema,
+  type TransactionFormInput,
+  type TransactionFormData,
+} from '@/src/lib/schemas/transactions';
 import { EmptyState } from '@/components/common/empty-state';
 import { ConfirmationDialog } from '@/components/common/confirmation-dialog';
 import { useConfirmationDialog } from '@/hooks/useConfirmationDialog';
@@ -40,7 +44,7 @@ export function TransactionFormTabs({ transaction, categories }: TransactionForm
   const mode = transaction ? 'edit' : 'create';
 
   // Determine initial values from transaction data
-  const initialValues = useMemo((): TransactionFormData => {
+  const initialValues = useMemo((): TransactionFormInput => {
     if (!transaction) {
       // For new transactions, use the first category of the default type
       const defaultType: 'income' | 'expense' = 'expense';
@@ -50,7 +54,7 @@ export function TransactionFormTabs({ transaction, categories }: TransactionForm
         type: defaultType,
         categoryId: defaultCategoryId,
         transDate: new Date().toISOString().split('T')[0],
-        amount: 0,
+        amount: '',
         memo: '',
       };
     }
@@ -62,7 +66,7 @@ export function TransactionFormTabs({ transaction, categories }: TransactionForm
         categories.find((cat) => cat.type === (transaction.type || 'expense'))?.id ||
         0,
       transDate: transaction.transDate || '',
-      amount: transaction.amount || 0,
+      amount: transaction.amount || '',
       memo: transaction.memo || '',
     };
   }, [transaction, categories]);
@@ -81,7 +85,7 @@ export function TransactionFormTabs({ transaction, categories }: TransactionForm
     setValue,
     watch,
     formState: { errors, isSubmitting },
-  } = useForm<TransactionFormData>({
+  } = useForm<TransactionFormInput, undefined, TransactionFormData>({
     resolver: zodResolver(transactionFormSchema),
     defaultValues: initialValues,
   });
@@ -244,7 +248,8 @@ export function TransactionFormTabs({ transaction, categories }: TransactionForm
               <Label htmlFor="amount">金額</Label>
               <Input
                 id="amount"
-                type="number"
+                type="text"
+                inputMode="numeric"
                 placeholder="1000"
                 step="1"
                 min="1"
